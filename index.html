@@ -1316,7 +1316,100 @@ document.querySelectorAll('.category').forEach(button => {
   });
 });
 
-start();
+
+$('placeSubmissionForm').addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const form = event.currentTarget;
+  const message = $('submissionMessage');
+  const button = form.querySelector('button[type="submit"]');
+
+  const { data: { user }, error: authError } =
+    await supabase.auth.getUser();
+
+  if (authError || !user) {
+    message.textContent =
+      'Please log in to Community before submitting a place.';
+    return;
+  }
+
+  const formData = new FormData(form);
+  const files = Array.from($('submissionPhotos').files || []);
+
+  if (files.length < 1 || files.length > 5) {
+    message.textContent = 'Please choose between 1 and 5 photos.';
+    return;
+  }
+
+  for (const file of files) {
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      message.textContent = 'Photos must be JPG, PNG, or WebP.';
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      message.textContent = 'Each photo must be 5 MB or smaller.';
+      return;
+    }
+  }
+
+  button.disabled = true;
+  message.textContent = 'Uploading photos…';
+
+  const uploadedPaths = [];
+
+  try {
+    const imageUrls = [];
+
+    for (const file of files) {
+      const path = `${user.id}/${crypto.randomUUID()}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('traveltaste-images')
+        .upload(path, file, {
+          contentType: file.type,
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+      uploadedPaths.push(path);
+
+      const { data: publicFile } = supabase.storage
+        .from('traveltaste-images')
+        .getPublicUrl(path);
+
+      imageUrls.push(publicFile.publicUrl);
+    }
+
+    const { error: insertError } = await supabase
+      .from('place_submissions')
+      .insert({
+        user_id: user.id,
+        city_id: formData.get('city_id'),
+        name: String(formData.get('name') || '').trim(),
+        type: formData.get('type'),
+        description: String(formData.get('description') || '').trim() || null,
+        google_maps_url: String(formData.get('google_maps_url') || '').trim() || null,
+        image_urls: imageUrls,
+        travel_tips: String(formData.get('travel_tips') || '').trim() || null,
+        traveler_type: formData.get('traveler_type'),
+        rating: Number(formData.get('rating')),
+        status: 'pending'
+      });
+
+    if (insertError) throw insertError;
+
+    form.reset();
+    message.textContent =
+      'Submitted successfully! Your place is pending admin approval.';
+  } catch (error) {
+    message.textContent = 'Submission failed: ' + error.message;
+  } finally {
+    button.disabled = false;
+  }
+});
+
+  start();
 </script>
 </body>
 </html>
