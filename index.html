@@ -430,6 +430,109 @@ footer p { color:#c8d0d8; }
     <p>Loading location details...</p>
   </div>
 </section>
+  
+<section class="section" id="suggestPlace">
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">Share your discovery</div>
+      <h2>Suggest a Place</h2>
+      <p>Help other travellers discover somewhere special.</p>
+    </div>
+  </div>
+
+  <form id="placeSubmissionForm"
+    style="background:white;padding:24px;border-radius:18px;border:1px solid #e0e5eb;display:grid;gap:16px;max-width:760px">
+
+    <label>
+      Place name *
+      <input name="name" required maxlength="150"
+        placeholder="e.g. Sabarmati Riverfront"
+        style="display:block;width:100%;padding:12px;margin-top:6px">
+    </label>
+
+    <label>
+      City *
+      <select name="city_id" id="submissionCity" required
+        style="display:block;width:100%;padding:12px;margin-top:6px">
+        <option value="">Choose a city</option>
+      </select>
+    </label>
+
+    <label>
+      Category *
+      <select name="type" required
+        style="display:block;width:100%;padding:12px;margin-top:6px">
+        <option value="place">Place</option>
+        <option value="food">Food</option>
+        <option value="food_shop">Food Shop</option>
+        <option value="activity">Activity</option>
+        <option value="hidden_gem">Hidden Gem</option>
+      </select>
+    </label>
+
+    <label>
+      Address
+      <input name="address" maxlength="300"
+        placeholder="Street, area, city"
+        style="display:block;width:100%;padding:12px;margin-top:6px">
+    </label>
+
+    <label>
+      Google Maps link
+      <input name="google_maps_url" type="url"
+        placeholder="https://maps.google.com/..."
+        style="display:block;width:100%;padding:12px;margin-top:6px">
+    </label>
+
+    <label>
+      Description *
+      <textarea name="description" required maxlength="3000"
+        placeholder="Tell travellers what makes this place special"
+        style="display:block;width:100%;padding:12px;margin-top:6px;min-height:110px"></textarea>
+    </label>
+
+    <label>
+      Photos *
+      <input name="photos" id="submissionPhotos" type="file"
+        accept="image/jpeg,image/png,image/webp"
+        multiple required
+        style="display:block;width:100%;padding:12px;margin-top:6px">
+      <small>Select up to 5 photos, maximum 5 MB each.</small>
+    </label>
+
+    <label>
+      Opening hours
+      <input name="opening_hours" placeholder="e.g. Check official website"
+        style="display:block;width:100%;padding:12px;margin-top:6px">
+    </label>
+
+    <label>
+      Entry fee
+      <input name="entry_fee" placeholder="e.g. Free, or price if known"
+        style="display:block;width:100%;padding:12px;margin-top:6px">
+    </label>
+
+    <label>
+      Best time to visit
+      <input name="best_time_to_visit" placeholder="e.g. Early morning"
+        style="display:block;width:100%;padding:12px;margin-top:6px">
+    </label>
+
+    <label>
+      Travel tips
+      <textarea name="travel_tips"
+        placeholder="Helpful tips for visitors"
+        style="display:block;width:100%;padding:12px;margin-top:6px"></textarea>
+    </label>
+
+    <button class="btn primary" type="submit">
+      Submit for approval
+    </button>
+
+    <p id="submissionMessage" role="status" aria-live="polite"></p>
+  </form>
+</section>
+
 
 </main>
 
@@ -494,6 +597,13 @@ async function start() {
   }
 
   cities = data || [];
+  
+$('submissionCity').innerHTML =
+  '<option value="">Choose a city</option>' +
+  cities.map(city =>
+    `<option value="${escapeHtml(city.id)}">${escapeHtml(city.name)}</option>`
+  ).join('');
+
   $('city').innerHTML =
     '<option value="">Choose a destination...</option>' +
     cities.map(city =>
@@ -674,6 +784,7 @@ $('backToRecommendations').addEventListener('click', () => {
   $('recommendations').scrollIntoView({ behavior: 'smooth' });
 });
 
+ 
   function renderListings() {
   let items = listings.filter(item =>
     selectedCategory === 'all' || item.type === selectedCategory
