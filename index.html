@@ -219,6 +219,35 @@ main { background:var(--soft); }
   background:#e8edf4;
   display:block;
 }
+  
+.detail-thumb {
+  flex: 0 0 100px;
+  width: 100px;
+  height: 75px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  overflow: hidden;
+  background: white;
+  cursor: pointer;
+}
+
+.detail-thumb:hover,
+.detail-thumb:focus {
+  border-color: var(--brand);
+}
+
+.detail-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+#locationDetails[hidden] {
+  display: none;
+}
+
 .photo-placeholder {
   height:220px;
   display:grid;
@@ -535,7 +564,117 @@ function styleMatches(item) {
   return keywords[selectedStyle].some(word => text.includes(word));
 }
 
-function renderListings() {
+
+async function openListingDetails(listingId) {
+  const item = listings.find(
+    listing => String(listing.id) === String(listingId)
+  );
+
+  if (!item || !selectedCity) return;
+
+  const detailSection = $('locationDetails');
+  const detailContent = $('detailContent');
+
+  $('recommendations').hidden = true;
+  $('discover').hidden = true;
+  detailSection.hidden = false;
+
+  detailContent.innerHTML = '<p>Loading location details...</p>';
+  detailSection.scrollIntoView({ behavior: 'smooth' });
+
+  const { data: photos, error } = await supabase
+    .from('listing_photos')
+    .select('image_url, caption, display_order')
+    .eq('listing_id', item.id)
+    .order('display_order', { ascending: true });
+
+  const gallery = error ? [] : (photos || []);
+  const allPhotos = gallery.length
+    ? gallery
+    : (item.image_url ? [{ image_url: item.image_url, caption: item.name }] : []);
+
+  const mapUrl = item.google_maps_url ||
+    (item.latitude != null && item.longitude != null
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.latitude + ',' + item.longitude)}`
+      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((item.address || '') + ' ' + selectedCity.name + ' ' + item.name)}`);
+
+  const photoMarkup = allPhotos.length
+    ? allPhotos.map((photo, index) => `
+        <button type="button" class="detail-thumb"
+          data-photo-index="${index}"
+          aria-label="Show photo ${index + 1}">
+          <img src="${escapeHtml(photo.image_url)}"
+            alt="${escapeHtml(photo.caption || item.name)}">
+        </button>
+      `).join('')
+    : '<p>No photos have been added yet.</p>';
+
+  detailContent.innerHTML = `
+    <div style="margin-top:24px">
+      <span class="tag">${escapeHtml(categoryNames[item.type] || item.type)}</span>
+      <h1 style="font-size:clamp(30px,5vw,46px);margin:16px 0">
+        ${escapeHtml(item.name)}
+      </h1>
+
+      <div style="max-width:850px;margin:20px 0">
+        ${allPhotos.length ? `
+          <img id="detailMainPhoto"
+            src="${escapeHtml(allPhotos[0].image_url)}"
+            alt="${escapeHtml(item.name)}"
+            style="width:100%;height:clamp(240px,45vw,480px);object-fit:cover;border-radius:18px">
+          <div id="detailPhotoCaption" style="margin:8px 0;color:#68737d">
+            ${escapeHtml(allPhotos[0].caption || item.name)}
+          </div>
+          <div style="display:flex;gap:10px;overflow-x:auto;padding:8px 0">
+            ${photoMarkup}
+          </div>
+        ` : '<div class="photo-placeholder">📍 No photo available</div>'}
+      </div>
+
+      <h2>About this place</h2>
+      <p style="line-height:1.8">
+        ${escapeHtml(item.description || 'More information about this location will be added soon.')}
+      </p>
+
+      <h3>Location information</h3>
+      <p>📍 <strong>Address:</strong> ${escapeHtml(item.address || selectedCity.name)}</p>
+      <p>🏷️ <strong>Category:</strong> ${escapeHtml(categoryNames[item.type] || item.type)}</p>
+      ${item.price_range ? `<p>💰 <strong>Price:</strong> ${escapeHtml(item.price_range)}</p>` : ''}
+      ${item.phone ? `<p>📞 <strong>Phone:</strong> ${escapeHtml(item.phone)}</p>` : ''}
+      ${item.website ? `<p>🌐 <strong>Website:</strong> <a href="${escapeHtml(item.website)}" target="_blank" rel="noopener noreferrer">Visit website</a></p>` : ''}
+
+      <p style="color:#68737d">
+        Visitor tip: Check local opening times and any entry fees before visiting.
+      </p>
+
+      <a class="btn primary" href="${escapeHtml(mapUrl)}"
+        target="_blank" rel="noopener noreferrer"
+        style="display:inline-block;text-decoration:none;margin:12px 0">
+        🗺️ Get Directions
+      </a>
+    </div>
+  `;
+
+  detailContent.querySelectorAll('.detail-thumb').forEach(button => {
+    button.addEventListener('click', () => {
+      const photo = allPhotos[Number(button.dataset.photoIndex)];
+      $('detailMainPhoto').src = photo.image_url;
+      $('detailMainPhoto').alt = photo.caption || item.name;
+      $('detailPhotoCaption').textContent = photo.caption || item.name;
+    });
+  });
+}
+
+window.openListingDetails = openListingDetails;
+
+$('backToRecommendations').addEventListener('click', () => {
+  $('locationDetails').hidden = true;
+  $('discover').hidden = false;
+  $('recommendations').hidden = false;
+  $('recommendations').scrollIntoView({ behavior: 'smooth' });
+});
+
+  function renderListings() {
   let items = listings.filter(item =>
     selectedCategory === 'all' || item.type === selectedCategory
   );
@@ -590,7 +729,7 @@ function renderListings() {
         : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((item.address || '') + ' ' + selectedCity.name + ' ' + item.name)}`);
 
     return `
-      <article class="card">
+      <article class="card" role="button" tabindex="0" data-listing-id="${escapeHtml(item.id)}" onclick="openListingDetails('${escapeHtml(item.id)}')">
         ${image}
         <div class="card-body">
           <span class="tag">${safeType}</span>
