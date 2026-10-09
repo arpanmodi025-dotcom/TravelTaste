@@ -185,42 +185,76 @@ const { data, error } = await supabaseClient
       }
     }
 
-    async function reviewSubmission(id, decision) {
-      if (!confirm(`Are you sure you want to ${decision} this submission?`)) return;
+   
+async function reviewSubmission(id, decision) {
+  if (!confirm(`Are you sure you want to ${decision} this submission?`)) {
+    return;
+  }
 
-      showMessage('Saving review…');
+  showMessage('Saving review…');
 
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      if (!user) {
-        showMessage('Please log in again.');
-        return;
-      }
+  const { data: { user }, error: authError } =
+    await supabaseClient.auth.getUser();
 
-     
-const { error } = await supabaseClient
-  .from('place_submissions')
-  .update({
-    status: decision,
-    reviewed_at: new Date().toISOString(),
-    reviewed_by: user.id
-  })
-  .eq('id', id)
-  .eq('status', 'pending');
+  if (authError || !user) {
+    showMessage('Please log in again.');
+    return;
+  }
 
+  if (decision === 'approved') {
+    const { error: approvalError } = await supabaseClient
+      .from('place_submissions')
+      .update({
+        status: 'approved',
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: user.id
+      })
+      .eq('id', id)
+      .eq('status', 'pending');
 
-      if (error) {
-        showMessage('Review failed: ' + error.message);
-        return;
-      }
-
-      showMessage(
-        decision === 'approved'
-          ? 'Submission approved. Publishing to Explore still needs to be configured.'
-          : 'Submission rejected.'
-      );
-
-      await loadSubmissions();
+    if (approvalError) {
+      showMessage('Approval failed: ' + approvalError.message);
+      return;
     }
+
+    const { error: publishError } = await supabaseClient.rpc(
+      'publish_approved_submission',
+      { p_submission_id: id }
+    );
+
+    if (publishError) {
+      showMessage(
+        'Approved, but publishing failed: ' + publishError.message
+      );
+      await loadSubmissions();
+      return;
+    }
+
+    showMessage('Place approved and published to Explore!');
+  } else {
+    const { error: rejectError } = await supabaseClient
+      .from('place_submissions')
+      .update({
+        status: 'rejected',
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: user.id
+      })
+      .eq('id', id)
+      .eq('status', 'pending');
+
+    if (rejectError) {
+      showMessage('Rejection failed: ' + rejectError.message);
+      return;
+    }
+
+    showMessage('Submission rejected.');
+  }
+
+  await loadSubmissions();
+}
+
+
+    
 
     $('loginForm').addEventListener('submit', async event => {
       event.preventDefault();
