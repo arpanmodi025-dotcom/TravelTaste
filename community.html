@@ -180,23 +180,56 @@ const likeButton = document.createElement('button');
 likeButton.textContent = '❤️ Like';
 likeButton.className = 'secondary';
 
-likeButton.onclick = async () => {
-  const { error } = await supabase
-    .from('community_post_likes')
-    .insert({
-      post_id: post.id,
-      user_id: currentUser.id
-    });
 
-  if (error) {
-    message(error.code === '23505'
-      ? 'You already liked this post.'
-      : 'Could not like post: ' + error.message);
+likeButton.onclick = async () => {
+  if (!currentUser) {
+    message('Please log in to like a post.');
     return;
   }
 
-  message('You liked this post! ❤️');
+  likeButton.disabled = true;
+
+  try {
+    const { data: existingLike, error: checkError } = await supabase
+      .from('community_post_likes')
+      .select('post_id')
+      .eq('post_id', post.id)
+      .eq('user_id', currentUser.id)
+      .maybeSingle();
+
+    if (checkError) throw checkError;
+
+    if (existingLike) {
+      const { error } = await supabase
+        .from('community_post_likes')
+        .delete()
+        .eq('post_id', post.id)
+        .eq('user_id', currentUser.id);
+
+      if (error) throw error;
+
+      likeButton.textContent = '❤️ Like';
+      message('You unliked this post.');
+    } else {
+      const { error } = await supabase
+        .from('community_post_likes')
+        .insert({
+          post_id: post.id,
+          user_id: currentUser.id
+        });
+
+      if (error) throw error;
+
+      likeButton.textContent = '💔 Unlike';
+      message('You liked this post! ❤️');
+    }
+  } catch (error) {
+    message('Could not update like: ' + error.message);
+  } finally {
+    likeButton.disabled = false;
+  }
 };
+
 
 card.appendChild(likeButton);
 
