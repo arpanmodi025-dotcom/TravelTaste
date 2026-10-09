@@ -223,7 +223,7 @@ $('publish').onclick = async () => {
 
     const { error: photoError } = await supabase
       .from('community_post_photos')
-      .insert({ post_id: post.id, image_url: publicFile.publicUrl });
+      .insert({ post_id: post.id, photo_url: publicFile.publicUrl });
 
     if (photoError) {
       message('Post was created, but saving the photo record failed: ' + photoError.message);
