@@ -1,0 +1,28 @@
+
+{
+  "id": "/",
+  "name": "TravelTaste - Explore Travel & Food",
+  "short_name": "TravelTaste",
+  "description": "Discover beautiful places, local food, hidden gems and travel experiences.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#fff8f1",
+  "theme_color": "#ef6c3b",
+  "categories": ["travel", "food", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
