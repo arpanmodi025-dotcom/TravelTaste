@@ -319,6 +319,31 @@ footer p { color:#c8d0d8; }
   .grid { grid-template-columns:1fr; }
   .card-photo,.photo-placeholder { height:210px; }
 }
+
+/* Community section styles are isolated from the homepage. */
+
+#communityPage, #communityPage *{box-sizing:border-box}
+#communityPage {margin:0;background:#fff8f1;color:#17202a;font-family:Arial,sans-serif}
+#communityPage .community-header{background:white;padding:16px 5%;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eee}
+#communityPage .community-logo{font-size:25px;font-weight:bold;color:#ef6c3b}
+#communityPage a{color:#ef6c3b;text-decoration:none}
+#communityPage .community-main{max-width:760px;margin:28px auto;padding:0 16px}
+#communityPage .community-card{background:white;border:1px solid #eee;border-radius:16px;padding:22px;margin-bottom:20px}
+#communityPage h1{margin:0 0 8px}
+#communityPage p{line-height:1.5}
+#communityPage input, #communityPage textarea, #communityPage #communityPage button{font:inherit;width:100%;padding:12px;margin:6px 0;border-radius:9px;border:1px solid #ddd}
+#communityPage button{background:#ef6c3b;color:white;border:0;font-weight:bold;cursor:pointer}
+#communityPage button.secondary{background:#f5e8df;color:#75391f}
+#communityPage button:disabled{opacity:.5;cursor:not-allowed}
+#communityPage .small{font-size:13px;color:#68737d}
+#communityPage #status{white-space:pre-wrap;color:#75391f}
+#communityPage .post img{width:100%;max-height:480px;object-fit:cover;border-radius:12px}
+#communityPage .post .caption{white-space:pre-wrap}
+#communityPage .hidden{display:none!important}
+#communityPage .reactions{display:flex;gap:10px;flex-wrap:wrap}
+#communityPage .reactions #communityPage button{flex:1;min-width:130px}
+
+#communityPage[hidden]{display:none!important}
 </style>
 </head>
 
@@ -327,7 +352,7 @@ footer p { color:#c8d0d8; }
   <a class="logo" href="/">TravelTaste</a>
   <div class="spacer"></div>
   <button class="btn secondary"
-    onclick="window.location.href='/community.html'">📸 Community</button>
+    id="communityNavButton" type="button">📸 Community</button>
 </nav>
 
 <header class="hero" id="top">
@@ -541,6 +566,40 @@ footer p { color:#c8d0d8; }
   <p>Discover the taste of every destination.</p>
 </footer>
 
+<section id="communityPage" hidden>
+  <div class="community-inner">
+
+  <section class="community-card">
+    <h1>TravelTaste Community 🌍</h1>
+    <p>Share your journeys, favourite food, beautiful places and hidden gems.</p>
+    <p id="account">Checking your account…</p>
+    <div id="auth">
+      <input id="email" type="email" placeholder="Email address" autocomplete="email">
+      <input id="password" type="password" placeholder="Password (at least 6 characters)" autocomplete="current-password">
+      <button id="signup">Create account</button>
+      <button id="login" class="secondary">Log in</button>
+      <p class="small">New accounts may need email confirmation.</p>
+    </div>
+    <button id="logout" class="secondary hidden">Log out</button>
+  </section>
+
+  <section id="composer" class="card hidden">
+    <h2>Share your experience 📸</h2>
+    <textarea id="caption" rows="3" maxlength="1000"
+      placeholder="Where did you go? What did you discover?"></textarea>
+    <label for="photo">Choose a photo (maximum 5 MB)</label>
+    <input id="photo" type="file" accept="image/jpeg,image/png,image/webp">
+    <button id="publish">Upload photo and share</button>
+    <p class="small">Only upload photos you have permission to share.</p>
+  </section>
+
+  <p id="status" role="status"></p>
+  <h2>Community posts</h2>
+  <section id="feed"><p>Loading posts…</p></section>
+
+  </div>
+</section>
+
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
@@ -553,8 +612,359 @@ let listings = [];
 let selectedCity = null;
 let selectedStyle = 'all';
 let selectedCategory = 'all';
+let currentUser = null;
 
 const $ = id => document.getElementById(id);
+
+// Community section navigation: switch views without leaving index.html.
+function showCommunityPage(show) {
+  const homeIds = ['top', 'discover', 'recommendations', 'locationDetails', 'suggestPlace'];
+  homeIds.forEach(id => {
+    const element = $(id);
+    if (element) element.hidden = show;
+  });
+  const footer = document.querySelector('footer');
+  if (footer) footer.hidden = show;
+  $('communityPage').hidden = !show;
+  $('communityNavButton').textContent = show ? '← Back to Explore' : '📸 Community';
+  if (show) {
+    $('communityPage').scrollIntoView({ behavior: 'smooth' });
+    loadFeed();
+  } else {
+    $('top').scrollIntoView({ behavior: 'smooth' });
+  }
+}
+$('communityNavButton').addEventListener('click', () => {
+  showCommunityPage($('communityPage').hidden);
+});
+
+function message(text) {
+  $('status').textContent = text;
+}
+
+function showAccount(user) {
+  currentUser = user;
+  $('account').textContent = user
+    ? 'Logged in as ' + user.email
+    : 'Log in or create an account to share photos.';
+  $('auth').classList.toggle('hidden', !!user);
+  $('logout').classList.toggle('hidden', !user);
+  $('composer').classList.toggle('hidden', !user);
+}
+
+$('signup').onclick = async () => {
+  const email = $('email').value.trim();
+  const password = $('password').value;
+
+  if (!email || password.length < 6) {
+    message('Enter a valid email and a password of at least 6 characters.');
+    return;
+  }
+
+  message('Creating your account…');
+  const { data, error } = await supabase.auth.signUp({ email, password });
+
+  if (error) return message(error.message);
+
+  if (data.session) {
+    showAccount(data.user);
+    message('Account created successfully!');
+  } else {
+    message('Check your email for a confirmation link, then log in.');
+  }
+};
+
+$('login').onclick = async () => {
+  const email = $('email').value.trim();
+  const password = $('password').value;
+
+  message('Logging in…');
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email, password
+  });
+
+  if (error) return message(error.message);
+
+  showAccount(data.user);
+  message('Login successful!');
+  await loadFeed();
+};
+
+$('logout').onclick = async () => {
+  const { error } = await supabase.auth.signOut();
+  if (error) return message(error.message);
+
+  showAccount(null);
+  message('You have logged out.');
+  await loadFeed();
+};
+
+async function updateReactionCounts(postId, countElement) {
+  const { count: likes, error: likeError } = await supabase
+    .from('community_post_likes')
+    .select('*', { count: 'exact', head: true })
+    .eq('post_id', postId)
+    .eq('reaction', 'like');
+
+  const { count: dislikes, error: dislikeError } = await supabase
+    .from('community_post_likes')
+    .select('*', { count: 'exact', head: true })
+    .eq('post_id', postId)
+    .eq('reaction', 'dislike');
+
+  if (likeError || dislikeError) {
+    countElement.textContent = 'Reaction counts unavailable.';
+    return;
+  }
+
+  countElement.textContent =
+    `👍 ${likes ?? 0} Likes | 👎 ${dislikes ?? 0} Dislikes`;
+}
+
+async function loadFeed() {
+  const feed = $('feed');
+  feed.innerHTML = '<p>Loading posts…</p>';
+
+  const { data: posts, error } = await supabase
+    .from('community_posts')
+    .select('id, user_id, caption, created_at')
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  if (error) {
+    feed.textContent = 'Could not load posts: ' + error.message;
+    return;
+  }
+
+  feed.innerHTML = '';
+
+  if (!posts?.length) {
+    feed.innerHTML =
+      '<div class="card">No posts yet. Be the first to share a travel photo!</div>';
+    return;
+  }
+
+  for (const post of posts) {
+    const card = document.createElement('article');
+    card.className = 'card post';
+
+    const { data: photos, error: photoError } = await supabase
+      .from('community_post_photos')
+      .select('photo_url')
+      .eq('post_id', post.id);
+
+    if (!photoError && photos?.length) {
+      for (const photo of photos) {
+        if (!photo.photo_url) continue;
+
+        const img = document.createElement('img');
+        img.src = photo.photo_url;
+        img.alt = 'Community travel photo';
+        img.loading = 'lazy';
+        card.appendChild(img);
+      }
+    } else if (photoError) {
+      const warning = document.createElement('p');
+      warning.className = 'small';
+      warning.textContent = 'Unable to load this post’s photo.';
+      card.appendChild(warning);
+    }
+
+    const caption = document.createElement('p');
+    caption.className = 'caption';
+    caption.textContent = post.caption || '';
+    card.appendChild(caption);
+
+    const date = document.createElement('p');
+    date.className = 'small';
+    date.textContent = new Date(post.created_at).toLocaleString();
+    card.appendChild(date);
+
+    const count = document.createElement('p');
+    count.className = 'small';
+    card.appendChild(count);
+
+    const buttons = document.createElement('div');
+    buttons.className = 'reactions';
+
+    const likeButton = document.createElement('button');
+    likeButton.className = 'secondary';
+    likeButton.textContent = '👍 Like';
+
+    const dislikeButton = document.createElement('button');
+    dislikeButton.className = 'secondary';
+    dislikeButton.textContent = '👎 Dislike';
+
+    buttons.append(likeButton, dislikeButton);
+    card.appendChild(buttons);
+
+    async function refreshReactionButtons() {
+      likeButton.textContent = '👍 Like';
+      dislikeButton.textContent = '👎 Dislike';
+
+      if (!currentUser) return;
+
+      const { data, error } = await supabase
+        .from('community_post_likes')
+        .select('reaction')
+        .eq('post_id', post.id)
+        .eq('user_id', currentUser.id)
+        .maybeSingle();
+
+      if (error) return;
+
+      if (data?.reaction === 'like') {
+        likeButton.textContent = '❤️ Liked';
+      } else if (data?.reaction === 'dislike') {
+        dislikeButton.textContent = '💔 Disliked';
+      }
+    }
+
+    async function setReaction(reaction) {
+      if (!currentUser) {
+        message('Please log in to react to a post.');
+        return;
+      }
+
+      likeButton.disabled = true;
+      dislikeButton.disabled = true;
+
+      try {
+        const { data: existing, error: checkError } = await supabase
+          .from('community_post_likes')
+          .select('reaction')
+          .eq('post_id', post.id)
+          .eq('user_id', currentUser.id)
+          .maybeSingle();
+
+        if (checkError) throw checkError;
+
+        if (existing?.reaction === reaction) {
+          const { error } = await supabase
+            .from('community_post_likes')
+            .delete()
+            .eq('post_id', post.id)
+            .eq('user_id', currentUser.id);
+
+          if (error) throw error;
+          message('Reaction removed.');
+        } else if (existing) {
+          const { error } = await supabase
+            .from('community_post_likes')
+            .update({ reaction })
+            .eq('post_id', post.id)
+            .eq('user_id', currentUser.id);
+
+          if (error) throw error;
+          message('Reaction changed.');
+        } else {
+          const { error } = await supabase
+            .from('community_post_likes')
+            .insert({
+              post_id: post.id,
+              user_id: currentUser.id,
+              reaction
+            });
+
+          if (error) throw error;
+          message('Reaction added.');
+        }
+
+        await updateReactionCounts(post.id, count);
+        await refreshReactionButtons();
+      } catch (error) {
+        message('Could not update reaction: ' + error.message);
+      } finally {
+        likeButton.disabled = false;
+        dislikeButton.disabled = false;
+      }
+    }
+
+    likeButton.onclick = () => setReaction('like');
+    dislikeButton.onclick = () => setReaction('dislike');
+
+    await updateReactionCounts(post.id, count);
+    await refreshReactionButtons();
+
+    feed.appendChild(card);
+  }
+}
+
+$('publish').onclick = async () => {
+  if (!currentUser) return message('Please log in first.');
+
+  const file = $('photo').files[0];
+  const caption = $('caption').value.trim();
+
+  if (!file) return message('Please choose a photo.');
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+    return message('Choose a JPG, PNG or WebP image.');
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    return message('Your photo must be 5 MB or smaller.');
+  }
+
+  $('publish').disabled = true;
+  message('Uploading photo…');
+
+  let uploadedPath = null;
+
+  try {
+    uploadedPath = currentUser.id + '/' + crypto.randomUUID();
+
+    const { error: uploadError } = await supabase.storage
+      .from('traveltaste-images')
+      .upload(uploadedPath, file, {
+        contentType: file.type,
+        upsert: false
+      });
+
+    if (uploadError) throw uploadError;
+
+    const { data: post, error: postError } = await supabase
+      .from('community_posts')
+      .insert({
+        user_id: currentUser.id,
+        title: caption,
+        caption,
+        type: 'place'
+      })
+      .select('id')
+      .single();
+
+    if (postError) throw postError;
+
+    const { data: publicFile } = supabase.storage
+      .from('traveltaste-images')
+      .getPublicUrl(uploadedPath);
+
+    const { error: photoError } = await supabase
+      .from('community_post_photos')
+      .insert({
+        post_id: post.id,
+        photo_url: publicFile.publicUrl
+      });
+
+    if (photoError) throw photoError;
+
+    $('caption').value = '';
+    $('photo').value = '';
+    message('Your post has been shared!');
+    await loadFeed();
+  } catch (error) {
+    message('Could not publish: ' + error.message);
+  } finally {
+    $('publish').disabled = false;
+  }
+};
+
+supabase.auth.onAuthStateChange((_event, session) => {
+  showAccount(session?.user || null);
+});
+
+const { data: { session } } = await supabase.auth.getSession();
+showAccount(session?.user || null);
+await loadFeed();
 
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, char => ({
