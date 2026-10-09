@@ -80,9 +80,9 @@
     const SUPABASE_URL = 'https://xhmztvfcosvqkeqnhzer.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_4TF5i_4Wtm5gogItPlQsRg_ck5n_dfi';
 
-    const supabase = window.supabase.createClient(
-      SUPABASE_URL, SUPABASE_KEY
-    );
+    const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL, SUPABASE_KEY
+);
 
     const $ = id => document.getElementById(id);
     const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, char => ({
@@ -95,7 +95,7 @@
     }
 
     async function checkAdmin() {
-      const { data: { user }, error } = await supabase.auth.getUser();
+      const { data: { user }, error } = await supabaseClient.auth.getUser();
       if (error || !user) {
         $('loginPanel').hidden = false;
         $('dashboard').hidden = true;
@@ -186,7 +186,7 @@
 
       showMessage('Saving review…');
 
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user } } = await supabaseClient.auth.getUser();
       if (!user) {
         showMessage('Please log in again.');
         return;
@@ -220,7 +220,7 @@
       event.preventDefault();
       showMessage('Signing in…');
 
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabaseClient.auth.signInWithPassword({
         email: $('email').value.trim(),
         password: $('password').value
       });
@@ -234,7 +234,7 @@
     });
 
     $('logoutButton').addEventListener('click', async () => {
-      await supabase.auth.signOut();
+      await supabaseClient.auth.signOut();
       $('dashboard').hidden = true;
       $('loginPanel').hidden = false;
       showMessage('You are logged out.');
