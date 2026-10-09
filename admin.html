@@ -298,8 +298,7 @@ async function loadApprovedSubmissions() {
     card.querySelector('[data-action="publish"]').addEventListener('click', async () => {
       if (!confirm('Publish ' + item.name + ' to Explore?')) return;
 
-      showMessage('Publishing ' + item.name + '…');
-
+showMessage('Publishing ' + item.name + '… Please wait.');
       const { error: publishError } = await supabaseClient.rpc(
         'publish_approved_submission',
         { p_submission_id: item.id }
