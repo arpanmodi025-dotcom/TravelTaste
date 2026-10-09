@@ -1,0 +1,252 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TravelTaste Admin</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f6fa;
+      margin: 0;
+      color: #243247;
+    }
+    header {
+      background: white;
+      padding: 20px;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    h1 { color: #e45a2a; margin: 0; }
+    main { max-width: 1000px; margin: 30px auto; padding: 16px; }
+    .panel, .submission {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 18px;
+      border: 1px solid #e1e5eb;
+    }
+    input, button {
+      padding: 11px;
+      border-radius: 7px;
+      border: 1px solid #ccd2da;
+      font-size: 15px;
+    }
+    button { cursor: pointer; font-weight: bold; }
+    .primary { background: #e45a2a; color: white; border: 0; }
+    .approve { background: #16834a; color: white; border: 0; }
+    .reject { background: #b42318; color: white; border: 0; }
+    .photos { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; }
+    .photos img { width: 140px; height: 100px; object-fit: cover; border-radius: 8px; }
+    .muted { color: #657184; }
+    #message { margin: 15px 0; white-space: pre-wrap; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>TravelTaste Admin</h1>
+    <button id="logoutButton">Log out</button>
+  </header>
+
+  <main>
+    <section class="panel" id="loginPanel">
+      <h2>Admin login</h2>
+      <p class="muted">Sign in with your TravelTaste admin account.</p>
+      <form id="loginForm">
+        <p><input id="email" type="email" placeholder="Email address" required></p>
+        <p><input id="password" type="password" placeholder="Password" required></p>
+        <button class="primary" type="submit">Log in</button>
+      </form>
+    </section>
+
+    <div id="message" role="status"></div>
+
+    <section id="dashboard" hidden>
+      <div class="panel">
+        <h2>Pending submissions</h2>
+        <p class="muted">Review each place before publishing it on Explore.</p>
+        <button class="primary" id="refreshButton">Refresh submissions</button>
+      </div>
+      <div id="submissions"></div>
+    </section>
+  </main>
+
+  <script>
+    const SUPABASE_URL = 'https://xhmztvfcosvqkeqnhzer.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_4TF5i_4Wtm5gogItPlQsRg_ck5n_dfi';
+
+    const supabase = window.supabase.createClient(
+      SUPABASE_URL, SUPABASE_KEY
+    );
+
+    const $ = id => document.getElementById(id);
+    const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;',
+      '"': '&quot;', "'": '&#39;'
+    }[char]));
+
+    function showMessage(text) {
+      $('message').textContent = text;
+    }
+
+    async function checkAdmin() {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error || !user) {
+        $('loginPanel').hidden = false;
+        $('dashboard').hidden = true;
+        return false;
+      }
+
+      const { data, error: adminError } = await supabase
+        .from('travel_admins')
+        .select('user_id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (adminError || !data) {
+        $('loginPanel').hidden = true;
+        $('dashboard').hidden = true;
+        showMessage('This account is not authorized as a TravelTaste admin.');
+        return false;
+      }
+
+      $('loginPanel').hidden = true;
+      $('dashboard').hidden = false;
+      return true;
+    }
+
+    async function loadSubmissions() {
+      $('submissions').replaceChildren();
+      showMessage('Loading submissions…');
+
+      const { data, error } = await supabase
+        .from('place_submissions')
+        .select('*')
+        .eq('status', 'pending')
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        showMessage('Could not load submissions: ' + error.message);
+        return;
+      }
+
+      if (!data.length) {
+        showMessage('There are no pending submissions.');
+        return;
+      }
+
+      showMessage('Pending submissions: ' + data.length);
+
+      for (const item of data) {
+        const card = document.createElement('article');
+        card.className = 'submission';
+
+        const photos = Array.isArray(item.image_urls) ? item.image_urls : [];
+        const photoHTML = photos.map(url =>
+          `<img src="${escapeHTML(url)}" alt="Submitted photo" loading="lazy">`
+        ).join('');
+
+        card.innerHTML = `
+          <h2>${escapeHTML(item.name)}</h2>
+          <p><strong>Category:</strong> ${escapeHTML(item.type)}</p>
+          <p><strong>Traveler type:</strong> ${escapeHTML(item.traveler_type)}</p>
+          <p><strong>Rating:</strong> ${escapeHTML(item.rating)} / 5</p>
+          <p><strong>Description:</strong> ${escapeHTML(item.description || 'Not provided')}</p>
+          <p><strong>Travel tips:</strong> ${escapeHTML(item.travel_tips || 'Not provided')}</p>
+          <p><strong>Google Maps:</strong> ${
+            item.google_maps_url
+              ? `<a href="${escapeHTML(item.google_maps_url)}" target="_blank" rel="noopener noreferrer">Open map</a>`
+              : 'Not provided'
+          }</p>
+          <div class="photos">${photoHTML}</div>
+          <div class="actions">
+            <button class="approve" data-action="approve">Approve</button>
+            <button class="reject" data-action="reject">Reject</button>
+          </div>
+        `;
+
+        card.querySelector('[data-action="approve"]').addEventListener('click', () =>
+          reviewSubmission(item.id, 'approved')
+        );
+        card.querySelector('[data-action="reject"]').addEventListener('click', () =>
+          reviewSubmission(item.id, 'rejected')
+        );
+
+        $('submissions').appendChild(card);
+      }
+    }
+
+    async function reviewSubmission(id, decision) {
+      if (!confirm(`Are you sure you want to ${decision} this submission?`)) return;
+
+      showMessage('Saving review…');
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        showMessage('Please log in again.');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('place_submissions')
+        .update({
+          status: decision,
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: user.id
+        })
+        .eq('id', id)
+        .eq('status', 'pending');
+
+      if (error) {
+        showMessage('Review failed: ' + error.message);
+        return;
+      }
+
+      showMessage(
+        decision === 'approved'
+          ? 'Submission approved. Publishing to Explore still needs to be configured.'
+          : 'Submission rejected.'
+      );
+
+      await loadSubmissions();
+    }
+
+    $('loginForm').addEventListener('submit', async event => {
+      event.preventDefault();
+      showMessage('Signing in…');
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email: $('email').value.trim(),
+        password: $('password').value
+      });
+
+      if (error) {
+        showMessage('Login failed: ' + error.message);
+        return;
+      }
+
+      if (await checkAdmin()) await loadSubmissions();
+    });
+
+    $('logoutButton').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      $('dashboard').hidden = true;
+      $('loginPanel').hidden = false;
+      showMessage('You are logged out.');
+    });
+
+    $('refreshButton').addEventListener('click', async () => {
+      if (await checkAdmin()) await loadSubmissions();
+    });
+
+    (async () => {
+      if (await checkAdmin()) await loadSubmissions();
+    })();
+  </script>
+</body>
+</html>
