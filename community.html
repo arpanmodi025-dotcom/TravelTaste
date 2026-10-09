@@ -211,7 +211,7 @@ $('publish').onclick = async () => {
 
     const { data: post, error: postError } = await supabase
       .from('community_posts')
-      .insert({ user_id: currentUser.id, title: caption, caption })
+      .insert({ user_id: currentUser.id, title: caption, caption, type: 'photo' })
       .select('id')
       .single();
 
