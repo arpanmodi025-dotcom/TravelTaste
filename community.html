@@ -179,6 +179,22 @@ async function loadFeed() {
 const likeButton = document.createElement('button');
 likeButton.textContent = '❤️ Like';
 likeButton.className = 'secondary';
+    const likeCount = document.createElement('p');
+likeCount.className = 'small';
+
+async function updateLikeCount() {
+  const { count, error } = await supabase
+    .from('community_post_likes')
+    .select('*', { count: 'exact', head: true })
+    .eq('post_id', post.id);
+
+  if (!error) {
+    likeCount.textContent = `❤️ ${count} Likes`;
+  }
+}
+
+card.appendChild(likeCount);
+updateLikeCount();
 
 
 likeButton.onclick = async () => {
@@ -210,6 +226,7 @@ likeButton.onclick = async () => {
 
       likeButton.textContent = '❤️ Like';
       message('You unliked this post.');
+      await updateLikeCount();
     } else {
       const { error } = await supabase
         .from('community_post_likes')
@@ -222,6 +239,7 @@ likeButton.onclick = async () => {
 
       likeButton.textContent = '💔 Unlike';
       message('You liked this post! ❤️');
+      await updateLikeCount();
     }
   } catch (error) {
     message('Could not update like: ' + error.message);
