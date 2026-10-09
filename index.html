@@ -495,12 +495,7 @@ footer p { color:#c8d0d8; }
       </select>
     </label>
 
-    <label>
-      Address
-      <input name="address" maxlength="300"
-        placeholder="Street, area, city"
-        style="display:block;width:100%;padding:12px;margin-top:6px">
-    </label>
+   
 
     <label>
       Google Maps link
@@ -510,8 +505,8 @@ footer p { color:#c8d0d8; }
     </label>
 
     <label>
-      Description *
-      <textarea name="description" required maxlength="3000"
+      Description (optional)
+      <textarea name="description"  maxlength="3000"
         placeholder="Tell travellers what makes this place special"
         style="display:block;width:100%;padding:12px;margin-top:6px;min-height:110px"></textarea>
     </label>
@@ -525,24 +520,34 @@ footer p { color:#c8d0d8; }
       <small>Select up to 5 photos, maximum 5 MB each.</small>
     </label>
 
-    <label>
-      Opening hours
-      <input name="opening_hours" placeholder="e.g. Check official website"
-        style="display:block;width:100%;padding:12px;margin-top:6px">
-    </label>
+<label>
+  Traveler type *
+  <select name="traveler_type" required
+    style="display:block;width:100%;padding:12px;margin-top:6px">
+    <option value="">Choose traveler type</option>
+    <option value="all">All</option>
+    <option value="solo">Solo</option>
+    <option value="family">Family</option>
+    <option value="friends">Friends</option>
+    <option value="couple">Couple</option>
+  </select>
+</label>
+<label>
+  Rating (1 to 5) *
+  <select name="rating" required
+    style="display:block;width:100%;padding:12px;margin-top:6px">
+    <option value="">Choose a rating</option>
+    <option value="1">⭐ 1 - Poor</option>
+    <option value="2">⭐⭐ 2 - Fair</option>
+    <option value="3">⭐⭐⭐ 3 - Good</option>
+    <option value="4">⭐⭐⭐⭐ 4 - Very Good</option>
+    <option value="5">⭐⭐⭐⭐⭐ 5 - Excellent</option>
+  </select>
+</label>
+    
 
-    <label>
-      Entry fee
-      <input name="entry_fee" placeholder="e.g. Free, or price if known"
-        style="display:block;width:100%;padding:12px;margin-top:6px">
-    </label>
-
-    <label>
-      Best time to visit
-      <input name="best_time_to_visit" placeholder="e.g. Early morning"
-        style="display:block;width:100%;padding:12px;margin-top:6px">
-    </label>
-
+  
+ 
     <label>
       Travel tips
       <textarea name="travel_tips"
