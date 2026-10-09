@@ -176,46 +176,56 @@ async function loadFeed() {
     date.textContent = new Date(post.created_at).toLocaleString();
     card.appendChild(date);
     
+
 const likeButton = document.createElement('button');
-likeButton.textContent = '❤️ Like';
+likeButton.textContent = '👍 Like';
 likeButton.className = 'secondary';
-    const likeCount = document.createElement('p');
+
+const dislikeButton = document.createElement('button');
+dislikeButton.textContent = '👎 Dislike';
+dislikeButton.className = 'secondary';
+
+const likeCount = document.createElement('p');
 likeCount.className = 'small';
 
 async function updateLikeCount() {
-  const { count, error } = await supabase
+  const { count: likes, error: likeError } = await supabase
     .from('community_post_likes')
     .select('*', { count: 'exact', head: true })
-    .eq('post_id', post.id);
+    .eq('post_id', post.id)
+    .eq('reaction', 'like');
 
-  if (!error) {
-    likeCount.textContent = `❤️ ${count} Likes`;
+  const { count: dislikes, error: dislikeError } = await supabase
+    .from('community_post_likes')
+    .select('*', { count: 'exact', head: true })
+    .eq('post_id', post.id)
+    .eq('reaction', 'dislike');
+
+  if (!likeError && !dislikeError) {
+    likeCount.textContent = `👍 ${likes} Likes | 👎 ${dislikes} Dislikes`;
   }
 }
 
-card.appendChild(likeCount);
-updateLikeCount();
-
-
-likeButton.onclick = async () => {
+async function setReaction(reaction) {
   if (!currentUser) {
-    message('Please log in to like a post.');
+    message('Please log in to react to a post.');
     return;
   }
 
   likeButton.disabled = true;
+  dislikeButton.disabled = true;
 
   try {
-    const { data: existingLike, error: checkError } = await supabase
+    const { data: existing, error: checkError } = await supabase
       .from('community_post_likes')
-      .select('post_id')
+      .select('reaction')
       .eq('post_id', post.id)
       .eq('user_id', currentUser.id)
       .maybeSingle();
 
     if (checkError) throw checkError;
 
-    if (existingLike) {
+    if (existing && existing.reaction === reaction) {
       const { error } = await supabase
         .from('community_post_likes')
         .delete()
@@ -223,30 +233,46 @@ likeButton.onclick = async () => {
         .eq('user_id', currentUser.id);
 
       if (error) throw error;
+      message('Reaction removed.');
+    } else if (existing) {
+      const { error } = await supabase
+        .from('community_post_likes')
+        .update({ reaction })
+        .eq('post_id', post.id)
+        .eq('user_id', currentUser.id);
 
-      likeButton.textContent = '❤️ Like';
-      message('You unliked this post.');
-      await updateLikeCount();
+      if (error) throw error;
+      message('Reaction changed.');
     } else {
       const { error } = await supabase
         .from('community_post_likes')
         .insert({
           post_id: post.id,
-          user_id: currentUser.id
+          user_id: currentUser.id,
+          reaction: reaction
         });
 
       if (error) throw error;
-
-      likeButton.textContent = '💔 Unlike';
-      message('You liked this post! ❤️');
-      await updateLikeCount();
+      message('Reaction added.');
     }
+
+    await updateLikeCount();
   } catch (error) {
-    message('Could not update like: ' + error.message);
+    message('Could not update reaction: ' + error.message);
   } finally {
     likeButton.disabled = false;
+    dislikeButton.disabled = false;
   }
-};
+}
+
+likeButton.onclick = () => setReaction('like');
+dislikeButton.onclick = () => setReaction('dislike');
+
+card.appendChild(likeCount);
+card.appendChild(likeButton);
+card.appendChild(dislikeButton);
+updateLikeCount();
+
 
 
 card.appendChild(likeButton);
