@@ -1,35 +1,646 @@
+
 <!doctype html>
 <html lang="en">
 <head>
- <link rel="manifest" href="/manifest.json">
-<link rel="icon" type="image/png" href="/icon-192.png">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#ef6c3b">
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="google-site-verification" content="JQAQ6HlP4qu9xkoeFyad3qcS66Aib81N_Rh5g1brGuE" />
- <title>TravelTaste</title>
-<style>
-:root{--brand:#ef6c3b;--ink:#17202a;--muted:#68737d;--cream:#fff8f1;--line:#e8e1da}*{box-sizing:border-box}body{margin:0;font-family:Arial,system-ui,sans-serif;color:var(--ink);background:#fff}nav{height:70px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 6%;gap:20px}.logo{font-size:25px;font-weight:900;color:var(--brand)}.spacer{flex:1}button{border:0;border-radius:10px;padding:11px 16px;font-weight:700;cursor:pointer}.primary{background:var(--brand);color:white}.secondary{background:#fff0e8;color:#b94c20}.hero{background:linear-gradient(135deg,#fff8f1,#fff0e7);padding:80px 20px;text-align:center}.hero h1{font-size:clamp(38px,6vw,70px);margin:0 0 16px;letter-spacing:-2px}.hero p{max-width:650px;margin:0 auto 28px;color:var(--muted);font-size:18px}.search{max-width:650px;margin:auto;background:white;border:1px solid var(--line);padding:10px;border-radius:16px;display:flex;gap:10px;box-shadow:0 15px 40px #b94c2012}.search select{flex:1;border:0;padding:12px;font-size:16px;outline:0;background:white}main{max-width:1100px;margin:auto;padding:45px 20px 80px}.empty{padding:35px;border:1px dashed #d9cec5;border-radius:16px;text-align:center;color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}.card{border:1px solid var(--line);border-radius:16px;overflow:hidden}.pic{height:150px;background:#f5e4d8;display:grid;place-items:center;font-size:44px}.body{padding:16px}.tag{font-size:12px;background:#f7eee8;padding:5px 8px;border-radius:99px;font-weight:800}.muted{color:var(--muted);font-size:14px}footer{background:#17202a;color:white;padding:35px 6%}@media(max-width:600px){.search{flex-direction:column}.hero{padding:55px 20px}nav{padding:0 18px}}
-</style></head>
-<body>
-<nav><div class="logo">TravelTaste</div><div class="spacer"></div>
-<button class="secondary" onclick="window.location.href='community.html'">📸 Community</button></nav>
+<meta name="google-site-verification" content="JQAQ6HlP4qu9xkoeFyad3qcS66Aib81N_Rh5g1brGuE">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/png" href="/icon-192.png">
+<title>TravelTaste — Discover Ahmedabad</title>
 
-<header class="hero"><h1>Where do you want to travel?</h1><p>Discover places, food, famous food shops, activities and hidden gems — all in one place.</p><div class="search"><select id="city"><option value="">Choose a destination...</option></select><button class="primary" onclick="explore()">Explore</button></div></header>
-<main><h2 id="title">TravelTaste</h2><p id="subtitle" class="muted">Choose a destination above.</p><div id="list" class="empty">Your destination recommendations will appear here.</div></main>
-<footer><strong>TravelTaste</strong><p>Discover the taste of every destination.</p></footer>
-<script type="module">
-import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-/* Replace only these two values with the values from your Supabase Connect window. */
-const SUPABASE_URL='https://xhmztvfcosvqkeqnhzer.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY='sb_publishable_4TF5i_4Wtm5gogItPlQsRg_ck5n_dfi';
-const supabase=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
-let cities=[];
-async function start(){
- const {data,error}=await supabase.from('cities').select('*').order('name');
- if(error){document.getElementById('subtitle').textContent='Supabase connection needs to be configured.';return}
- cities=data||[]; document.getElementById('city').innerHTML='<option value="">Choose a destination...</option>'+cities.map(c=>`<option value="${c.id}">${escapeHtml(c.name)}${c.state?', '+escapeHtml(c.state):''}</option>`).join('');
+<style>
+:root {
+  --brand:#ef6c3b;
+  --brand-dark:#c94d20;
+  --ink:#17202a;
+  --muted:#68737d;
+  --cream:#fff8f1;
+  --line:#e8e1da;
+  --surface:#ffffff;
+  --soft:#f3f6fa;
 }
-window.explore=async()=>{const id=document.getElementById('city').value;if(!id)return alert('Please choose a destination.');const c=cities.find(x=>x.id===id);document.getElementById('title').textContent=c.name;document.getElementById('subtitle').textContent=c.description||'Explore TravelTaste recommendations.';const {data,error}=await supabase.from('listings').select('*').eq('city_id',id).eq('is_published',true).order('created_at',{ascending:false});if(error){document.getElementById('list').textContent=error.message;return}if(!data?.length){document.getElementById('list').innerHTML='<div class="empty">No recommendations added yet for this city.</div>';return}document.getElementById('list').className='grid';document.getElementById('list').innerHTML=data.map(x=>`<article class="card"><div class="pic">${x.image_url?`<img src="${escapeHtml(x.image_url)}" style="width:100%;height:100%;object-fit:cover">`:'📍'}</div><div class="body"><span class="tag">${escapeHtml(x.type)}</span><h3>${escapeHtml(x.name)}</h3><p class="muted">${escapeHtml(x.address||'')}</p><p>${escapeHtml(x.description||'')}</p><a href="${escapeHtml(x.google_maps_url||`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((x.address||'')+' '+c.name)}`)}" target="_blank" rel="noopener"><button class="secondary">🗺️ Exact Location</button></a></div></article>`).join('')};
-function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  margin:0;
+  font-family:Arial,system-ui,sans-serif;
+  color:var(--ink);
+  background:#fff;
+}
+button,select { font:inherit; }
+button { cursor:pointer; }
+nav {
+  min-height:72px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:14px max(20px,calc((100% - 1240px)/2));
+  border-bottom:1px solid var(--line);
+  background:#fff;
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+.logo {
+  color:var(--brand);
+  font-size:27px;
+  font-weight:900;
+  text-decoration:none;
+}
+.spacer { flex:1; }
+.btn {
+  border:0;
+  border-radius:12px;
+  padding:12px 17px;
+  font-weight:700;
+  transition:transform .2s,background .2s;
+}
+.btn:hover { transform:translateY(-1px); }
+.primary { background:var(--brand);color:white; }
+.primary:hover { background:var(--brand-dark); }
+.secondary { background:#fff0e8;color:var(--brand-dark); }
+.hero {
+  padding:76px 20px 70px;
+  text-align:center;
+  background:linear-gradient(135deg,#fff8f1,#fff0e7 55%,#eef3ff);
+}
+.eyebrow {
+  color:var(--brand-dark);
+  text-transform:uppercase;
+  letter-spacing:2px;
+  font-weight:800;
+  font-size:12px;
+}
+.hero h1 {
+  max-width:950px;
+  margin:15px auto;
+  font-size:clamp(38px,6vw,68px);
+  line-height:1.06;
+  letter-spacing:-2px;
+}
+.hero p {
+  max-width:650px;
+  margin:0 auto 28px;
+  color:var(--muted);
+  font-size:18px;
+  line-height:1.6;
+}
+.search {
+  max-width:680px;
+  margin:auto;
+  display:flex;
+  gap:10px;
+  padding:9px;
+  border:1px solid var(--line);
+  border-radius:17px;
+  background:#fff;
+  box-shadow:0 12px 40px #b94c2010;
+}
+.search select {
+  flex:1;
+  min-width:0;
+  border:0;
+  outline:0;
+  background:white;
+  padding:12px;
+}
+main { background:var(--soft); }
+.section {
+  max-width:1240px;
+  margin:auto;
+  padding:48px 24px;
+}
+.section-head {
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:15px;
+  margin-bottom:22px;
+}
+.section-head h2 {
+  margin:7px 0 0;
+  font-size:clamp(25px,3vw,34px);
+}
+.section-head p { margin:8px 0 0;color:var(--muted); }
+.destination-banner {
+  background:#fff7ed;
+  border:1px solid #ffd4b5;
+  border-radius:13px;
+  padding:15px 18px;
+  margin-bottom:32px;
+  line-height:1.5;
+}
+.text-button {
+  border:0;
+  background:none;
+  color:var(--brand-dark);
+  text-decoration:underline;
+  margin-left:10px;
+  padding:4px;
+}
+.styles {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:18px;
+}
+.style-card {
+  padding:0;
+  overflow:hidden;
+  text-align:left;
+  border:1px solid #dfe5ed;
+  border-radius:19px;
+  background:white;
+  color:var(--ink);
+  transition:transform .2s,border-color .2s,box-shadow .2s;
+}
+.style-card:hover {
+  transform:translateY(-4px);
+  box-shadow:0 12px 28px #17202a10;
+}
+.style-card.active {
+  border:2px solid var(--brand);
+  box-shadow:0 0 0 3px #ef6c3b18;
+}
+.style-art {
+  min-height:145px;
+  display:grid;
+  place-items:center;
+  background:#e8edf4;
+  font-size:55px;
+}
+.style-copy { padding:18px; }
+.style-copy h3 { margin:0 0 9px;font-size:20px; }
+.style-copy p { margin:0;color:var(--muted);line-height:1.5; }
+.categories {
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:24px;
+}
+.category {
+  border:1px solid #dce2e9;
+  border-radius:999px;
+  padding:10px 16px;
+  background:#fff;
+  color:var(--ink);
+  font-weight:700;
+}
+.category.active {
+  background:var(--brand);
+  color:white;
+  border-color:var(--brand);
+}
+.results-meta {
+  color:var(--muted);
+  font-size:14px;
+  margin-bottom:18px;
+}
+.grid {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:22px;
+}
+.card {
+  background:white;
+  border:1px solid #e0e5eb;
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 5px 20px #17202a05;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+}
+.card-photo {
+  width:100%;
+  height:220px;
+  object-fit:cover;
+  background:#e8edf4;
+  display:block;
+}
+.photo-placeholder {
+  height:220px;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,#f5e4d8,#e8edf4);
+  font-size:52px;
+}
+.card-body {
+  padding:19px;
+  display:flex;
+  flex-direction:column;
+  flex:1;
+}
+.tag {
+  align-self:flex-start;
+  border-radius:999px;
+  padding:6px 10px;
+  background:#fff0e8;
+  color:#a6421d;
+  font-size:12px;
+  font-weight:800;
+}
+.card h3 { font-size:21px;margin:13px 0 8px; }
+.card p { color:var(--muted);line-height:1.6;margin:0 0 12px; }
+.address { font-size:14px; }
+.card-actions { margin-top:auto;padding-top:12px; }
+.map-link {
+  display:inline-block;
+  text-decoration:none;
+}
+.empty {
+  grid-column:1/-1;
+  text-align:center;
+  background:white;
+  border:1px dashed #d9cec5;
+  border-radius:17px;
+  padding:38px 22px;
+  color:var(--muted);
+  line-height:1.7;
+}
+footer {
+  background:#17202a;
+  color:white;
+  padding:34px 24px;
+  text-align:center;
+}
+footer p { color:#c8d0d8; }
+@media(max-width:850px) {
+  .styles { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .style-art { min-height:120px; }
+}
+@media(max-width:560px) {
+  nav { min-height:62px;padding:12px 16px; }
+  .logo { font-size:23px; }
+  .btn { padding:11px 13px; }
+  .hero { padding:55px 18px 45px; }
+  .hero h1 { letter-spacing:-1px; }
+  .hero p { font-size:16px; }
+  .search { flex-direction:column; }
+  .search select { min-height:46px;width:100%; }
+  .section { padding:35px 16px; }
+  .section-head { align-items:flex-start;flex-direction:column; }
+  .styles { gap:12px; }
+  .style-art { min-height:105px;font-size:43px; }
+  .style-copy { padding:13px; }
+  .style-copy h3 { font-size:17px; }
+  .style-copy p { font-size:14px; }
+  .grid { grid-template-columns:1fr; }
+  .card-photo,.photo-placeholder { height:210px; }
+}
+</style>
+</head>
+
+<body>
+<nav>
+  <a class="logo" href="/">TravelTaste</a>
+  <div class="spacer"></div>
+  <button class="btn secondary"
+    onclick="window.location.href='/community.html'">📸 Community</button>
+</nav>
+
+<header class="hero" id="top">
+  <div class="eyebrow">Your next adventure starts here</div>
+  <h1>Where do you want to travel?</h1>
+  <p>Discover memorable places, local food, famous food shops, activities and hidden gems — all in one place.</p>
+  <div class="search">
+    <select id="city" aria-label="Choose a destination">
+      <option value="">Loading destinations...</option>
+    </select>
+    <button class="btn primary" id="exploreBtn">Explore</button>
+  </div>
+</header>
+
+<main>
+  <section class="section" id="discover">
+    <div class="destination-banner" id="destinationBanner">
+      📍 Choose a destination above to discover recommendations.
+      <button class="text-button" onclick="scrollToTop()">Change destination</button>
+    </div>
+
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Travel style</div>
+        <h2>Who are you travelling with?</h2>
+        <p>Choose your travel style to personalise your discovery.</p>
+      </div>
+      <span id="styleStatus" class="results-meta">All travellers</span>
+    </div>
+
+    <div class="styles" id="styles">
+      <button class="style-card active" data-style="all">
+        <div class="style-art">🌍</div>
+        <div class="style-copy">
+          <h3>All Travellers</h3>
+          <p>Explore every recommendation.</p>
+        </div>
+      </button>
+      <button class="style-card" data-style="solo">
+        <div class="style-art">🚶</div>
+        <div class="style-copy">
+          <h3>Solo Travel</h3>
+          <p>Independent experiences.</p>
+        </div>
+      </button>
+      <button class="style-card" data-style="family">
+        <div class="style-art">👨‍👩‍👧‍👦</div>
+        <div class="style-copy">
+          <h3>Family Travel</h3>
+          <p>Ideas for a day out together.</p>
+        </div>
+      </button>
+      <button class="style-card" data-style="friends">
+        <div class="style-art">🧑‍🤝‍🧑</div>
+        <div class="style-copy">
+          <h3>Friends Travel</h3>
+          <p>Fun places to explore together.</p>
+        </div>
+      </button>
+      <button class="style-card" data-style="couple">
+        <div class="style-art">💑</div>
+        <div class="style-copy">
+          <h3>Couple Travel</h3>
+          <p>Memorable shared experiences.</p>
+        </div>
+      </button>
+    </div>
+  </section>
+
+  <section class="section" id="recommendations">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Discover something new</div>
+        <h2 id="resultsTitle">Explore destinations</h2>
+        <p id="resultsSubtitle">Choose a destination to see its recommendations.</p>
+      </div>
+    </div>
+
+    <div class="categories" id="categories">
+      <button class="category active" data-category="all">✨ All</button>
+      <button class="category" data-category="place">📍 Places</button>
+      <button class="category" data-category="food">🍲 Food</button>
+      <button class="category" data-category="food_shop">🥘 Food Shops</button>
+      <button class="category" data-category="activity">🎯 Activities</button>
+      <button class="category" data-category="hidden_gem">💎 Hidden Gems</button>
+    </div>
+
+    <div class="results-meta" id="resultsMeta">Select a destination to begin.</div>
+    <div class="grid" id="list">
+      <div class="empty">Choose a destination above, then tap Explore to discover recommendations.</div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <strong>TravelTaste</strong>
+  <p>Discover the taste of every destination.</p>
+</footer>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+const SUPABASE_URL = 'https://xhmztvfcosvqkeqnhzer.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_4TF5i_4Wtm5gogItPlQsRg_ck5n_dfi';
+const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+let cities = [];
+let listings = [];
+let selectedCity = null;
+let selectedStyle = 'all';
+let selectedCategory = 'all';
+
+const $ = id => document.getElementById(id);
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;'
+  })[char]);
+}
+
+const categoryNames = {
+  place:'Place',
+  food:'Food',
+  food_shop:'Food Shop',
+  activity:'Activity',
+  hidden_gem:'Hidden Gem'
+};
+
+const styleNames = {
+  all:'All Travellers',
+  solo:'Solo Travel',
+  family:'Family Travel',
+  friends:'Friends Travel',
+  couple:'Couple Travel'
+};
+
+function scrollToTop() {
+  $('top').scrollIntoView({behavior:'smooth'});
+}
+window.scrollToTop = scrollToTop;
+
+async function start() {
+  const { data, error } = await supabase
+    .from('cities')
+    .select('*')
+    .order('name');
+
+  if (error) {
+    $('city').innerHTML = '<option value="">Could not load destinations</option>';
+    $('resultsSubtitle').textContent = 'Please check the Supabase connection.';
+    console.error(error);
+    return;
+  }
+
+  cities = data || [];
+  $('city').innerHTML =
+    '<option value="">Choose a destination...</option>' +
+    cities.map(city =>
+      `<option value="${escapeHtml(city.id)}">${escapeHtml(city.name)}${city.state ? ', ' + escapeHtml(city.state) : ''}</option>`
+    ).join('');
+
+  // Automatically select Ahmedabad when it exists.
+  const ahmedabad = cities.find(city =>
+    String(city.name).toLowerCase() === 'ahmedabad'
+  );
+
+  if (ahmedabad) {
+    $('city').value = ahmedabad.id;
+    await loadDestination(ahmedabad.id);
+  }
+}
+
+async function loadDestination(cityId) {
+  if (!cityId) return;
+
+  selectedCity = cities.find(city => String(city.id) === String(cityId));
+  if (!selectedCity) return;
+
+  $('destinationBanner').innerHTML =
+    `📍 Showing TravelTaste recommendations for <strong>${escapeHtml(selectedCity.name)}</strong>` +
+    `<button class="text-button" id="changeDestination">Change destination</button>`;
+
+  $('changeDestination').addEventListener('click', scrollToTop);
+  $('resultsTitle').textContent = `Explore ${selectedCity.name}`;
+  $('resultsSubtitle').textContent = 'Places, local food, activities and hidden gems to discover.';
+
+  $('list').innerHTML = '<div class="empty">Loading recommendations...</div>';
+  $('resultsMeta').textContent = 'Loading...';
+
+  const { data, error } = await supabase
+    .from('listings')
+    .select('*')
+    .eq('city_id', selectedCity.id)
+    .eq('is_published', true)
+    .order('created_at', { ascending:false });
+
+  if (error) {
+    listings = [];
+    $('list').innerHTML = '<div class="empty">We could not load recommendations. Please try again.</div>';
+    $('resultsMeta').textContent = 'Unable to load recommendations.';
+    console.error(error);
+    return;
+  }
+
+  listings = data || [];
+  renderListings();
+}
+
+function styleMatches(item) {
+  if (selectedStyle === 'all') return true;
+
+  // Use available listing text to suggest relevant places without
+  // requiring changes to the existing database schema.
+  const text = `${item.name || ''} ${item.description || ''} ${item.type || ''}`.toLowerCase();
+
+  const keywords = {
+    solo:['museum','heritage','temple','garden','riverfront','art','culture','walk','history','cafe'],
+    family:['family','park','garden','zoo','museum','science','lake','riverfront','kids','children','aquarium'],
+    friends:['adventure','activity','game','cafe','food','market','shopping','riverfront','sports','fun'],
+    couple:['romantic','sunset','lake','garden','riverfront','cafe','restaurant','heritage','view','dinner']
+  };
+
+  return keywords[selectedStyle].some(word => text.includes(word));
+}
+
+function renderListings() {
+  let items = listings.filter(item =>
+    selectedCategory === 'all' || item.type === selectedCategory
+  );
+
+  const styleFiltered = items.filter(styleMatches);
+
+  // Don't hide every result when the database has no explicit travel-style data.
+  // In that case, keep the category results visible and explain the limitation.
+  const hasStyleMatches = selectedStyle === 'all' || styleFiltered.length > 0;
+  if (selectedStyle !== 'all' && hasStyleMatches) items = styleFiltered;
+
+  $('styleStatus').textContent = styleNames[selectedStyle];
+  $('resultsTitle').textContent = selectedCity
+    ? `Explore ${selectedCity.name}`
+    : 'Explore destinations';
+
+  if (!selectedCity) {
+    $('resultsSubtitle').textContent = 'Choose a destination to see recommendations.';
+  } else if (selectedStyle !== 'all' && !hasStyleMatches) {
+    $('resultsSubtitle').textContent =
+      `No specific ${styleNames[selectedStyle].toLowerCase()} matches yet. Showing other recommendations in ${selectedCity.name}.`;
+  } else {
+    $('resultsSubtitle').textContent =
+      `Discover ${styleNames[selectedStyle].toLowerCase()} ideas in ${selectedCity.name}.`;
+  }
+
+  $('resultsMeta').textContent =
+    `${items.length} recommendation${items.length === 1 ? '' : 's'}`;
+
+  if (!items.length) {
+    $('list').innerHTML = `
+      <div class="empty">
+        <div style="font-size:38px">🧭</div>
+        <strong>No recommendations in this category yet.</strong>
+        <p>Add published recommendations for ${escapeHtml(selectedCity?.name || 'this destination')} in Supabase to fill this section.</p>
+      </div>`;
+    return;
+  }
+
+  $('list').innerHTML = items.map(item => {
+    const safeName = escapeHtml(item.name);
+    const safeType = escapeHtml(categoryNames[item.type] || item.type || 'Recommendation');
+    const safeDescription = escapeHtml(item.description || 'Discover this recommendation on your next trip.');
+    const safeAddress = escapeHtml(item.address || '');
+    const image = item.image_url
+      ? `<img class="card-photo" src="${escapeHtml(item.image_url)}" alt="${safeName}" loading="lazy">`
+      : `<div class="photo-placeholder" aria-label="No photo available">📍</div>`;
+
+    const mapUrl = item.google_maps_url ||
+      (item.latitude != null && item.longitude != null
+        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.latitude + ',' + item.longitude)}`
+        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((item.address || '') + ' ' + selectedCity.name + ' ' + item.name)}`);
+
+    return `
+      <article class="card">
+        ${image}
+        <div class="card-body">
+          <span class="tag">${safeType}</span>
+          <h3>${safeName}</h3>
+          ${safeAddress ? `<p class="address">📍 ${safeAddress}</p>` : ''}
+          <p>${safeDescription}</p>
+          ${item.price_range ? `<p class="address">💰 ${escapeHtml(item.price_range)}</p>` : ''}
+          <div class="card-actions">
+            <a class="map-link" href="${escapeHtml(mapUrl)}" target="_blank" rel="noopener noreferrer">
+              <button class="btn secondary" type="button">🗺️ Exact Location</button>
+            </a>
+          </div>
+        </div>
+      </article>`;
+  }).join('');
+}
+
+$('exploreBtn').addEventListener('click', async () => {
+  const cityId = $('city').value;
+  if (!cityId) {
+    alert('Please choose a destination.');
+    return;
+  }
+  await loadDestination(cityId);
+  $('discover').scrollIntoView({behavior:'smooth'});
+});
+
+$('city').addEventListener('change', async () => {
+  if ($('city').value) await loadDestination($('city').value);
+});
+
+document.querySelectorAll('.style-card').forEach(button => {
+  button.addEventListener('click', () => {
+    selectedStyle = button.dataset.style;
+
+    document.querySelectorAll('.style-card').forEach(card => {
+      const active = card === button;
+      card.classList.toggle('active', active);
+      card.setAttribute('aria-pressed', String(active));
+    });
+
+    renderListings();
+    $('recommendations').scrollIntoView({behavior:'smooth'});
+  });
+});
+
+document.querySelectorAll('.category').forEach(button => {
+  button.addEventListener('click', () => {
+    selectedCategory = button.dataset.category;
+
+    document.querySelectorAll('.category').forEach(category => {
+      const active = category === button;
+      category.classList.toggle('active', active);
+      category.setAttribute('aria-pressed', String(active));
+    });
+
+    renderListings();
+  });
+});
+
 start();
-</script></body></html>
+</script>
+</body>
+</html>
