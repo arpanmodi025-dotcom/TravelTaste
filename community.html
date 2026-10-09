@@ -1,0 +1,253 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TravelTaste Community</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff8f1;color:#17202a;font-family:Arial,sans-serif}
+header{background:white;padding:16px 5%;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eee}
+.logo{font-size:25px;font-weight:bold;color:#ef6c3b}
+a{color:#ef6c3b;text-decoration:none}
+main{max-width:760px;margin:28px auto;padding:0 16px}
+.card{background:white;border:1px solid #eee;border-radius:16px;padding:22px;margin-bottom:20px}
+h1{margin:0 0 8px}
+p{line-height:1.5}
+input,textarea,button{font:inherit;width:100%;padding:12px;margin:6px 0;border-radius:9px;border:1px solid #ddd}
+button{background:#ef6c3b;color:white;border:0;font-weight:bold;cursor:pointer}
+button.secondary{background:#f5e8df;color:#75391f}
+button:disabled{opacity:.5}
+.small{font-size:13px;color:#68737d}
+#status{white-space:pre-wrap;color:#75391f}
+.post img{width:100%;max-height:480px;object-fit:cover;border-radius:12px}
+.post .caption{white-space:pre-wrap}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">TravelTaste</div>
+  <a href="/">Back to Explore</a>
+</header>
+
+<main>
+  <section class="card">
+    <h1>TravelTaste Community 🌍</h1>
+    <p>Share your journeys, favourite food, beautiful places and hidden gems.</p>
+    <p id="account">Checking your account…</p>
+    <div id="auth">
+      <input id="email" type="email" placeholder="Email address" autocomplete="email">
+      <input id="password" type="password" placeholder="Password (at least 6 characters)" autocomplete="current-password">
+      <button id="signup">Create account</button>
+      <button id="login" class="secondary">Log in</button>
+      <p class="small">New accounts may need email confirmation before logging in.</p>
+    </div>
+    <button id="logout" class="secondary hidden">Log out</button>
+  </section>
+
+  <section id="composer" class="card hidden">
+    <h2>Share your experience 📸</h2>
+    <textarea id="caption" rows="3" maxlength="1000" placeholder="Where did you go? What did you discover?"></textarea>
+    <label for="photo">Choose a photo (maximum 5 MB)</label>
+    <input id="photo" type="file" accept="image/jpeg,image/png,image/webp">
+    <button id="publish">Upload photo and share</button>
+    <p class="small">Only upload photos you have permission to share.</p>
+  </section>
+
+  <p id="status" role="status"></p>
+  <h2>Community posts</h2>
+  <section id="feed"><p>Loading posts…</p></section>
+</main>
+
+<script type="module">
+import { createClient } from
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+// Copy these two values from your existing index.html.
+const SUPABASE_URL =  'https://xhmztvfcosvqkeqnhzer.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_4TF5i_4Wtm5gogItPlQsRg_ck5n_dfi';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const $ = id => document.getElementById(id);
+let currentUser = null;
+
+function message(text) { $('status').textContent = text; }
+
+function showAccount(user) {
+  currentUser = user;
+  $('account').textContent = user
+    ? 'Logged in as ' + user.email
+    : 'Log in or create an account to share photos.';
+  $('auth').classList.toggle('hidden', !!user);
+  $('logout').classList.toggle('hidden', !user);
+  $('composer').classList.toggle('hidden', !user);
+}
+
+$('signup').onclick = async () => {
+  const email = $('email').value.trim();
+  const password = $('password').value;
+  if (!email || password.length < 6) {
+    message('Enter a valid email and a password of at least 6 characters.');
+    return;
+  }
+  message('Creating your account…');
+  const { data, error } = await supabase.auth.signUp({ email, password });
+  if (error) return message(error.message);
+  if (data.session) {
+    showAccount(data.user);
+    message('Account created successfully!');
+  } else {
+    message('Account request received. Check your email for a confirmation link, then log in.');
+  }
+};
+
+$('login').onclick = async () => {
+  const email = $('email').value.trim();
+  const password = $('password').value;
+  message('Logging in…');
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) return message(error.message);
+  showAccount(data.user);
+  message('Login successful!');
+};
+
+$('logout').onclick = async () => {
+  const { error } = await supabase.auth.signOut();
+  if (error) return message(error.message);
+  showAccount(null);
+  message('You have logged out.');
+};
+
+async function loadFeed() {
+  const feed = $('feed');
+  feed.innerHTML = '<p>Loading posts…</p>';
+
+  const { data: posts, error } = await supabase
+    .from('community_posts')
+    .select('id, user_id, caption, created_at')
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  if (error) {
+    feed.innerHTML = '<div class="card">Could not load posts: ' +
+      escapeHtml(error.message) + '</div>';
+    return;
+  }
+
+  feed.innerHTML = '';
+  if (!posts?.length) {
+    feed.innerHTML = '<div class="card">No posts yet. Be the first to share a travel photo!</div>';
+    return;
+  }
+
+  for (const post of posts) {
+    const card = document.createElement('article');
+    card.className = 'card post';
+    const { data: photos, error: photoError } = await supabase
+      .from('community_post_photos')
+      .select('image_url')
+      .eq('post_id', post.id);
+
+    if (photoError) {
+      card.textContent = 'Unable to load this post’s photo.';
+      feed.appendChild(card);
+      continue;
+    }
+
+    for (const photo of (photos || [])) {
+      if (photo.image_url) {
+        const img = document.createElement('img');
+        img.src = photo.image_url;
+        img.alt = 'Community travel photo';
+        img.loading = 'lazy';
+        card.appendChild(img);
+      }
+    }
+
+    const caption = document.createElement('p');
+    caption.className = 'caption';
+    caption.textContent = post.caption || '';
+    card.appendChild(caption);
+
+    const date = document.createElement('p');
+    date.className = 'small';
+    date.textContent = new Date(post.created_at).toLocaleString();
+    card.appendChild(date);
+    feed.appendChild(card);
+  }
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, ch => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;',
+    '"':'&quot;', "'":'&#39;'
+  })[ch]);
+}
+
+$('publish').onclick = async () => {
+  if (!currentUser) return message('Please log in first.');
+
+  const file = $('photo').files[0];
+  const caption = $('caption').value.trim();
+
+  if (!file) return message('Please choose a photo.');
+  if (!['image/jpeg','image/png','image/webp'].includes(file.type))
+    return message('Choose a JPG, PNG or WebP image.');
+  if (file.size > 5 * 1024 * 1024)
+    return message('Your photo must be 5 MB or smaller.');
+
+  $('publish').disabled = true;
+  message('Uploading photo…');
+
+  try {
+    const path = currentUser.id + '/' + crypto.randomUUID();
+    const { error: uploadError } = await supabase.storage
+      .from('traveltaste-images')
+      .upload(path, file, { contentType: file.type, upsert: false });
+
+    if (uploadError) throw uploadError;
+
+    const { data: post, error: postError } = await supabase
+      .from('community_posts')
+      .insert({ user_id: currentUser.id, caption })
+      .select('id')
+      .single();
+
+    if (postError) throw postError;
+
+    const { data: publicFile } = supabase.storage
+      .from('traveltaste-images')
+      .getPublicUrl(path);
+
+    const { error: photoError } = await supabase
+      .from('community_post_photos')
+      .insert({ post_id: post.id, image_url: publicFile.publicUrl });
+
+    if (photoError) {
+      message('Post was created, but saving the photo record failed: ' + photoError.message);
+      return;
+    }
+
+    $('caption').value = '';
+    $('photo').value = '';
+    message('Your post has been shared!');
+    await loadFeed();
+  } catch (error) {
+    message('Could not publish: ' + error.message);
+  } finally {
+    $('publish').disabled = false;
+  }
+};
+
+supabase.auth.onAuthStateChange((_event, session) => {
+  showAccount(session?.user || null);
+});
+
+const { data: { session } } = await supabase.auth.getSession();
+showAccount(session?.user || null);
+await loadFeed();
+</script>
+</body>
+</html>
