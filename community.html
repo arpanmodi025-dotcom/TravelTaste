@@ -157,9 +157,9 @@ async function loadFeed() {
     }
 
     for (const photo of (photos || [])) {
-      if (photo.image_url) {
+     if (photo.photo_url) {
         const img = document.createElement('img');
-        img.src = photo.image_url;
+        img.src = photo.photo_url;
         img.alt = 'Community travel photo';
         img.loading = 'lazy';
         card.appendChild(img);
