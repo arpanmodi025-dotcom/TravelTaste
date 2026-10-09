@@ -72,7 +72,17 @@
         <p class="muted">Review each place before publishing it on Explore.</p>
         <button class="primary" id="refreshButton">Refresh submissions</button>
       </div>
-      <div id="submissions"></div>
+
+<div id="submissions"></div>
+
+<div class="panel">
+  <h2>Approved submissions</h2>
+  <p class="muted">Publish places that have already been approved.</p>
+  <button class="primary" id="refreshApprovedButton">
+    Refresh approved submissions
+  </button>
+</div>
+<div id="approvedSubmissions"></div>
     </section>
   </main>
 
@@ -253,6 +263,61 @@ async function reviewSubmission(id, decision) {
   await loadSubmissions();
 }
 
+async function loadApprovedSubmissions() {
+  $('approvedSubmissions').replaceChildren();
+  showMessage('Loading approved submissions…');
+
+  const { data, error } = await supabaseClient
+    .from('place_submissions')
+    .select('*')
+    .eq('status', 'approved')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    showMessage('Could not load approved submissions: ' + error.message);
+    return;
+  }
+
+  if (!data.length) {
+    showMessage('There are no approved submissions.');
+    return;
+  }
+
+  showMessage('Approved submissions: ' + data.length);
+
+  for (const item of data) {
+    const card = document.createElement('article');
+    card.className = 'submission';
+
+    card.innerHTML = `
+      <h2>${escapeHTML(item.name)}</h2>
+      <p><strong>Status:</strong> Approved</p>
+      <button class="approve" data-action="publish">Publish to Explore</button>
+    `;
+
+    card.querySelector('[data-action="publish"]').addEventListener('click', async () => {
+      if (!confirm('Publish ' + item.name + ' to Explore?')) return;
+
+      showMessage('Publishing ' + item.name + '…');
+
+      const { error: publishError } = await supabaseClient.rpc(
+        'publish_approved_submission',
+        { p_submission_id: item.id }
+      );
+
+      if (publishError) {
+        showMessage('Publishing failed: ' + publishError.message);
+        return;
+      }
+
+      showMessage(item.name + ' published successfully!');
+      await loadApprovedSubmissions();
+    });
+
+    $('approvedSubmissions').appendChild(card);
+  }
+}
+
 
     
 
@@ -283,10 +348,20 @@ async function reviewSubmission(id, decision) {
     $('refreshButton').addEventListener('click', async () => {
       if (await checkAdmin()) await loadSubmissions();
     });
+    
+$('refreshApprovedButton').addEventListener('click', async () => {
+  if (await checkAdmin()) await loadApprovedSubmissions();
+});
 
-    (async () => {
-      if (await checkAdmin()) await loadSubmissions();
-    })();
+
+  
+(async () => {
+  if (await checkAdmin()) {
+    await loadSubmissions();
+    await loadApprovedSubmissions();
+  }
+})();
+
   </script>
 </body>
 </html>
