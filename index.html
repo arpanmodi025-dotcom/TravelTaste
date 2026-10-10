@@ -378,11 +378,47 @@ footer p { color:#c8d0d8; }
 #communityPage button:disabled{opacity:.5;cursor:not-allowed}
 #communityPage .small{font-size:13px;color:#68737d}
 #communityPage #status{white-space:pre-wrap;color:#75391f}
-#communityPage .post img{width:100%;max-height:480px;object-fit:cover;border-radius:12px}
-#communityPage .post .caption{white-space:pre-wrap}
+/* Instagram-inspired community feed */
+#communityPage .community-inner{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+#communityPage .community-card{box-shadow:0 2px 12px rgba(20,30,40,.04)}
+#communityPage #feed{display:grid;gap:22px;max-width:600px;margin:0 auto}
+#communityPage .post{padding:0;overflow:hidden;background:#fff;border:1px solid #e9e9e9;border-radius:14px;box-shadow:0 4px 18px rgba(20,30,40,.05)}
+#communityPage .post-header{display:flex;align-items:center;gap:11px;padding:13px 15px}
+#communityPage .post-avatar{width:40px;height:40px;flex:0 0 40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#ef6c3b,#ffb16d);color:#fff;font-size:20px;font-weight:800}
+#communityPage .post-author{min-width:0;flex:1}
+#communityPage .post-author-name{font-size:14px;font-weight:750;color:#17202a;line-height:1.25}
+#communityPage .post-meta{font-size:12px;color:#7b8490;margin-top:3px}
+#communityPage .post-more{width:36px!important;height:36px;padding:0!important;margin:0!important;border:0!important;background:transparent!important;color:#25303b!important;font-size:23px!important}
+#communityPage .post-media{background:#f3f4f6;display:grid;gap:2px}
+#communityPage .post-media img{display:block;width:100%;height:auto;max-height:680px;object-fit:contain;border-radius:0;background:#f3f4f6}
+#communityPage .post-media img:only-child{max-height:680px}
+#communityPage .post-body{padding:0 15px 15px}
+#communityPage .post-actions{display:flex;align-items:center;gap:17px;padding:12px 0 8px}
+#communityPage .post-action{width:auto!important;min-width:0!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;color:#17202a!important;font-size:25px!important;line-height:1.2;font-weight:400!important}
+#communityPage .post-action:hover{transform:scale(1.06)}
+#communityPage .post-action.liked{color:#e13c49!important}
+#communityPage .post-action-spacer{flex:1}
+#communityPage .post-like-count{font-size:13px;font-weight:750;color:#17202a;margin:0 0 8px}
+#communityPage .post .caption{white-space:pre-wrap;margin:0 0 8px;font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+#communityPage .post-caption-author{font-weight:750;margin-right:5px}
+#communityPage .post-date{font-size:11px;color:#8a929b;margin:9px 0 0}
+#communityPage .post-reaction-count{font-size:12px;color:#68737d;margin:0 0 8px}
+#communityPage .post-tools{border-top:1px solid #f0f0f0;padding-top:10px;margin-top:10px}
+#communityPage .post-tools .reactions{display:flex;gap:8px;flex-wrap:wrap}
+#communityPage .post-tools .reactions button{width:auto;min-width:0;padding:7px 11px;margin:0;border-radius:999px;font-size:12px;background:#f5e8df;color:#75391f}
+#communityPage .post-tools .reactions button:disabled{opacity:.55}
+#communityPage .post-tools .reactions button.active{background:#ffe1df;color:#c62828}
+#communityPage .post .small{font-size:12px;color:#8a929b}
 #communityPage .hidden{display:none!important}
-#communityPage .reactions{display:flex;gap:10px;flex-wrap:wrap}
-#communityPage .reactions #communityPage button{flex:1;min-width:130px}
+@media(max-width:600px){
+  #communityPage .community-inner{padding:12px 0 32px}
+  #communityPage .community-card{margin:0 12px 16px;padding:18px;border-radius:14px}
+  #communityPage #feed{gap:14px}
+  #communityPage .post{border-radius:0;border-left:0;border-right:0}
+  #communityPage .post-header{padding:12px}
+  #communityPage .post-body{padding:0 12px 13px}
+  #communityPage .post-media img{max-height:72vh}
+}
 
 #communityPage[hidden]{display:none!important}
 </style>
@@ -806,6 +842,43 @@ async function loadFeed() {
     const card = document.createElement('article');
     card.className = 'card post';
 
+    const header = document.createElement('div');
+    header.className = 'post-header';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'post-avatar';
+    avatar.setAttribute('aria-hidden', 'true');
+    avatar.textContent = '✦';
+
+    const author = document.createElement('div');
+    author.className = 'post-author';
+
+    const authorName = document.createElement('div');
+    authorName.className = 'post-author-name';
+    authorName.textContent = 'TravelTaste traveller';
+
+    const meta = document.createElement('div');
+    meta.className = 'post-meta';
+    const postDate = new Date(post.created_at);
+    meta.textContent = Number.isNaN(postDate.getTime())
+      ? 'Community post'
+      : postDate.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+
+    author.append(authorName, meta);
+
+    const more = document.createElement('button');
+    more.type = 'button';
+    more.className = 'post-more';
+    more.setAttribute('aria-label', 'Post options');
+    more.textContent = '⋯';
+    more.onclick = () => message('Post options are managed by TravelTaste.');
+
+    header.append(avatar, author, more);
+    card.appendChild(header);
+
+    const media = document.createElement('div');
+    media.className = 'post-media';
+
     const { data: photos, error: photoError } = await supabase
       .from('community_post_photos')
       .select('photo_url')
@@ -817,49 +890,163 @@ async function loadFeed() {
 
         const img = document.createElement('img');
         img.src = photo.photo_url;
-        img.alt = 'Community travel photo';
+        img.alt = 'Photo shared by a TravelTaste community member';
         img.loading = 'lazy';
-        card.appendChild(img);
+        img.decoding = 'async';
+        media.appendChild(img);
       }
+      if (media.childElementCount) card.appendChild(media);
     } else if (photoError) {
       const warning = document.createElement('p');
       warning.className = 'small';
+      warning.style.padding = '12px 15px';
       warning.textContent = 'Unable to load this post’s photo.';
       card.appendChild(warning);
     }
 
-    const caption = document.createElement('p');
-    caption.className = 'caption';
-    caption.textContent = post.caption || '';
-    card.appendChild(caption);
+    const body = document.createElement('div');
+    body.className = 'post-body';
 
-    const date = document.createElement('p');
-    date.className = 'small';
-    date.textContent = new Date(post.created_at).toLocaleString();
-    card.appendChild(date);
-
-    const count = document.createElement('p');
-    count.className = 'small';
-    card.appendChild(count);
-
-    const buttons = document.createElement('div');
-    buttons.className = 'reactions';
+    const actions = document.createElement('div');
+    actions.className = 'post-actions';
 
     const likeButton = document.createElement('button');
-    likeButton.className = 'secondary';
-    likeButton.textContent = '👍 Like';
+    likeButton.type = 'button';
+    likeButton.className = 'post-action';
+    likeButton.setAttribute('aria-label', 'Like post');
+    likeButton.textContent = '♡';
+
+    const commentButton = document.createElement('button');
+    commentButton.type = 'button';
+    commentButton.className = 'post-action';
+    commentButton.setAttribute('aria-label', 'Comments');
+    commentButton.textContent = '◯';
+    commentButton.title = 'Comments';
+
+    const shareButton = document.createElement('button');
+    shareButton.type = 'button';
+    shareButton.className = 'post-action';
+    shareButton.setAttribute('aria-label', 'Share post');
+    shareButton.textContent = '➤';
+    shareButton.onclick = async () => {
+      const shareData = { title: 'TravelTaste community post', text: post.caption || 'Discover this post on TravelTaste', url: location.href };
+      try {
+        if (navigator.share) await navigator.share(shareData);
+        else if (navigator.clipboard) {
+          await navigator.clipboard.writeText(shareData.url);
+          message('Page link copied. Share it with your friends!');
+        } else {
+          message('Copy the TravelTaste page link to share this post.');
+        }
+      } catch (error) {
+        if (error?.name !== 'AbortError') message('Unable to share this post right now.');
+      }
+    };
+
+    const spacer = document.createElement('span');
+    spacer.className = 'post-action-spacer';
+
+    const saveButton = document.createElement('button');
+    saveButton.type = 'button';
+    saveButton.className = 'post-action';
+    saveButton.setAttribute('aria-label', 'Save post');
+    saveButton.textContent = '♧';
+    saveButton.title = 'Save post';
+    saveButton.onclick = () => {
+      if (!currentUser) return message('Please log in to save a post.');
+      const key = 'traveltaste_saved_posts_' + currentUser.id;
+      let saved = [];
+      try { saved = JSON.parse(localStorage.getItem(key) || '[]'); } catch (_) {}
+      const alreadySaved = saved.includes(post.id);
+      saved = alreadySaved ? saved.filter(id => id !== post.id) : [...saved, post.id];
+      localStorage.setItem(key, JSON.stringify(saved));
+      saveButton.textContent = alreadySaved ? '♧' : '♧';
+      saveButton.classList.toggle('liked', !alreadySaved);
+      saveButton.title = alreadySaved ? 'Save post' : 'Saved';
+      message(alreadySaved ? 'Post removed from your saved list.' : 'Post saved on this device.');
+    };
+
+    actions.append(likeButton, commentButton, shareButton, spacer, saveButton);
+    body.appendChild(actions);
+
+    const count = document.createElement('p');
+    count.className = 'post-like-count';
+    count.textContent = 'Loading likes…';
+    body.appendChild(count);
+
+    const caption = document.createElement('p');
+    caption.className = 'caption';
+    const captionAuthor = document.createElement('span');
+    captionAuthor.className = 'post-caption-author';
+    captionAuthor.textContent = 'TravelTaste traveller';
+    const captionText = document.createElement('span');
+    captionText.textContent = post.caption || '';
+    caption.append(captionAuthor, captionText);
+    body.appendChild(caption);
+
+    const date = document.createElement('p');
+    date.className = 'post-date';
+    date.textContent = Number.isNaN(postDate.getTime())
+      ? ''
+      : postDate.toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' });
+    body.appendChild(date);
+
+    const commentArea = document.createElement('div');
+    commentArea.className = 'post-tools hidden';
+    const commentLabel = document.createElement('p');
+    commentLabel.className = 'small';
+    commentLabel.textContent = 'Comments are coming soon.';
+    commentArea.appendChild(commentLabel);
+    body.appendChild(commentArea);
+    commentButton.onclick = () => {
+      commentArea.classList.toggle('hidden');
+    };
+
+    const reactionTools = document.createElement('div');
+    reactionTools.className = 'post-tools';
+    const reactionButtons = document.createElement('div');
+    reactionButtons.className = 'reactions';
 
     const dislikeButton = document.createElement('button');
-    dislikeButton.className = 'secondary';
-    dislikeButton.textContent = '👎 Dislike';
+    dislikeButton.type = 'button';
+    dislikeButton.textContent = 'Not for me';
+    dislikeButton.title = 'Dislike this post';
+    reactionButtons.appendChild(dislikeButton);
+    reactionTools.appendChild(reactionButtons);
+    body.appendChild(reactionTools);
 
-    buttons.append(likeButton, dislikeButton);
-    card.appendChild(buttons);
+    card.appendChild(body);
+
+    async function updatePostReactionCount() {
+      const { count: likes, error: likeError } = await supabase
+        .from('community_post_likes')
+        .select('*', { count: 'exact', head: true })
+        .eq('post_id', post.id)
+        .eq('reaction', 'like');
+
+      const { count: dislikes, error: dislikeError } = await supabase
+        .from('community_post_likes')
+        .select('*', { count: 'exact', head: true })
+        .eq('post_id', post.id)
+        .eq('reaction', 'dislike');
+
+      if (likeError || dislikeError) {
+        count.textContent = 'Reactions unavailable';
+        return;
+      }
+      count.textContent = `${likes ?? 0} ${likes === 1 ? 'like' : 'likes'}`;
+      if ((dislikes ?? 0) > 0) {
+        const dislikeNote = document.createElement('span');
+        dislikeNote.className = 'post-reaction-count';
+        dislikeNote.textContent = `${dislikes} marked “Not for me”`;
+        count.appendChild(dislikeNote);
+      }
+    }
 
     async function refreshReactionButtons() {
-      likeButton.textContent = '👍 Like';
-      dislikeButton.textContent = '👎 Dislike';
-
+      likeButton.textContent = '♡';
+      likeButton.classList.remove('liked');
+      dislikeButton.classList.remove('active');
       if (!currentUser) return;
 
       const { data, error } = await supabase
@@ -870,11 +1057,11 @@ async function loadFeed() {
         .maybeSingle();
 
       if (error) return;
-
       if (data?.reaction === 'like') {
-        likeButton.textContent = '❤️ Liked';
+        likeButton.textContent = '♥';
+        likeButton.classList.add('liked');
       } else if (data?.reaction === 'dislike') {
-        dislikeButton.textContent = '💔 Disliked';
+        dislikeButton.classList.add('active');
       }
     }
 
@@ -903,7 +1090,6 @@ async function loadFeed() {
             .delete()
             .eq('post_id', post.id)
             .eq('user_id', currentUser.id);
-
           if (error) throw error;
           message('Reaction removed.');
         } else if (existing) {
@@ -912,23 +1098,17 @@ async function loadFeed() {
             .update({ reaction })
             .eq('post_id', post.id)
             .eq('user_id', currentUser.id);
-
           if (error) throw error;
           message('Reaction changed.');
         } else {
           const { error } = await supabase
             .from('community_post_likes')
-            .insert({
-              post_id: post.id,
-              user_id: currentUser.id,
-              reaction
-            });
-
+            .insert({ post_id: post.id, user_id: currentUser.id, reaction });
           if (error) throw error;
           message('Reaction added.');
         }
 
-        await updateReactionCounts(post.id, count);
+        await updatePostReactionCount();
         await refreshReactionButtons();
       } catch (error) {
         message('Could not update reaction: ' + error.message);
@@ -941,7 +1121,16 @@ async function loadFeed() {
     likeButton.onclick = () => setReaction('like');
     dislikeButton.onclick = () => setReaction('dislike');
 
-    await updateReactionCounts(post.id, count);
+    const savedKey = currentUser ? 'traveltaste_saved_posts_' + currentUser.id : '';
+    if (savedKey) {
+      try {
+        if (JSON.parse(localStorage.getItem(savedKey) || '[]').includes(post.id)) {
+          saveButton.classList.add('liked');
+        }
+      } catch (_) {}
+    }
+
+    await updatePostReactionCount();
     await refreshReactionButtons();
 
     feed.appendChild(card);
