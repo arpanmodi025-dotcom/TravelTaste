@@ -330,6 +330,120 @@ showMessage('Publishing ' + item.name + '… Please wait.');
 
 
     
+async function loadVisitorPhotoSubmissions() {
+  const container = $('visitorPhotoSubmissions');
+  container.replaceChildren();
+  showMessage('Loading visitor photo submissions…');
+
+  const { data, error } = await supabaseClient
+    .from('place_photo_submissions')
+    .select('id, listing_id, user_id, image_url, caption, status, created_at')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    showMessage('Could not load visitor photos: ' + error.message);
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    container.textContent = 'No pending visitor photos.';
+    showMessage('Visitor photo review complete.');
+    return;
+  }
+
+  showMessage('Pending visitor photos: ' + data.length);
+
+  for (const photo of data) {
+    const card = document.createElement('article');
+    card.className = 'submission';
+
+    const image = document.createElement('img');
+    image.src = photo.image_url;
+    image.alt = 'Visitor-submitted photo';
+    image.loading = 'lazy';
+    image.style.cssText =
+      'display:block;max-width:100%;width:320px;max-height:240px;object-fit:contain;border-radius:8px';
+
+    const title = document.createElement('h3');
+    title.textContent = 'Place ID: ' + photo.listing_id;
+
+    const caption = document.createElement('p');
+    caption.textContent = 'Caption: ' + (photo.caption || 'No caption');
+
+    const date = document.createElement('p');
+    date.className = 'muted';
+    date.textContent =
+      'Submitted: ' + new Date(photo.created_at).toLocaleString();
+
+    const actions = document.createElement('div');
+    actions.className = 'actions';
+
+    const approve = document.createElement('button');
+    approve.className = 'approve';
+    approve.textContent = 'Approve';
+
+    const reject = document.createElement('button');
+    reject.className = 'reject';
+    reject.textContent = 'Reject';
+
+    approve.addEventListener('click', () =>
+      reviewVisitorPhoto(photo.id, 'approved')
+    );
+    reject.addEventListener('click', () =>
+      reviewVisitorPhoto(photo.id, 'rejected')
+    );
+
+    actions.append(approve, reject);
+    card.append(image, title, caption, date, actions);
+    container.appendChild(card);
+  }
+}
+
+async function reviewVisitorPhoto(id, decision) {
+  if (!['approved', 'rejected'].includes(decision)) return;
+
+  if (!confirm('Are you sure you want to ' + decision + ' this photo?')) {
+    return;
+  }
+
+  const { data: { user }, error: authError } =
+    await supabaseClient.auth.getUser();
+
+  if (authError || !user) {
+    showMessage('Please log in again.');
+    return;
+  }
+
+  // Verify that this account is still an authorized admin.
+  const { data: admin, error: adminError } = await supabaseClient
+    .from('travel_admins')
+    .select('user_id')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  if (adminError || !admin) {
+    showMessage('This account is not authorized as an admin.');
+    return;
+  }
+
+  showMessage('Updating photo review…');
+
+  const { error } = await supabaseClient
+    .from('place_photo_submissions')
+    .update({ status: decision })
+    .eq('id', id)
+    .eq('status', 'pending');
+
+  if (error) {
+    showMessage('Could not update photo: ' + error.message);
+    return;
+  }
+
+  showMessage('Photo ' + decision + '.');
+  await loadVisitorPhotoSubmissions();
+}
+
 
     $('loginForm').addEventListener('submit', async event => {
       event.preventDefault();
@@ -362,6 +476,11 @@ showMessage('Publishing ' + item.name + '… Please wait.');
 $('refreshApprovedButton').addEventListener('click', async () => {
   if (await checkAdmin()) await loadApprovedSubmissions();
 });
+    
+$('refreshPhotosButton').addEventListener('click', async () => {
+  if (await checkAdmin()) await loadVisitorPhotoSubmissions();
+});
+
 
 
   
@@ -369,6 +488,7 @@ $('refreshApprovedButton').addEventListener('click', async () => {
   if (await checkAdmin()) {
     await loadSubmissions();
     await loadApprovedSubmissions();
+    await loadVisitorPhotoSubmissions();
   }
 })();
 
