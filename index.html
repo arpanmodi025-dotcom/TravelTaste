@@ -1363,7 +1363,14 @@ const allPhotos = combinedPhotos.length
   
 
  
+const mainPhoto = $('detailMainPhoto');
 
+if (mainPhoto) {
+  mainPhoto.style.cursor = 'zoom-in';
+  mainPhoto.addEventListener('click', () => {
+    window.openTravelTasteLightbox(allPhotos, currentPhotoIndex);
+  });
+}
 
   // Rating elements exist now because the detail HTML is already rendered.
   const ratingSummary = $('ratingSummary');
