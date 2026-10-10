@@ -98,7 +98,8 @@ nav {
   background:#fff;
   box-shadow:0 12px 40px #b94c2010;
 }
-.search select {
+.search select,
+.search input {
   flex:1;
   min-width:0;
   border:0;
@@ -308,7 +309,8 @@ footer p { color:#c8d0d8; }
   .hero h1 { letter-spacing:-1px; }
   .hero p { font-size:16px; }
   .search { flex-direction:column; }
-  .search select { min-height:46px;width:100%; }
+  .search select,
+.search input { min-height:46px;width:100%; }
   .section { padding:35px 16px; }
   .section-head { align-items:flex-start;flex-direction:column; }
   .styles { gap:12px; }
@@ -359,12 +361,20 @@ footer p { color:#c8d0d8; }
   <div class="eyebrow">Your next adventure starts here</div>
   <h1>Where do you want to travel?</h1>
   <p>Discover memorable places, local food, famous food shops, activities and hidden gems — all in one place.</p>
-  <div class="search">
-    <select id="city" aria-label="Choose a destination">
-      <option value="">Loading destinations...</option>
-    </select>
-    <button class="btn primary" id="exploreBtn">Explore</button>
-  </div>
+ 
+<div class="search">
+  <input
+    id="citySearch"
+    type="text"
+    list="cityOptions"
+    placeholder="Search a city or destination..."
+    aria-label="Search a destination"
+    autocomplete="off"
+  />
+  <datalist id="cityOptions"></datalist>
+  <button class="btn primary" id="exploreBtn" type="button">Explore</button>
+</div>
+
 </header>
 
 <main>
@@ -1005,33 +1015,33 @@ async function start() {
     .order('name');
 
   if (error) {
-    $('city').innerHTML = '<option value="">Could not load destinations</option>';
-    $('resultsSubtitle').textContent = 'Please check the Supabase connection.';
+    $('citySearch').value = '';
+    $('cityOptions').innerHTML = '';
+    $('resultsSubtitle').textContent = 'Could not load destinations. Please check the Supabase connection.';
     console.error(error);
     return;
   }
 
   cities = data || [];
-  
-$('submissionCity').innerHTML =
-  '<option value="">Choose a city</option>' +
-  cities.map(city =>
-    `<option value="${escapeHtml(city.id)}">${escapeHtml(city.name)}</option>`
-  ).join('');
 
-  $('city').innerHTML =
-    '<option value="">Choose a destination...</option>' +
+  $('submissionCity').innerHTML =
+    '<option value="">Choose a city</option>' +
     cities.map(city =>
-      `<option value="${escapeHtml(city.id)}">${escapeHtml(city.name)}${city.state ? ', ' + escapeHtml(city.state) : ''}</option>`
+      `<option value="${escapeHtml(city.id)}">${escapeHtml(city.name)}</option>`
     ).join('');
+
+  $('cityOptions').innerHTML = cities.map(city => {
+    const label = city.name + (city.state ? ', ' + city.state : '');
+    return `<option value="${escapeHtml(label)}"></option>`;
+  }).join('');
 
   // Automatically select Ahmedabad when it exists.
   const ahmedabad = cities.find(city =>
-    String(city.name).toLowerCase() === 'ahmedabad'
+    String(city.name).trim().toLowerCase() === 'ahmedabad'
   );
 
   if (ahmedabad) {
-    $('city').value = ahmedabad.id;
+    $('citySearch').value = ahmedabad.name + (ahmedabad.state ? ', ' + ahmedabad.state : '');
     await loadDestination(ahmedabad.id);
   }
 }
@@ -1560,18 +1570,46 @@ $('backToRecommendations').addEventListener('click', () => {
   }).join('');
 }
 
-$('exploreBtn').addEventListener('click', async () => {
-  const cityId = $('city').value;
-  if (!cityId) {
-    alert('Please choose a destination.');
+function findCityFromSearch(value) {
+  const search = String(value || '').trim().toLowerCase();
+  if (!search) return null;
+
+  return cities.find(city => {
+    const name = String(city.name || '').trim().toLowerCase();
+    const label = name + (city.state ? ', ' + String(city.state).trim().toLowerCase() : '');
+    return search === name || search === label;
+  }) || null;
+}
+
+async function exploreSearchedCity() {
+  const city = findCityFromSearch($('citySearch').value);
+
+  if (!city) {
+    alert('Please choose a destination from the suggestions, or type an exact city name such as Ahmedabad or Vadodara.');
+    $('citySearch').focus();
     return;
   }
-  await loadDestination(cityId);
-  $('discover').scrollIntoView({behavior:'smooth'});
+
+  $('citySearch').value = city.name + (city.state ? ', ' + city.state : '');
+  await loadDestination(city.id);
+  $('discover').scrollIntoView({ behavior: 'smooth' });
+}
+
+$('exploreBtn').addEventListener('click', exploreSearchedCity);
+
+$('citySearch').addEventListener('change', async () => {
+  const city = findCityFromSearch($('citySearch').value);
+  if (city) {
+    $('citySearch').value = city.name + (city.state ? ', ' + city.state : '');
+    await loadDestination(city.id);
+  }
 });
 
-$('city').addEventListener('change', async () => {
-  if ($('city').value) await loadDestination($('city').value);
+$('citySearch').addEventListener('keydown', event => {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    exploreSearchedCity();
+  }
 });
 
 document.querySelectorAll('.style-card').forEach(button => {
