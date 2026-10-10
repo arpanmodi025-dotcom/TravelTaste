@@ -1338,13 +1338,15 @@ const allPhotos = combinedPhotos.length
 
 
   
+ 
+  // Track the currently selected photo.
+  let currentPhotoIndex = 0;
+
   detailContent.querySelectorAll('.detail-thumb').forEach(button => {
     button.addEventListener('click', () => {
-      const photo = allPhotos[Number(button.dataset.photoIndex)];
-      window.openTravelTasteLightbox(
-  allPhotos,
-  Number(button.dataset.photoIndex)
-);
+      currentPhotoIndex = Number(button.dataset.photoIndex);
+
+      const photo = allPhotos[currentPhotoIndex];
       const mainPhoto = $('detailMainPhoto');
       const caption = $('detailPhotoCaption');
 
@@ -1353,8 +1355,22 @@ const allPhotos = combinedPhotos.length
         mainPhoto.alt = photo.caption || item.name;
         caption.textContent = photo.caption || item.name;
       }
+
+      window.openTravelTasteLightbox(allPhotos, currentPhotoIndex);
     });
   });
+
+  // Make the large photo clickable.
+  const mainPhoto = $('detailMainPhoto');
+
+  if (mainPhoto) {
+    mainPhoto.style.cursor = 'zoom-in';
+
+    mainPhoto.addEventListener('click', () => {
+      window.openTravelTasteLightbox(allPhotos, currentPhotoIndex);
+    });
+  }
+
 
   // Make the large destination photo clickable.
   const mainPhoto = $('detailMainPhoto');
