@@ -1172,6 +1172,22 @@ async function openListingDetails(listingId) {
         Visitor tip: Check local opening times and any entry fees before visiting.
       </p>
 
+      
+      <div id="placeRatingSection" style="margin:24px 0;padding:20px;background:#fff;border-radius:14px">
+        <h2>⭐ Rate this place</h2>
+        <p id="ratingSummary">Loading ratings...</p>
+        <p>How was your experience?</p>
+        <div id="ratingButtons" style="display:flex;gap:10px;flex-wrap:wrap">
+          ${[1,2,3,4,5].map(n => `
+            <button type="button" data-rating="${n}"
+              style="padding:10px 14px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;font-size:18px">
+              ${'★'.repeat(n)}
+            </button>
+          `).join('')}
+        </div>
+        <p id="ratingMessage" role="status"></p>
+      </div>
+
       <a class="btn primary" href="${escapeHtml(mapUrl)}"
         target="_blank" rel="noopener noreferrer"
         style="display:inline-block;text-decoration:none;margin:12px 0">
@@ -1189,6 +1205,73 @@ async function openListingDetails(listingId) {
     });
   });
 }
+
+  const ratingSummary = $('ratingSummary');
+  const ratingMessage = $('ratingMessage');
+  const ratingButtons = detailContent.querySelectorAll('[data-rating]');
+
+  async function loadPlaceRatings() {
+    ratingSummary.textContent = 'Loading ratings...';
+
+    const { data, error } = await supabase
+      .from('place_ratings')
+      .select('rating')
+      .eq('listing_id', item.id);
+
+    if (error) {
+      ratingSummary.textContent = 'Could not load ratings.';
+      console.error(error);
+      return;
+    }
+
+    if (!data.length) {
+      ratingSummary.textContent = 'No ratings yet. Be the first!';
+      return;
+    }
+
+    const average =
+      data.reduce((sum, row) => sum + row.rating, 0) / data.length;
+
+    ratingSummary.textContent =
+      `⭐ ${average.toFixed(1)} / 5 (${data.length} rating${data.length === 1 ? '' : 's'})`;
+  }
+
+  ratingButtons.forEach(button => {
+    button.addEventListener('click', async () => {
+      const rating = Number(button.dataset.rating);
+      ratingMessage.textContent = 'Saving your rating...';
+
+      const { data: { user }, error: authError } =
+        await supabase.auth.getUser();
+
+      if (authError || !user) {
+        ratingMessage.textContent =
+          'Please log in to Community before rating this place.';
+        return;
+      }
+
+      const { error } = await supabase
+        .from('place_ratings')
+        .upsert(
+          {
+            listing_id: item.id,
+            user_id: user.id,
+            rating
+          },
+          { onConflict: 'listing_id,user_id' }
+        );
+
+      if (error) {
+        ratingMessage.textContent = 'Could not save rating: ' + error.message;
+        return;
+      }
+
+      ratingMessage.textContent = 'Thanks! Your rating has been saved.';
+      await loadPlaceRatings();
+    });
+  });
+
+  await loadPlaceRatings();
 
 window.openListingDetails = openListingDetails;
 
