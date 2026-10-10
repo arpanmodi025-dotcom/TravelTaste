@@ -1107,16 +1107,41 @@ async function openListingDetails(listingId) {
   detailContent.innerHTML = '<p>Loading location details...</p>';
   detailSection.scrollIntoView({ behavior: 'smooth' });
 
-  const { data: photos, error } = await supabase
-    .from('listing_photos')
-    .select('image_url, caption, display_order')
-    .eq('listing_id', item.id)
-    .order('display_order', { ascending: true });
+  
+const { data: photos, error } = await supabase
+  .from('listing_photos')
+  .select('image_url, caption, display_order')
+  .eq('listing_id', item.id)
+  .order('display_order', { ascending: true });
 
-  const gallery = error ? [] : (photos || []);
-  const allPhotos = gallery.length
-    ? gallery
-    : (item.image_url ? [{ image_url: item.image_url, caption: item.name }] : []);
+const { data: visitorPhotos, error: visitorPhotoError } = await supabase
+  .from('place_photo_submissions')
+  .select('image_url, caption, created_at')
+  .eq('listing_id', item.id)
+  .eq('status', 'approved')
+  .order('created_at', { ascending: false });
+
+if (visitorPhotoError) {
+  console.error('Could not load approved visitor photos:', visitorPhotoError);
+}
+
+const gallery = error ? [] : (photos || []);
+const approvedVisitorPhotos = visitorPhotos || [];
+
+const combinedPhotos = [
+  ...gallery,
+  ...approvedVisitorPhotos.filter(
+    visitorPhoto =>
+      !gallery.some(photo => photo.image_url === visitorPhoto.image_url)
+  )
+];
+
+const allPhotos = combinedPhotos.length
+  ? combinedPhotos
+  : (item.image_url
+      ? [{ image_url: item.image_url, caption: item.name }]
+      : []);
+
 
   const mapUrl = item.google_maps_url ||
     (item.latitude != null && item.longitude != null
