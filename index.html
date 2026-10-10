@@ -1196,21 +1196,29 @@ async function openListingDetails(listingId) {
     </div>
   `;
 
+  
   detailContent.querySelectorAll('.detail-thumb').forEach(button => {
     button.addEventListener('click', () => {
       const photo = allPhotos[Number(button.dataset.photoIndex)];
-      $('detailMainPhoto').src = photo.image_url;
-      $('detailMainPhoto').alt = photo.caption || item.name;
-      $('detailPhotoCaption').textContent = photo.caption || item.name;
+      const mainPhoto = $('detailMainPhoto');
+      const caption = $('detailPhotoCaption');
+
+      if (mainPhoto && caption && photo) {
+        mainPhoto.src = photo.image_url;
+        mainPhoto.alt = photo.caption || item.name;
+        caption.textContent = photo.caption || item.name;
+      }
     });
   });
-}
 
+  // Rating elements exist now because the detail HTML is already rendered.
   const ratingSummary = $('ratingSummary');
   const ratingMessage = $('ratingMessage');
   const ratingButtons = detailContent.querySelectorAll('[data-rating]');
 
   async function loadPlaceRatings() {
+    if (!ratingSummary) return;
+
     ratingSummary.textContent = 'Loading ratings...';
 
     const { data, error } = await supabase
@@ -1220,24 +1228,29 @@ async function openListingDetails(listingId) {
 
     if (error) {
       ratingSummary.textContent = 'Could not load ratings.';
-      console.error(error);
+      console.error('Rating load error:', error);
       return;
     }
 
-    if (!data.length) {
+    const ratings = data || [];
+
+    if (ratings.length === 0) {
       ratingSummary.textContent = 'No ratings yet. Be the first!';
       return;
     }
 
     const average =
-      data.reduce((sum, row) => sum + row.rating, 0) / data.length;
+      ratings.reduce((sum, row) => sum + Number(row.rating), 0) /
+      ratings.length;
 
     ratingSummary.textContent =
-      `⭐ ${average.toFixed(1)} / 5 (${data.length} rating${data.length === 1 ? '' : 's'})`;
+      `⭐ ${average.toFixed(1)} / 5 (${ratings.length} rating${ratings.length === 1 ? '' : 's'})`;
   }
 
   ratingButtons.forEach(button => {
     button.addEventListener('click', async () => {
+      if (!ratingMessage) return;
+
       const rating = Number(button.dataset.rating);
       ratingMessage.textContent = 'Saving your rating...';
 
@@ -1262,7 +1275,8 @@ async function openListingDetails(listingId) {
         );
 
       if (error) {
-        ratingMessage.textContent = 'Could not save rating: ' + error.message;
+        ratingMessage.textContent =
+          'Could not save rating: ' + error.message;
         return;
       }
 
@@ -1272,6 +1286,7 @@ async function openListingDetails(listingId) {
   });
 
   await loadPlaceRatings();
+}
 
 window.openListingDetails = openListingDetails;
 
