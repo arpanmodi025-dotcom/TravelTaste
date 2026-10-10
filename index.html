@@ -1187,6 +1187,41 @@ async function openListingDetails(listingId) {
         </div>
         <p id="ratingMessage" role="status"></p>
       </div>
+      
+      <div id="visitorPhotoSection" style="margin:24px 0;padding:20px;background:#fff;border-radius:14px">
+        <h2>📸 Share your photos of this place</h2>
+        <p>Help other travellers discover this place through your photos.</p>
+
+        <form id="visitorPhotoForm" style="display:grid;gap:12px">
+          <label>
+            Choose a photo (JPG, PNG or WebP; maximum 5 MB)
+            <input
+              id="visitorPhotoFile"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              required
+              style="display:block;width:100%;margin-top:8px"
+            >
+          </label>
+
+          <label>
+            Caption (optional)
+            <input
+              id="visitorPhotoCaption"
+              type="text"
+              maxlength="300"
+              placeholder="Describe your photo"
+              style="display:block;width:100%;padding:10px;margin-top:6px"
+            >
+          </label>
+
+          <button type="submit" class="btn primary">
+            Submit photo for approval
+          </button>
+          <p id="visitorPhotoMessage" role="status"></p>
+        </form>
+      </div>
+
 
       <a class="btn primary" href="${escapeHtml(mapUrl)}"
         target="_blank" rel="noopener noreferrer"
