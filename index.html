@@ -497,7 +497,7 @@ footer p { color:#c8d0d8; }
 #communityPage .community-app-subtitle{font-size:13px;color:#88766a;margin-top:5px}
 #communityPage .community-app-header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 #communityPage .community-app-header-actions button{width:auto;margin:0;padding:11px 14px;border-radius:11px}
-#communityPage .community-layout{display:grid;grid-template-columns:270px minmax(0,680px);justify-content:center;align-items:start;gap:22px}
+#communityPage .community-layout{display:grid;grid-template-columns:250px minmax(0,680px) 270px;justify-content:center;align-items:start;gap:20px}
 #communityPage .community-sidebar{position:sticky;top:18px;display:grid;gap:14px}
 #communityPage .profile-sidebar-card{background:#fff;border:1px solid #f0dfd1;border-radius:18px;padding:20px;box-shadow:0 5px 18px rgba(90,54,31,.04)}
 #communityPage .profile-avatar-large{width:62px;height:62px;border-radius:20px;background:linear-gradient(145deg,#f26e3d,#ffbd78);display:grid;place-items:center;color:white;font-size:29px;margin-bottom:13px}
@@ -509,6 +509,23 @@ footer p { color:#c8d0d8; }
 #communityPage .profile-stat-label{font-size:11px;color:#896f5f;margin-top:3px}
 #communityPage .profile-sidebar-card button{width:100%;margin:5px 0 0;padding:10px;border-radius:10px}
 #communityPage .community-feed-column{min-width:0}
+#communityPage .community-friends-column{min-width:0;position:sticky;top:18px;display:grid;gap:14px}
+#communityPage .friends-card{background:#fff;border:1px solid #f0dfd1;border-radius:18px;padding:17px;box-shadow:0 5px 18px rgba(90,54,31,.04)}
+#communityPage .friends-card h3{font-size:17px;margin:0 0 5px;color:#33251f}
+#communityPage .friends-hint{font-size:12px;line-height:1.45;color:#8b8179;margin:0 0 12px}
+#communityPage .friends-search{width:100%;box-sizing:border-box;border:1px solid #eaded4;border-radius:12px;padding:11px 12px;margin:0 0 10px;background:#fffdfa}
+#communityPage .friends-results{display:grid;gap:11px}
+#communityPage .friend-row{display:flex;align-items:center;gap:9px;min-width:0}
+#communityPage .friend-avatar{width:38px;height:38px;flex:0 0 38px;border-radius:50%;display:grid;place-items:center;background:#fff0e5;color:#b94d25;font-weight:800}
+#communityPage .friend-person{flex:1;min-width:0}
+#communityPage .friend-name{font-size:13px;font-weight:750;color:#33251f;overflow-wrap:anywhere}
+#communityPage .friend-subtitle{font-size:11px;color:#8b8179;margin-top:2px}
+#communityPage .friend-action{width:auto!important;min-width:0;margin:0!important;padding:7px 9px!important;border-radius:9px!important;font-size:11px!important;white-space:nowrap}
+#communityPage .friend-section-title{font-size:12px;font-weight:800;color:#8b5b43;text-transform:uppercase;letter-spacing:.06em;margin:15px 0 9px}
+#communityPage .friend-empty{font-size:12px;color:#8b8179;line-height:1.5;padding:8px 0}
+#communityPage .friend-notice{font-size:12px;line-height:1.4;color:#9b4a25;min-height:15px;margin:7px 0 0;overflow-wrap:anywhere}
+#communityPage .friends-count{font-size:12px;color:#8b8179;margin:0 0 12px}
+#communityPage .friend-separator{border:0;border-top:1px solid #f2e7df;margin:14px 0}
 #communityPage .feed-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px}
 #communityPage .feed-heading{margin:0;font-size:22px;color:#30251f}
 #communityPage .feed-toolbar button{width:auto;margin:0;padding:9px 12px;border-radius:10px}
@@ -519,8 +536,13 @@ footer p { color:#c8d0d8; }
 #communityPage #composer button{width:100%;margin-top:10px;border-radius:11px}
 #communityPage #appStatus{white-space:pre-wrap;color:#75391f;margin:8px 0 12px}
 #communityPage .hidden{display:none!important}
+@media(max-width:1100px){
+ #communityPage .community-layout{grid-template-columns:235px minmax(0,680px);gap:16px}
+ #communityPage .community-friends-column{position:static;grid-column:1/-1;grid-template-columns:repeat(2,minmax(0,1fr))}
+}
 @media(max-width:800px){
  #communityPage .community-layout{grid-template-columns:minmax(0,680px);gap:15px}
+ #communityPage .community-friends-column{grid-column:auto;grid-template-columns:minmax(0,1fr);position:static}
  #communityPage .community-sidebar{position:static;grid-row:1}
  #communityPage .profile-sidebar-card{display:grid;grid-template-columns:auto 1fr;column-gap:13px;align-items:center;padding:14px}
  #communityPage .profile-avatar-large{grid-row:span 2;margin:0;width:52px;height:52px;border-radius:16px}
@@ -850,6 +872,29 @@ footer p { color:#c8d0d8; }
           </div>
           <section id="feed"><p class="small">Loading achievements…</p></section>
         </main>
+
+        <aside class="community-friends-column">
+          <section class="friends-card">
+            <h3>Find travel friends 🤝</h3>
+            <p class="friends-hint">Connect with members who have shared at least one achievement.</p>
+            <input id="friendSearch" class="friends-search" type="search" maxlength="60" placeholder="Search members…" aria-label="Search achievement-sharing members">
+            <div id="friendSearchResults" class="friends-results"><p class="friend-empty">Search by display name to find members.</p></div>
+            <p id="friendNotice" class="friend-notice" role="status" aria-live="polite"></p>
+          </section>
+          <section class="friends-card">
+            <h3>Friend requests</h3>
+            <div class="friend-section-title">Received</div>
+            <div id="incomingFriendRequests" class="friends-results"><p class="friend-empty">Loading requests…</p></div>
+            <hr class="friend-separator">
+            <div class="friend-section-title">Sent</div>
+            <div id="outgoingFriendRequests" class="friends-results"><p class="friend-empty">Loading sent requests…</p></div>
+          </section>
+          <section class="friends-card">
+            <h3>My friends</h3>
+            <p id="friendCount" class="friends-count">Your accepted connections</p>
+            <div id="myFriendsList" class="friends-results"><p class="friend-empty">Loading friends…</p></div>
+          </section>
+        </aside>
       </div>
     </section>
   </div>
@@ -1403,12 +1448,288 @@ $('publish').onclick = async () => {
   }
 };
 
+
+// Friends feature: only members who have published at least one achievement can be discovered.
+const friendSearchInput = $('friendSearch');
+let friendSearchTimer = null;
+
+function friendDisplayName(profile) {
+  return (profile?.display_name || 'TravelTaste member').trim();
+}
+
+function friendInitial(profile) {
+  return friendDisplayName(profile).slice(0, 1).toUpperCase() || 'T';
+}
+
+function friendRowMarkup(profile, subtitle = '') {
+  return `<div class="friend-row">
+    <div class="friend-avatar" aria-hidden="true">${escapeHtml(friendInitial(profile))}</div>
+    <div class="friend-person">
+      <div class="friend-name">${escapeHtml(friendDisplayName(profile))}</div>
+      <div class="friend-subtitle">${escapeHtml(subtitle)}</div>
+    </div>
+  </div>`;
+}
+
+async function getFriendProfiles(userIds) {
+  const ids = [...new Set((userIds || []).filter(id => id && id !== currentUser?.id))];
+  if (!ids.length) return [];
+  const { data, error } = await supabase
+    .from('community_profiles')
+    .select('user_id, display_name')
+    .in('user_id', ids);
+  if (error) throw error;
+  return data || [];
+}
+
+async function loadFriendArea() {
+  if (!currentUser) return;
+  $('incomingFriendRequests').innerHTML = '<p class="friend-empty">Loading requests…</p>';
+  $('outgoingFriendRequests').innerHTML = '<p class="friend-empty">Loading sent requests…</p>';
+  $('myFriendsList').innerHTML = '<p class="friend-empty">Loading friends…</p>';
+
+  const { data: requests, error } = await supabase
+    .from('community_friend_requests')
+    .select('id, requester_id, recipient_id, status, created_at')
+    .or(`requester_id.eq.${currentUser.id},recipient_id.eq.${currentUser.id}`)
+    .order('created_at', { ascending: false })
+    .limit(200);
+
+  if (error) {
+    const problem = '<p class="friend-empty">Friend tools need the Supabase setup SQL. ' + escapeHtml(error.message) + '</p>';
+    $('incomingFriendRequests').innerHTML = problem;
+    $('outgoingFriendRequests').innerHTML = problem;
+    $('myFriendsList').innerHTML = problem;
+    return;
+  }
+
+  const allRequests = requests || [];
+  const incoming = allRequests.filter(r => r.recipient_id === currentUser.id && r.status === 'pending');
+  const outgoing = allRequests.filter(r => r.requester_id === currentUser.id && r.status === 'pending');
+  const accepted = allRequests.filter(r => r.status === 'accepted');
+
+  const neededIds = [
+    ...incoming.map(r => r.requester_id),
+    ...outgoing.map(r => r.recipient_id),
+    ...accepted.map(r => r.requester_id === currentUser.id ? r.recipient_id : r.requester_id)
+  ];
+  let profiles = [];
+  try { profiles = await getFriendProfiles(neededIds); } catch (e) {
+    $('friendNotice').textContent = 'Could not load member profiles: ' + e.message;
+  }
+  const profileMap = new Map(profiles.map(p => [p.user_id, p]));
+
+  const incomingEl = $('incomingFriendRequests');
+  incomingEl.innerHTML = '';
+  if (!incoming.length) incomingEl.innerHTML = '<p class="friend-empty">No new requests.</p>';
+  for (const request of incoming) {
+    const profile = profileMap.get(request.requester_id) || { display_name: 'TravelTaste member' };
+    const row = document.createElement('div');
+    row.className = 'friend-request-item';
+    row.innerHTML = friendRowMarkup(profile, 'Wants to connect') +
+      '<div class="friend-request-actions" style="display:flex;gap:6px;margin:7px 0 2px 47px">' +
+      `<button type="button" class="friend-action" data-friend-action="accept">Accept</button>` +
+      `<button type="button" class="friend-action secondary" data-friend-action="decline">Decline</button></div>`;
+    row.querySelector('[data-friend-action="accept"]').onclick = () => respondToFriendRequest(request, 'accepted');
+    row.querySelector('[data-friend-action="decline"]').onclick = () => respondToFriendRequest(request, 'declined');
+    incomingEl.appendChild(row);
+  }
+
+  const outgoingEl = $('outgoingFriendRequests');
+  outgoingEl.innerHTML = '';
+  if (!outgoing.length) outgoingEl.innerHTML = '<p class="friend-empty">No pending sent requests.</p>';
+  for (const request of outgoing) {
+    const profile = profileMap.get(request.recipient_id) || { display_name: 'TravelTaste member' };
+    const row = document.createElement('div');
+    row.innerHTML = friendRowMarkup(profile, 'Request pending') +
+      '<div style="margin:6px 0 2px 47px"><button type="button" class="friend-action secondary">Cancel request</button></div>';
+    row.querySelector('button').onclick = () => cancelFriendRequest(request);
+    outgoingEl.appendChild(row);
+  }
+
+  const friendsEl = $('myFriendsList');
+  friendsEl.innerHTML = '';
+  const friendIds = accepted.map(r => r.requester_id === currentUser.id ? r.recipient_id : r.requester_id);
+  $('friendCount').textContent = `${friendIds.length} ${friendIds.length === 1 ? 'friend' : 'friends'}`;
+  if (!friendIds.length) friendsEl.innerHTML = '<p class="friend-empty">Your friend list will appear here when requests are accepted.</p>';
+  for (const id of friendIds) {
+    const profile = profileMap.get(id) || { display_name: 'TravelTaste member' };
+    const row = document.createElement('div');
+    row.innerHTML = friendRowMarkup(profile, 'TravelTaste friend');
+    friendsEl.appendChild(row);
+  }
+
+  if (friendSearchInput && friendSearchInput.value.trim()) await searchFriendMembers(friendSearchInput.value.trim());
+}
+
+async function searchFriendMembers(query) {
+  if (!currentUser) return;
+  const results = $('friendSearchResults');
+  if (!query) {
+    results.innerHTML = '<p class="friend-empty">Search by display name to find members.</p>';
+    return;
+  }
+  results.innerHTML = '<p class="friend-empty">Searching members…</p>';
+
+  try {
+    const { data: profiles, error: profileError } = await supabase
+      .from('community_profiles')
+      .select('user_id, display_name')
+      .neq('user_id', currentUser.id)
+      .ilike('display_name', `%${query.replace(/[%_]/g, '\\$&')}%`)
+      .limit(50);
+    if (profileError) throw profileError;
+    if (!profiles?.length) {
+      results.innerHTML = '<p class="friend-empty">No matching members found.</p>';
+      return;
+    }
+
+    const ids = profiles.map(p => p.user_id);
+    const { data: posts, error: postsError } = await supabase
+      .from('community_posts')
+      .select('user_id')
+      .in('user_id', ids)
+      .limit(500);
+    if (postsError) throw postsError;
+
+    const achieverIds = new Set((posts || []).map(p => p.user_id));
+    const eligible = profiles.filter(p => achieverIds.has(p.user_id));
+    if (!eligible.length) {
+      results.innerHTML = '<p class="friend-empty">No matching members have shared an achievement yet.</p>';
+      return;
+    }
+
+    const { data: requests, error: requestError } = await supabase
+      .from('community_friend_requests')
+      .select('id, requester_id, recipient_id, status')
+      .or(`requester_id.eq.${currentUser.id},recipient_id.eq.${currentUser.id}`)
+      .limit(200);
+    if (requestError) throw requestError;
+    const statusByUser = new Map();
+    for (const request of requests || []) {
+      const otherId = request.requester_id === currentUser.id ? request.recipient_id : request.requester_id;
+      statusByUser.set(otherId, request);
+    }
+
+    results.innerHTML = '';
+    for (const profile of eligible) {
+      const existing = statusByUser.get(profile.user_id);
+      const row = document.createElement('div');
+      row.innerHTML = friendRowMarkup(profile, 'Achievement-sharing member');
+      if (existing?.status === 'accepted') {
+        const label = document.createElement('span');
+        label.className = 'friend-action';
+        label.textContent = 'Friends ✓';
+        row.firstElementChild.appendChild(label);
+      } else if (existing?.status === 'pending' && existing.requester_id === currentUser.id) {
+        const label = document.createElement('span');
+        label.className = 'friend-action';
+        label.textContent = 'Request sent';
+        row.firstElementChild.appendChild(label);
+      } else if (existing?.status === 'pending' && existing.recipient_id === currentUser.id) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'friend-action';
+        button.textContent = 'Accept';
+        button.onclick = () => respondToFriendRequest(existing, 'accepted');
+        row.firstElementChild.appendChild(button);
+      } else {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'friend-action';
+        button.textContent = existing?.status === 'declined' ? 'Add again' : 'Add friend';
+        button.onclick = () => sendFriendRequest(profile);
+        row.firstElementChild.appendChild(button);
+      }
+      results.appendChild(row);
+    }
+  } catch (error) {
+    results.innerHTML = '<p class="friend-empty">Could not search members: ' + escapeHtml(error.message) + '</p>';
+  }
+}
+
+async function sendFriendRequest(profile) {
+  if (!currentUser || !profile?.user_id) return;
+  $('friendNotice').textContent = '';
+  if (profile.user_id === currentUser.id) return;
+  try {
+    const { data: prior, error: priorError } = await supabase
+      .from('community_friend_requests')
+      .select('id, requester_id, recipient_id, status')
+      .or(`and(requester_id.eq.${currentUser.id},recipient_id.eq.${profile.user_id}),and(requester_id.eq.${profile.user_id},recipient_id.eq.${currentUser.id})`)
+      .limit(1);
+    if (priorError) throw priorError;
+    const existing = prior?.[0];
+    if (existing?.status === 'accepted') {
+      $('friendNotice').textContent = 'You are already friends.';
+      return;
+    }
+    if (existing?.status === 'pending') {
+      $('friendNotice').textContent = 'A friend request is already pending.';
+      return;
+    }
+    if (existing?.status === 'declined') {
+      const { error } = await supabase.from('community_friend_requests')
+        .update({ requester_id: currentUser.id, recipient_id: profile.user_id, status: 'pending' })
+        .eq('id', existing.id);
+      if (error) throw error;
+    } else {
+      const { error } = await supabase.from('community_friend_requests')
+        .insert({ requester_id: currentUser.id, recipient_id: profile.user_id, status: 'pending' });
+      if (error) throw error;
+    }
+    $('friendNotice').textContent = `Friend request sent to ${friendDisplayName(profile)}.`;
+    await loadFriendArea();
+  } catch (error) {
+    $('friendNotice').textContent = 'Could not send request: ' + error.message;
+  }
+}
+
+async function respondToFriendRequest(request, status) {
+  if (!currentUser || request.recipient_id !== currentUser.id) return;
+  try {
+    const { error } = await supabase.from('community_friend_requests')
+      .update({ status })
+      .eq('id', request.id)
+      .eq('recipient_id', currentUser.id)
+      .eq('status', 'pending');
+    if (error) throw error;
+    $('friendNotice').textContent = status === 'accepted' ? 'Friend request accepted.' : 'Friend request declined.';
+    await loadFriendArea();
+    if (friendSearchInput?.value.trim()) await searchFriendMembers(friendSearchInput.value.trim());
+  } catch (error) {
+    $('friendNotice').textContent = 'Could not update request: ' + error.message;
+  }
+}
+
+async function cancelFriendRequest(request) {
+  if (!currentUser || request.requester_id !== currentUser.id) return;
+  try {
+    const { error } = await supabase.from('community_friend_requests')
+      .delete().eq('id', request.id).eq('requester_id', currentUser.id).eq('status', 'pending');
+    if (error) throw error;
+    $('friendNotice').textContent = 'Friend request cancelled.';
+    await loadFriendArea();
+    if (friendSearchInput?.value.trim()) await searchFriendMembers(friendSearchInput.value.trim());
+  } catch (error) {
+    $('friendNotice').textContent = 'Could not cancel request: ' + error.message;
+  }
+}
+
+if (friendSearchInput) {
+  friendSearchInput.addEventListener('input', () => {
+    clearTimeout(friendSearchTimer);
+    friendSearchTimer = setTimeout(() => searchFriendMembers(friendSearchInput.value.trim()), 250);
+  });
+}
+
 supabase.auth.onAuthStateChange((_event, session) => {
   const user = session?.user || null;
   showAccount(user);
   if (user) Promise.resolve().then(async () => {
     await ensureCommunityProfile(user);
     await loadFeed();
+    await loadFriendArea();
   });
 });
 
@@ -1417,6 +1738,7 @@ showAccount(session?.user || null);
 if (session?.user) {
   await ensureCommunityProfile(session.user);
   await loadFeed();
+  await loadFriendArea();
 }
 
 function escapeHtml(value) {
