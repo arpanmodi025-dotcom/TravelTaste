@@ -484,6 +484,63 @@ footer p { color:#c8d0d8; }
  #communityPage .comment-form{align-items:stretch}
 }
 
+/* Achievement community app layout: sign-in gate + profile sidebar + activity feed */
+#communityPage .community-inner{max-width:1240px;margin:0 auto;padding:24px 18px 56px}
+#communityPage .community-auth-gate{max-width:520px;margin:38px auto;background:#fff;border:1px solid #f0dfd1;border-radius:22px;padding:30px;box-shadow:0 12px 38px rgba(90,54,31,.07)}
+#communityPage .community-auth-gate h1{font-size:30px;color:#bd4e24;letter-spacing:-.6px}
+#communityPage .community-auth-gate .auth-intro{color:#77665b;line-height:1.6;margin:10px 0 22px}
+#communityPage .community-auth-gate label{display:block;font-size:13px;font-weight:750;color:#5d4638;margin:12px 0 5px}
+#communityPage .community-auth-gate input{display:block;width:100%;margin:0;padding:13px 14px;border:1px solid #e8d9cc;border-radius:11px}
+#communityPage .community-auth-gate button{width:100%;margin:10px 0 0;padding:12px 15px;border-radius:11px}
+#communityPage .community-app-header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 22px}
+#communityPage .community-app-title{font-size:27px;font-weight:900;letter-spacing:-.7px;color:#bd4e24}
+#communityPage .community-app-subtitle{font-size:13px;color:#88766a;margin-top:5px}
+#communityPage .community-app-header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#communityPage .community-app-header-actions button{width:auto;margin:0;padding:11px 14px;border-radius:11px}
+#communityPage .community-layout{display:grid;grid-template-columns:270px minmax(0,680px);justify-content:center;align-items:start;gap:22px}
+#communityPage .community-sidebar{position:sticky;top:18px;display:grid;gap:14px}
+#communityPage .profile-sidebar-card{background:#fff;border:1px solid #f0dfd1;border-radius:18px;padding:20px;box-shadow:0 5px 18px rgba(90,54,31,.04)}
+#communityPage .profile-avatar-large{width:62px;height:62px;border-radius:20px;background:linear-gradient(145deg,#f26e3d,#ffbd78);display:grid;place-items:center;color:white;font-size:29px;margin-bottom:13px}
+#communityPage .profile-sidebar-name{font-size:18px;font-weight:850;color:#33251d;overflow-wrap:anywhere}
+#communityPage .profile-sidebar-email{font-size:12px;color:#8b8179;margin-top:4px;overflow-wrap:anywhere}
+#communityPage .profile-stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:17px 0}
+#communityPage .profile-stat{background:#fff7ed;border:1px solid #ffe5c8;border-radius:12px;padding:11px 9px}
+#communityPage .profile-stat-number{font-size:21px;font-weight:900;color:#a84620}
+#communityPage .profile-stat-label{font-size:11px;color:#896f5f;margin-top:3px}
+#communityPage .profile-sidebar-card button{width:100%;margin:5px 0 0;padding:10px;border-radius:10px}
+#communityPage .community-feed-column{min-width:0}
+#communityPage .feed-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px}
+#communityPage .feed-heading{margin:0;font-size:22px;color:#30251f}
+#communityPage .feed-toolbar button{width:auto;margin:0;padding:9px 12px;border-radius:10px}
+#communityPage #composer{margin-bottom:18px}
+#communityPage #composer h2{margin-top:0}
+#communityPage #composer input,#communityPage #composer textarea{display:block;width:100%;margin:8px 0;padding:12px 13px;border:1px solid #e8d9cc;border-radius:11px}
+#communityPage #composer label{font-size:13px;font-weight:750;color:#5d4638}
+#communityPage #composer button{width:100%;margin-top:10px;border-radius:11px}
+#communityPage #appStatus{white-space:pre-wrap;color:#75391f;margin:8px 0 12px}
+#communityPage .hidden{display:none!important}
+@media(max-width:800px){
+ #communityPage .community-layout{grid-template-columns:minmax(0,680px);gap:15px}
+ #communityPage .community-sidebar{position:static;grid-row:1}
+ #communityPage .profile-sidebar-card{display:grid;grid-template-columns:auto 1fr;column-gap:13px;align-items:center;padding:14px}
+ #communityPage .profile-avatar-large{grid-row:span 2;margin:0;width:52px;height:52px;border-radius:16px}
+ #communityPage .profile-stats{grid-column:1/-1;margin:12px 0 4px}
+ #communityPage .profile-sidebar-card button{grid-column:1/-1}
+}
+@media(max-width:600px){
+ #communityPage .community-inner{padding:14px 10px 32px}
+ #communityPage .community-auth-gate{margin:18px 4px;padding:22px 18px;border-radius:18px}
+ #communityPage .community-auth-gate h1{font-size:26px}
+ #communityPage .community-app-header{align-items:flex-start;flex-direction:column;margin:4px 4px 17px}
+ #communityPage .community-app-title{font-size:24px}
+ #communityPage .community-app-header-actions{width:100%}
+ #communityPage .community-app-header-actions button{flex:1}
+ #communityPage .community-sidebar{gap:10px}
+ #communityPage .profile-sidebar-card{border-radius:15px}
+ #communityPage .feed-toolbar{margin:0 4px 12px}
+ #communityPage .feed-heading{font-size:20px}
+}
+
 #communityPage[hidden]{display:none!important}
 </style>
 </head>
@@ -726,38 +783,75 @@ footer p { color:#c8d0d8; }
 
 <section id="communityPage" hidden>
   <div class="community-inner">
+    <section id="communityAuthGate" class="community-auth-gate">
+      <div class="profile-avatar-large" aria-hidden="true">🏆</div>
+      <h1>TravelTaste Community</h1>
+      <p class="auth-intro">Sign in to celebrate achievements, share your milestones, and encourage other members.</p>
+      <div id="auth">
+        <label for="displayName">Display name (for new accounts)</label>
+        <input id="displayName" type="text" maxlength="40" placeholder="Your display name" autocomplete="nickname">
+        <label for="email">Email address</label>
+        <input id="email" type="email" placeholder="you@example.com" autocomplete="email">
+        <label for="password">Password</label>
+        <input id="password" type="password" placeholder="At least 6 characters" autocomplete="current-password">
+        <button id="login" type="button">Log in</button>
+        <button id="signup" type="button" class="secondary">Create account</button>
+        <p class="small">New accounts may need email confirmation before signing in.</p>
+      </div>
+      <p id="account" class="small">Log in or create an account to continue.</p>
+      <p id="status" role="status" aria-live="polite"></p>
+    </section>
 
-  <section class="community-card">
-    <h1>TravelTaste Achievements 🏆</h1>
-    <p>Share your milestones, celebrate others, and inspire the community. Every celebration adds achievement points.</p>
-    <p id="account">Checking your account…</p>
-    <div id="auth">
-      <input id="displayName" type="text" maxlength="40" placeholder="Your display name (for new accounts)" autocomplete="nickname">
-      <input id="email" type="email" placeholder="Email address" autocomplete="email">
-      <input id="password" type="password" placeholder="Password (at least 6 characters)" autocomplete="current-password">
-      <button id="signup">Create account</button>
-      <button id="login" class="secondary">Log in</button>
-      <p class="small">New accounts may need email confirmation.</p>
-    </div>
-    <button id="logout" class="secondary hidden">Log out</button>
-  </section>
+    <section id="communityApp" class="hidden">
+      <header class="community-app-header">
+        <div>
+          <div class="community-app-title">TravelTaste Achievements 🏆</div>
+          <div class="community-app-subtitle">Real milestones. Shared inspiration. Celebrate each other.</div>
+        </div>
+        <div class="community-app-header-actions">
+          <button id="addAchievementBtn" type="button">＋ Add achievement</button>
+          <button id="logout" type="button" class="secondary">Log out</button>
+        </div>
+      </header>
 
-  <section id="composer" class="card hidden">
-    <h2>Share an achievement 🏆</h2>
-    <input id="achievementTitle" type="text" maxlength="100" placeholder="Achievement title (e.g. Completed my first trek)">
-    <textarea id="caption" rows="4" maxlength="1000"
-      placeholder="Tell us what you achieved, why it matters, and what you learned…"></textarea>
-    <label for="photo">Choose a photo (maximum 5 MB)</label>
-    <input id="photo" type="file" accept="image/jpeg,image/png,image/webp">
-    <button id="publish">🏆 Share achievement</button>
-    <p class="small">Only upload photos you have permission to share.</p>
-  </section>
+      <div class="community-layout">
+        <aside class="community-sidebar">
+          <section id="myAchievementProfile" class="profile-sidebar-card" aria-live="polite">
+            <div class="profile-avatar-large" aria-hidden="true">🏆</div>
+            <div class="profile-sidebar-name">Your profile</div>
+            <div class="profile-sidebar-email">Loading profile…</div>
+          </section>
+          <section class="profile-sidebar-card">
+            <div class="profile-heading">Community</div>
+            <div class="profile-subtitle">Share progress and celebrate other people’s milestones.</div>
+            <button id="showCommunityAchievements" type="button" class="secondary">🌍 Community activity</button>
+            <button id="showMyAchievements" type="button" class="secondary">🏆 My achievements</button>
+          </section>
+        </aside>
 
-  <p id="status" role="status"></p>
-  <section id="myAchievementProfile" class="achievement-profile community-card hidden" aria-live="polite"></section>
-  <h2 class="feed-heading">Community achievements</h2>
-  <section id="feed"><p>Loading posts…</p></section>
+        <main class="community-feed-column">
+          <section id="composer" class="community-card hidden">
+            <h2>Share an achievement 🏆</h2>
+            <p class="small">What are you proud of? Add a title, tell your story, and attach a photo.</p>
+            <label for="achievementTitle">Achievement title</label>
+            <input id="achievementTitle" type="text" maxlength="100" placeholder="e.g. Completed my first trek">
+            <label for="caption">Your story</label>
+            <textarea id="caption" rows="4" maxlength="1000" placeholder="Tell us what you achieved, why it matters, and what you learned…"></textarea>
+            <label for="photo">Achievement photo (maximum 5 MB)</label>
+            <input id="photo" type="file" accept="image/jpeg,image/png,image/webp">
+            <button id="publish" type="button">🏆 Share achievement</button>
+            <p class="small">Only upload photos you have permission to share.</p>
+          </section>
 
+          <p id="appStatus" role="status" aria-live="polite"></p>
+          <div class="feed-toolbar">
+            <h2 id="feedHeading" class="feed-heading">Community achievements</h2>
+            <button id="refreshFeedBtn" type="button" class="secondary">↻ Refresh</button>
+          </div>
+          <section id="feed"><p class="small">Loading achievements…</p></section>
+        </main>
+      </div>
+    </section>
   </div>
 </section>
 
@@ -774,6 +868,7 @@ let selectedCity = null;
 let selectedStyle = 'all';
 let selectedCategory = 'all';
 let currentUser = null;
+let feedMode = 'community';
 
 const $ = id => document.getElementById(id);
 
@@ -790,7 +885,7 @@ function showCommunityPage(show) {
   $('communityNavButton').textContent = show ? '← Back to Explore' : '📸 Community';
   if (show) {
     $('communityPage').scrollIntoView({ behavior: 'smooth' });
-    loadFeed();
+    if (currentUser) loadFeed();
   } else {
     $('top').scrollIntoView({ behavior: 'smooth' });
   }
@@ -800,7 +895,10 @@ $('communityNavButton').addEventListener('click', () => {
 });
 
 function message(text) {
-  $('status').textContent = text;
+  const authStatus = $('status');
+  const appStatus = $('appStatus');
+  if (authStatus) authStatus.textContent = text;
+  if (appStatus) appStatus.textContent = text;
 }
 
 function displayNameFor(user) {
@@ -819,14 +917,16 @@ async function ensureCommunityProfile(user, preferredName = '') {
 
 function showAccount(user) {
   currentUser = user;
-  $('account').textContent = user
-    ? 'Signed in as ' + displayNameFor(user)
-    : 'Log in or create an account to share achievements.';
-  $('auth').classList.toggle('hidden', !!user);
-  $('logout').classList.toggle('hidden', !user);
-  $('composer').classList.toggle('hidden', !user);
-  $('myAchievementProfile').classList.toggle('hidden', !user);
-  if (user) renderMyAchievementProfile();
+  $('communityAuthGate').classList.toggle('hidden', !!user);
+  $('communityApp').classList.toggle('hidden', !user);
+  if (user) {
+    $('account').textContent = 'Signed in as ' + displayNameFor(user);
+    renderMyAchievementProfile();
+  } else {
+    $('composer').classList.add('hidden');
+    $('status').textContent = '';
+    $('appStatus').textContent = '';
+  }
 }
 
 $('signup').onclick = async () => {
@@ -883,14 +983,20 @@ $('logout').onclick = async () => {
 async function renderMyAchievementProfile() {
   const panel = $('myAchievementProfile');
   if (!currentUser || !panel) return;
-  panel.classList.remove('hidden');
-  panel.innerHTML = '<div><div class="profile-heading">🏆 My achievement profile</div><div class="profile-subtitle">Your community milestones</div></div><div><div class="profile-points">…</div><div class="profile-points-label">achievement points</div></div>';
+  panel.innerHTML = '<div class="profile-avatar-large" aria-hidden="true">🏆</div><div><div class="profile-sidebar-name"></div><div class="profile-sidebar-email">Loading profile…</div></div><div class="profile-stats"><div class="profile-stat"><div class="profile-stat-number" id="myPostCount">…</div><div class="profile-stat-label">Achievements</div></div><div class="profile-stat"><div class="profile-stat-number" id="myPointCount">…</div><div class="profile-stat-label">Points earned</div></div></div><button id="profileMyAchievements" type="button" class="secondary">View my achievements</button>';
+  panel.querySelector('.profile-sidebar-name').textContent = displayNameFor(currentUser);
+  panel.querySelector('.profile-sidebar-email').textContent = currentUser.email || 'TravelTaste member';
+  panel.querySelector('#profileMyAchievements').onclick = () => {
+    feedMode = 'mine';
+    $('feedHeading').textContent = 'My achievements';
+    loadFeed();
+  };
 
   const { data: ownPosts, error: postsError } = await supabase
     .from('community_posts').select('id').eq('user_id', currentUser.id);
   if (postsError) {
-    panel.querySelector('.profile-points').textContent = '—';
-    panel.querySelector('.profile-subtitle').textContent = 'Points will appear when your posts are available.';
+    panel.querySelector('#myPostCount').textContent = '—';
+    panel.querySelector('#myPointCount').textContent = '—';
     return;
   }
   const ids = (ownPosts || []).map(p => p.id);
@@ -900,18 +1006,26 @@ async function renderMyAchievementProfile() {
       .select('*', { count: 'exact', head: true }).in('post_id', ids).eq('reaction', 'like');
     if (!error) points = count || 0;
   }
-  panel.innerHTML = `<div><div class="profile-heading">🏆 ${escapeHtml(displayNameFor(currentUser))}</div><div class="profile-subtitle">${ids.length} ${ids.length === 1 ? 'achievement shared' : 'achievements shared'}</div></div><div><div class="profile-points">${points}</div><div class="profile-points-label">achievement points</div></div>`;
+  panel.querySelector('#myPostCount').textContent = String(ids.length);
+  panel.querySelector('#myPointCount').textContent = String(points);
 }
 
 async function loadFeed() {
   const feed = $('feed');
   feed.innerHTML = '<p class="small">Loading achievements…</p>';
 
-  const { data: posts, error } = await supabase
+  let postsQuery = supabase
     .from('community_posts')
     .select('id, user_id, title, caption, type, created_at')
     .order('created_at', { ascending: false })
     .limit(50);
+
+  if (!currentUser) {
+    feed.textContent = 'Please log in to view community achievements.';
+    return;
+  }
+  if (feedMode === 'mine') postsQuery = postsQuery.eq('user_id', currentUser.id);
+  const { data: posts, error } = await postsQuery;
 
   if (error) {
     feed.textContent = 'Could not load achievements: ' + error.message;
@@ -920,7 +1034,7 @@ async function loadFeed() {
 
   feed.innerHTML = '';
   if (!posts?.length) {
-    feed.innerHTML = '<div class="community-card">No achievements yet. Be the first to share a milestone! 🏆</div>';
+    feed.innerHTML = feedMode === 'mine' ? '<div class="community-card">You have not shared an achievement yet. Tap “Add achievement” to post your first milestone. 🏆</div>' : '<div class="community-card">No achievements yet. Be the first to share a milestone! 🏆</div>';
     if (currentUser) await renderMyAchievementProfile();
     return;
   }
@@ -1199,6 +1313,25 @@ async function loadFeed() {
   if (currentUser) await renderMyAchievementProfile();
 }
 
+$('addAchievementBtn').onclick = () => {
+  $('composer').classList.toggle('hidden');
+  if (!$('composer').classList.contains('hidden')) {
+    $('achievementTitle').focus();
+    $('composer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+};
+$('showCommunityAchievements').onclick = () => {
+  feedMode = 'community';
+  $('feedHeading').textContent = 'Community achievements';
+  loadFeed();
+};
+$('showMyAchievements').onclick = () => {
+  feedMode = 'mine';
+  $('feedHeading').textContent = 'My achievements';
+  loadFeed();
+};
+$('refreshFeedBtn').onclick = () => loadFeed();
+
 $('publish').onclick = async () => {
   if (!currentUser) return message('Please log in first.');
 
@@ -1271,14 +1404,20 @@ $('publish').onclick = async () => {
 };
 
 supabase.auth.onAuthStateChange((_event, session) => {
-  showAccount(session?.user || null);
-  if (session?.user) Promise.resolve().then(() => ensureCommunityProfile(session.user));
+  const user = session?.user || null;
+  showAccount(user);
+  if (user) Promise.resolve().then(async () => {
+    await ensureCommunityProfile(user);
+    await loadFeed();
+  });
 });
 
 const { data: { session } } = await supabase.auth.getSession();
 showAccount(session?.user || null);
-if (session?.user) await ensureCommunityProfile(session.user);
-await loadFeed();
+if (session?.user) {
+  await ensureCommunityProfile(session.user);
+  await loadFeed();
+}
 
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, char => ({
