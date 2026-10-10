@@ -1341,6 +1341,10 @@ const allPhotos = combinedPhotos.length
   detailContent.querySelectorAll('.detail-thumb').forEach(button => {
     button.addEventListener('click', () => {
       const photo = allPhotos[Number(button.dataset.photoIndex)];
+      window.openTravelTasteLightbox(
+  allPhotos,
+  Number(button.dataset.photoIndex)
+);
       const mainPhoto = $('detailMainPhoto');
       const caption = $('detailPhotoCaption');
 
@@ -1351,6 +1355,24 @@ const allPhotos = combinedPhotos.length
       }
     });
   });
+
+  // Make the large destination photo clickable.
+  const mainPhoto = $('detailMainPhoto');
+
+  if (mainPhoto) {
+    mainPhoto.style.cursor = 'zoom-in';
+
+    mainPhoto.addEventListener('click', () => {
+      window.openTravelTasteLightbox(
+        allPhotos,
+        Number(
+          detailContent.querySelector('.detail-thumb[aria-current="true"]')
+            ?.dataset.photoIndex || 0
+        )
+      );
+    });
+  }
+
 
   // Rating elements exist now because the detail HTML is already rendered.
   const ratingSummary = $('ratingSummary');
@@ -1647,6 +1669,92 @@ $('placeSubmissionForm').addEventListener('submit', async (event) => {
     button.disabled = false;
   }
 });
+
+<!-- TravelTaste Photo Zoom Viewer -->
+<div id="photoLightbox" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:99999;align-items:center;justify-content:center;flex-direction:column;padding:20px;box-sizing:border-box;">
+  <button id="photoLightboxClose" aria-label="Close photo viewer" style="position:absolute;top:15px;right:20px;font-size:36px;color:white;background:none;border:0;cursor:pointer;">&times;</button>
+
+  <button id="photoLightboxPrev" aria-label="Previous photo" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:42px;color:white;background:none;border:0;cursor:pointer;">&#10094;</button>
+
+  <img id="photoLightboxImage" src="" alt="" style="max-width:90vw;max-height:78vh;object-fit:contain;border-radius:8px;">
+
+  <button id="photoLightboxNext" aria-label="Next photo" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:42px;color:white;background:none;border:0;cursor:pointer;">&#10095;</button>
+
+  <p id="photoLightboxCaption" style="color:white;text-align:center;margin:12px 0 0;"></p>
+  <p id="photoLightboxCount" style="color:#ccc;text-align:center;margin:6px 0 0;"></p>
+</div>
+
+<script>
+(() => {
+  let lightboxPhotos = [];
+  let lightboxIndex = 0;
+
+  const viewer = document.getElementById('photoLightbox');
+  const viewerImage = document.getElementById('photoLightboxImage');
+  const viewerCaption = document.getElementById('photoLightboxCaption');
+  const viewerCount = document.getElementById('photoLightboxCount');
+
+  function showLightboxPhoto() {
+    if (!lightboxPhotos.length) return;
+
+    const photo = lightboxPhotos[lightboxIndex];
+    viewerImage.src = photo.image_url;
+    viewerImage.alt = photo.caption || 'Travel destination photo';
+    viewerCaption.textContent = photo.caption || '';
+    viewerCount.textContent = `${lightboxIndex + 1} / ${lightboxPhotos.length}`;
+  }
+
+  function openLightbox(photos, index) {
+    lightboxPhotos = photos;
+    lightboxIndex = index;
+    showLightboxPhoto();
+    viewer.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    viewer.style.display = 'none';
+    viewerImage.src = '';
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('photoLightboxClose').addEventListener('click', closeLightbox);
+
+  document.getElementById('photoLightboxPrev').addEventListener('click', () => {
+    if (!lightboxPhotos.length) return;
+    lightboxIndex = (lightboxIndex - 1 + lightboxPhotos.length) % lightboxPhotos.length;
+    showLightboxPhoto();
+  });
+
+  document.getElementById('photoLightboxNext').addEventListener('click', () => {
+    if (!lightboxPhotos.length) return;
+    lightboxIndex = (lightboxIndex + 1) % lightboxPhotos.length;
+    showLightboxPhoto();
+  });
+
+  viewer.addEventListener('click', event => {
+    if (event.target === viewer) closeLightbox();
+  });
+
+  document.addEventListener('keydown', event => {
+    if (viewer.style.display !== 'flex') return;
+
+    if (event.key === 'Escape') closeLightbox();
+
+    if (event.key === 'ArrowLeft') {
+      lightboxIndex = (lightboxIndex - 1 + lightboxPhotos.length) % lightboxPhotos.length;
+      showLightboxPhoto();
+    }
+
+    if (event.key === 'ArrowRight') {
+      lightboxIndex = (lightboxIndex + 1) % lightboxPhotos.length;
+      showLightboxPhoto();
+    }
+  });
+
+  window.openTravelTasteLightbox = openLightbox;
+})();
+</script>
 
   start();
 </script>
