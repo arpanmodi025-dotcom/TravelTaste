@@ -570,7 +570,7 @@ footer p { color:#c8d0d8; }
 .site-nav .logo{display:flex;align-items:center;gap:5px;white-space:nowrap;font-family:Georgia,serif;font-size:25px;font-weight:900;letter-spacing:-1px;color:#b84a25}
 .brand-pin{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#ed5c24;color:#fff;font-size:8px;margin-right:1px}
 .site-nav-links{display:flex;align-items:stretch;align-self:stretch;gap:2px;margin-left:auto}
-.site-nav-link{position:relative;border:0;background:transparent;color:#5d5b59;padding:0 13px;font-size:13px;font-weight:650;white-space:nowrap}
+.site-nav-link{position:relative;border:0;background:transparent;color:#5d5b59;padding:0 10px;font-size:13px;font-weight:650;white-space:nowrap}
 .site-nav-link:hover{color:#d94a13}
 .site-nav-link.active{color:#df4b13;font-weight:800}
 .site-nav-link.active:after{content:"";height:3px;position:absolute;bottom:-10px;left:12px;right:12px;background:#ed5c24;border-radius:4px 4px 0 0}
@@ -632,6 +632,7 @@ footer p { color:#c8d0d8; }
     <button type="button" class="site-nav-link active" data-site-nav="home" id="homeNavButton">Home</button>
     <button type="button" class="site-nav-link" data-site-nav="places" id="placesNavButton">Places</button>
     <button type="button" class="site-nav-link" data-site-nav="food" id="foodNavButton">Food</button>
+    <button type="button" class="site-nav-link" data-site-nav="sports" id="sportsNavButton">Sports</button>
     <button type="button" class="site-nav-link" data-site-nav="community" id="communityNavButton">Community</button>
     <button type="button" class="site-nav-link" data-site-nav="about" id="aboutNavButton">About</button>
   </div>
@@ -991,23 +992,52 @@ let feedMode = 'community';
 const $ = id => document.getElementById(id);
 
 // Community section navigation: switch views without leaving index.html.
-function showCommunityPage(show) {
+function setPageView(page, { updateUrl = true, scroll = true } = {}) {
+  const showCommunity = page === 'community';
   const homeIds = ['top', 'discover', 'recommendations', 'locationDetails', 'suggestPlace'];
   homeIds.forEach(id => {
     const element = $(id);
-    if (element) element.hidden = show;
+    if (element) element.hidden = showCommunity;
   });
   const footer = document.querySelector('footer');
-  if (footer) footer.hidden = show;
-  $('communityPage').hidden = !show;
-  $('communityNavButton').textContent = 'Community';
-  if (show) {
+  if (footer) footer.hidden = showCommunity;
+  $('communityPage').hidden = !showCommunity;
+
+  if (showCommunity) {
     setActiveSiteNav('community');
-    $('communityPage').scrollIntoView({ behavior: 'smooth' });
-    if (currentUser) loadFeed();
+    if (currentUser) {
+      loadFeed();
+      loadFriendArea();
+    }
   } else {
-    $('top').scrollIntoView({ behavior: 'smooth' });
+    if (page === 'places') {
+      setActiveSiteNav('places');
+    } else if (page === 'food') {
+      setActiveSiteNav('food');
+    } else if (page === 'sports') {
+      setActiveSiteNav('sports');
+    } else if (page === 'about') {
+      setActiveSiteNav('about');
+    } else {
+      setActiveSiteNav('home');
+    }
   }
+
+  if (updateUrl) {
+    const url = new URL(window.location.href);
+    if (showCommunity) url.searchParams.set('page', 'community');
+    else url.searchParams.delete('page');
+    history.pushState({ page }, '', url);
+  }
+  if (scroll) {
+    const target = showCommunity ? $('communityPage') : $('top');
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function showCommunityPage(show) {
+  // Community and Explore are separate page views in the same tab, never a new window.
+  setPageView(show ? 'community' : 'home');
 }
 
 function setActiveSiteNav(key) {
@@ -1016,15 +1046,12 @@ function setActiveSiteNav(key) {
   });
 }
 function showHomeSection(sectionId, activeKey) {
-  showCommunityPage(false);
-  setActiveSiteNav(activeKey);
+  const page = activeKey === 'sports' ? 'sports' : activeKey === 'food' ? 'food' : activeKey === 'places' ? 'places' : activeKey === 'about' ? 'about' : 'home';
+  setPageView(page);
   const target = $(sectionId);
   if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-$('communityNavButton').addEventListener('click', () => {
-  showCommunityPage($('communityPage').hidden);
-  setActiveSiteNav($('communityPage').hidden ? 'home' : 'community');
-});
+$('communityNavButton').addEventListener('click', () => setPageView('community'));
 $('homeNavButton').addEventListener('click', () => showHomeSection('top', 'home'));
 $('brandHome').addEventListener('click', event => {
   event.preventDefault();
@@ -1036,17 +1063,19 @@ $('foodNavButton').addEventListener('click', () => {
   const foodCategory = document.querySelector('[data-category="food"]');
   if (foodCategory) foodCategory.click();
 });
+$('sportsNavButton').addEventListener('click', () => {
+  showHomeSection('recommendations', 'sports');
+  const activityCategory = document.querySelector('[data-category="activity"]');
+  if (activityCategory) activityCategory.click();
+});
 $('aboutNavButton').addEventListener('click', () => {
-  if (!$('communityPage').hidden) showCommunityPage(false);
-  setActiveSiteNav('about');
+  setPageView('about');
   $('about').scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
-$('communityMobileButton').addEventListener('click', () => {
-  showCommunityPage(true);
-  setActiveSiteNav('community');
-});
+$('communityMobileButton').addEventListener('click', () => setPageView('community'));
+
 $('profileNavButton').addEventListener('click', () => {
-  showCommunityPage(true);
+  setPageView('community');
   setActiveSiteNav('community');
   if (currentUser) {
     $('myAchievementProfile').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1055,7 +1084,7 @@ $('profileNavButton').addEventListener('click', () => {
   }
 });
 $('notificationsNavButton').addEventListener('click', () => {
-  showCommunityPage(true);
+  setPageView('community');
   setActiveSiteNav('community');
   if (currentUser) {
     $('incomingFriendRequests').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1067,7 +1096,7 @@ $('notificationsNavButton').addEventListener('click', () => {
 $('footerHomeLink').addEventListener('click', event => { event.preventDefault(); showHomeSection('top', 'home'); });
 $('footerPlacesLink').addEventListener('click', event => { event.preventDefault(); showHomeSection('recommendations', 'places'); });
 $('footerFoodLink').addEventListener('click', event => { event.preventDefault(); $('foodNavButton').click(); });
-$('footerCommunityLink').addEventListener('click', event => { event.preventDefault(); showCommunityPage(true); setActiveSiteNav('community'); });
+$('footerCommunityLink').addEventListener('click', event => { event.preventDefault(); setPageView('community'); });
 
 const globalSearchInput = $('globalSearch');
 const clearGlobalSearch = $('clearGlobalSearch');
@@ -1082,7 +1111,7 @@ function runGlobalSearch() {
     return;
   }
   if (query) {
-    showCommunityPage(false);
+    setPageView('places');
     setActiveSiteNav('places');
     $('recommendations').scrollIntoView({ behavior: 'smooth', block: 'start' });
     const cards = [...document.querySelectorAll('#list > *')];
@@ -1902,6 +1931,19 @@ if (friendSearchInput) {
     friendSearchTimer = setTimeout(() => searchFriendMembers(friendSearchInput.value.trim()), 250);
   });
 }
+
+
+// Direct links such as /?page=community open Community as a separate view in this same tab.
+function readPageFromUrl() {
+  const requested = new URL(window.location.href).searchParams.get('page');
+  if (requested === 'community') setPageView('community', { updateUrl: false, scroll: false });
+  else setPageView('home', { updateUrl: false, scroll: false });
+}
+window.addEventListener('popstate', () => {
+  const requested = new URL(window.location.href).searchParams.get('page');
+  setPageView(requested === 'community' ? 'community' : 'home', { updateUrl: false, scroll: true });
+});
+readPageFromUrl();
 
 supabase.auth.onAuthStateChange((_event, session) => {
   const user = session?.user || null;
