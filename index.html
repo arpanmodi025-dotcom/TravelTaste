@@ -622,6 +622,93 @@ footer p { color:#c8d0d8; }
 .footer-links a{font-size:13px;color:#8d5a43;text-decoration:none}
 .footer-links a:hover{color:#d94a13;text-decoration:underline}
 
+
+/* Reference-matched TravelTaste community: consistent profile, feed cards and action row */
+#communityPage{background:#fff8f1!important;color:#172d4e}
+#communityPage .community-inner{max-width:1500px;padding:20px clamp(12px,2.5vw,36px) 44px}
+#communityPage .community-app-header{display:none}
+#communityPage .community-layout{grid-template-columns:310px minmax(0,1fr) 360px;gap:18px;max-width:1440px;margin:0 auto}
+#communityPage .community-sidebar{gap:12px}
+#communityPage .profile-sidebar-card,#communityPage .friends-card{background:rgba(255,255,255,.9);border:1px solid #f1e2d6;border-radius:14px;box-shadow:0 5px 18px rgba(78,53,35,.025)}
+#communityPage .profile-sidebar-card:first-child{padding:0 0 16px;overflow:hidden}
+#communityPage .profile-cover{height:142px;position:relative;background:linear-gradient(130deg,rgba(36,91,113,.18),rgba(237,100,48,.12)),linear-gradient(145deg,#f9d9b7,#f7ad7d 48%,#c5d9d8);display:flex;align-items:center;justify-content:center}
+#communityPage .profile-cover:before{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(40,42,39,.22),transparent 65%)}
+#communityPage .profile-cover-icon{font-size:50px;filter:drop-shadow(0 4px 8px rgba(30,35,40,.12))}
+#communityPage .profile-sidebar-main{padding:0 18px}
+#communityPage .profile-avatar-large{position:relative;margin-top:-38px;margin-bottom:10px;width:76px;height:76px;border:4px solid #fff;border-radius:50%;background:linear-gradient(145deg,#f26e3d,#ffbd78);font-size:31px;box-shadow:0 2px 8px #00000012}
+#communityPage .profile-sidebar-name{font-size:19px;color:#172d4e}
+#communityPage .profile-sidebar-email{font-size:12px}
+#communityPage .profile-stats{gap:10px;margin:16px 0}
+#communityPage .profile-stat{background:#fff8f1;border-color:#f7e7d8;border-radius:10px}
+#communityPage .profile-stat-number{font-size:23px;color:#b94416}
+#communityPage .profile-sidebar-card button{border-radius:9px}
+#communityPage .profile-sidebar-card .profile-nav-link{display:flex;align-items:center;gap:12px;text-align:left;justify-content:flex-start;padding:12px 14px;background:transparent;color:#173c68;font-size:14px;font-weight:550}
+#communityPage .profile-sidebar-card .profile-nav-link.active{background:#ffeadb;color:#e44b12;border-left:3px solid #f05218;padding-left:11px;font-weight:750}
+#communityPage .profile-sidebar-card .profile-add-button{background:#ec4b00!important;color:#fff!important;border:0!important;font-weight:800}
+#communityPage .community-feed-column{min-width:0}
+#communityPage .feed-toolbar{margin:2px 0 14px}
+#communityPage .feed-heading{font-size:24px;letter-spacing:-.45px;color:#172d4e}
+#communityPage #composer{background:rgba(255,255,255,.92);border:1px solid #f1e2d6;border-radius:13px;padding:15px 17px;box-shadow:0 5px 18px rgba(78,53,35,.025)}
+#communityPage #composer h2{font-size:0;margin:0}
+#communityPage #composer h2:after{content:"Share your achievement…";font-size:15px;font-weight:500;color:#8a929e}
+#communityPage #composer .small{font-size:12px;color:#87909c}
+#communityPage #composer input,#communityPage #composer textarea{border:1px solid #eee5df;border-radius:9px;background:#fff}
+#communityPage #composer button{background:#ed4b00;color:#fff;border:0;font-weight:750;border-radius:8px}
+#communityPage #feed{display:grid;gap:16px}
+#communityPage .post.card{padding:0;overflow:hidden;background:rgba(255,255,255,.96);border:1px solid #f0e3da;border-radius:13px;box-shadow:0 5px 18px rgba(78,53,35,.035);margin:0}
+#communityPage .post-header{padding:13px 17px 10px;gap:12px}
+#communityPage .post-avatar{width:42px;height:42px;flex-basis:42px;border:1px solid #f0e2d8;background:linear-gradient(135deg,#ffbd8d,#ef6b3a);color:#fff}
+#communityPage .post-author-name{font-size:16px;color:#14253c;font-weight:800}
+#communityPage .post-meta{font-size:12px;color:#78879a}
+#communityPage .post-profile-points{font-size:11px;color:#d44c14;font-weight:750;margin-top:4px}
+#communityPage .post-more{color:#23476e!important;font-size:25px!important}
+#communityPage .post-achievement-label{margin:0 17px 10px;padding:9px 12px;border:1px solid #ffdfbd;border-radius:9px;background:#fff5e9;color:#b54718;font-size:12px;font-weight:850;letter-spacing:.04em;text-transform:uppercase}
+#communityPage .post-achievement-title{font-size:20px;line-height:1.3;color:#172d4e;margin:0 17px 10px;font-weight:850}
+#communityPage .post-media{margin:0 17px;border-radius:8px;overflow:hidden;background:#f5ede7}
+#communityPage .post-media img{width:100%;height:auto;max-height:720px;object-fit:contain;background:#f5ede7;border-radius:0}
+#communityPage .post-body{padding:10px 17px 14px}
+#communityPage .post-points-panel{background:#fff6ed;border:1px solid #ffe4cb;border-radius:9px;padding:9px 11px;margin:0 0 10px}
+#communityPage .post-points-number{font-size:13px;color:#b74619;font-weight:850}
+#communityPage .post-points-caption{font-size:11px;color:#8a7769}
+#communityPage .post .caption{font-size:14px;color:#40536b;line-height:1.5;margin-bottom:8px}
+#communityPage .post-caption-author{font-weight:800;color:#172d4e;margin-right:6px}
+#communityPage .post-date{font-size:11px;color:#8490a0;margin:4px 0 0}
+#communityPage .post-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid #f1e8e1;margin-top:12px;padding:11px 0 0}
+#communityPage .post-action{display:inline-flex!important;align-items:center;justify-content:center;gap:7px;min-height:36px;padding:7px 12px!important;border-radius:8px!important;font-size:13px!important;font-weight:650!important;color:#23466e!important;transition:background .15s ease,transform .15s ease}
+#communityPage .post-action .post-action-icon{font-size:16px}
+#communityPage .post-action:hover{background:#f5f8fc!important;transform:translateY(-1px)}
+#communityPage .post-action.celebrate-action{background:#ed4b00!important;color:#fff!important;padding:8px 15px!important;font-weight:800!important}
+#communityPage .post-action.celebrate-action:hover{background:#d94300!important}
+#communityPage .post-action.liked{background:#ffeadb!important;color:#bf3c09!important}
+#communityPage .post-like-count{font-size:12px;color:#8b7464}
+#communityPage .post-comments{border-top:1px solid #f1e8e1;margin-top:10px;padding-top:12px}
+#communityPage .comment-form input{border:1px solid #e7e3df;border-radius:9px;padding:10px 12px}
+#communityPage .comment-form button{background:#ed4b00;color:#fff;border:0;border-radius:8px;padding:9px 14px}
+#communityPage .comment-item{padding:8px 0;border-bottom:1px solid #f5eee8;font-size:13px;color:#41546a}
+#communityPage .comment-author{font-weight:800;color:#172d4e;margin-right:7px}
+#communityPage .community-friends-column{gap:14px}
+#communityPage .friends-card{padding:18px}
+#communityPage .friends-card h3{font-size:18px;color:#172d4e}
+#communityPage .friends-hint,#communityPage .friend-subtitle,#communityPage .friends-count{color:#77879a}
+#communityPage .friends-search{border:1px solid #e8e5e2;border-radius:9px;background:#fff}
+#communityPage .friend-avatar{background:#ffeadb;color:#d64a12}
+#communityPage .friend-action{border:1px solid #ed4b00!important;background:#fff!important;color:#e04a0b!important}
+#communityPage .friend-action:hover{background:#fff0e7!important}
+#communityPage .friend-empty{color:#85909e}
+@media(max-width:1180px){
+ #communityPage .community-layout{grid-template-columns:260px minmax(0,1fr);gap:14px}
+ #communityPage .community-friends-column{grid-column:1/-1;grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:820px){
+ #communityPage .community-layout{grid-template-columns:minmax(0,1fr);gap:12px}
+ #communityPage .community-sidebar{position:static}
+ #communityPage .profile-sidebar-card:first-child{display:block}
+ #communityPage .community-friends-column{grid-template-columns:minmax(0,1fr)}
+ #communityPage .post-achievement-title{font-size:18px}
+ #communityPage .post-actions{flex-wrap:wrap;justify-content:flex-start}
+ #communityPage .post-action{font-size:12px!important;padding:7px 9px!important}
+}
+
 </style>
 </head>
 
@@ -905,7 +992,6 @@ footer p { color:#c8d0d8; }
           <div class="community-app-subtitle">Real milestones. Shared inspiration. Celebrate each other.</div>
         </div>
         <div class="community-app-header-actions">
-          <button id="addAchievementBtn" type="button">＋ Add achievement</button>
           <button id="logout" type="button" class="secondary">Log out</button>
         </div>
       </header>
@@ -913,15 +999,19 @@ footer p { color:#c8d0d8; }
       <div class="community-layout">
         <aside class="community-sidebar">
           <section id="myAchievementProfile" class="profile-sidebar-card" aria-live="polite">
-            <div class="profile-avatar-large" aria-hidden="true">🏆</div>
-            <div class="profile-sidebar-name">Your profile</div>
-            <div class="profile-sidebar-email">Loading profile…</div>
+            <div class="profile-cover" aria-hidden="true"><span class="profile-cover-icon">🏔️</span></div>
+            <div class="profile-sidebar-main">
+              <div class="profile-avatar-large" aria-hidden="true">🏆</div>
+              <div class="profile-sidebar-name">Your profile</div>
+              <div class="profile-sidebar-email">Loading profile…</div>
+            </div>
           </section>
-          <section class="profile-sidebar-card">
-            <div class="profile-heading">Community</div>
-            <div class="profile-subtitle">Share progress and celebrate other people’s milestones.</div>
-            <button id="showCommunityAchievements" type="button" class="secondary">🌍 Community activity</button>
-            <button id="showMyAchievements" type="button" class="secondary">🏆 My achievements</button>
+          <section class="profile-sidebar-card" style="padding:10px">
+            <button id="showCommunityAchievements" type="button" class="profile-nav-link active">⌂ <span>Community Feed</span></button>
+            <button id="showMyAchievements" type="button" class="profile-nav-link">🏆 <span>My Achievements</span></button>
+            <button id="showSavedAchievements" type="button" class="profile-nav-link">♧ <span>Saved</span></button>
+            <button id="showCommunitySettings" type="button" class="profile-nav-link">⚙ <span>Settings</span></button>
+            <button id="addAchievementBtn" type="button" class="profile-add-button">＋ Add Achievement</button>
           </section>
         </aside>
 
@@ -941,7 +1031,7 @@ footer p { color:#c8d0d8; }
 
           <p id="appStatus" role="status" aria-live="polite"></p>
           <div class="feed-toolbar">
-            <h2 id="feedHeading" class="feed-heading">Community achievements</h2>
+            <h2 id="feedHeading" class="feed-heading">Community Feed</h2>
             <button id="refreshFeedBtn" type="button" class="secondary">↻ Refresh</button>
           </div>
           <section id="feed"><p class="small">Loading achievements…</p></section>
@@ -1236,12 +1326,13 @@ $('logout').onclick = async () => {
 async function renderMyAchievementProfile() {
   const panel = $('myAchievementProfile');
   if (!currentUser || !panel) return;
-  panel.innerHTML = '<div class="profile-avatar-large" aria-hidden="true">🏆</div><div><div class="profile-sidebar-name"></div><div class="profile-sidebar-email">Loading profile…</div></div><div class="profile-stats"><div class="profile-stat"><div class="profile-stat-number" id="myPostCount">…</div><div class="profile-stat-label">Achievements</div></div><div class="profile-stat"><div class="profile-stat-number" id="myPointCount">…</div><div class="profile-stat-label">Points earned</div></div></div><button id="profileMyAchievements" type="button" class="secondary">View my achievements</button>';
+  panel.innerHTML = '<div class="profile-cover" aria-hidden="true"><span class="profile-cover-icon">🏔️</span></div><div class="profile-sidebar-main"><div class="profile-avatar-large" aria-hidden="true">🏆</div><div class="profile-sidebar-name"></div><div class="profile-sidebar-email"></div><div class="profile-stats"><div class="profile-stat"><div class="profile-stat-number" id="myPostCount">…</div><div class="profile-stat-label">Achievements</div></div><div class="profile-stat"><div class="profile-stat-number" id="myPointCount">…</div><div class="profile-stat-label">Points earned</div></div></div><button id="profileMyAchievements" type="button" class="secondary">View my achievements</button></div>';
   panel.querySelector('.profile-sidebar-name').textContent = displayNameFor(currentUser);
-  panel.querySelector('.profile-sidebar-email').textContent = currentUser.email || 'TravelTaste member';
+  panel.querySelector('.profile-sidebar-email').textContent = '@' + (currentUser.email || 'traveltaste').split('@')[0];
   panel.querySelector('#profileMyAchievements').onclick = () => {
     feedMode = 'mine';
     $('feedHeading').textContent = 'My achievements';
+    setActiveProfileNav('mine');
     loadFeed();
   };
 
@@ -1388,15 +1479,15 @@ async function loadFeed() {
 
     const celebrateButton = document.createElement('button');
     celebrateButton.type = 'button';
-    celebrateButton.className = 'post-action';
-    celebrateButton.innerHTML = '<span class="post-action-icon">🏆</span><span>Celebrate achievement</span>';
+    celebrateButton.className = 'post-action celebrate-action';
+    celebrateButton.innerHTML = '<span class="post-action-icon">🏆</span><span>Celebrate</span>';
     celebrateButton.setAttribute('aria-label', 'Celebrate this achievement');
     if (!currentUser) celebrateButton.title = 'Log in to celebrate';
 
     const commentButton = document.createElement('button');
     commentButton.type = 'button';
     commentButton.className = 'post-action';
-    commentButton.innerHTML = '<span class="post-action-icon">💬</span><span>Comment</span>';
+    commentButton.innerHTML = '<span class="post-action-icon">▢</span><span>Comments</span>';
 
     const shareButton = document.createElement('button');
     shareButton.type = 'button';
@@ -1566,6 +1657,12 @@ async function loadFeed() {
   if (currentUser) await renderMyAchievementProfile();
 }
 
+function setActiveProfileNav(mode) {
+  $('showCommunityAchievements')?.classList.toggle('active', mode === 'community');
+  $('showMyAchievements')?.classList.toggle('active', mode === 'mine');
+}
+$('showSavedAchievements').onclick = () => message('Saved achievements will be available in a future update.');
+$('showCommunitySettings').onclick = () => message('Profile settings will be available in a future update.');
 $('addAchievementBtn').onclick = () => {
   $('composer').classList.toggle('hidden');
   if (!$('composer').classList.contains('hidden')) {
@@ -1575,12 +1672,14 @@ $('addAchievementBtn').onclick = () => {
 };
 $('showCommunityAchievements').onclick = () => {
   feedMode = 'community';
-  $('feedHeading').textContent = 'Community achievements';
+  $('feedHeading').textContent = 'Community Feed';
+  setActiveProfileNav('community');
   loadFeed();
 };
 $('showMyAchievements').onclick = () => {
   feedMode = 'mine';
-  $('feedHeading').textContent = 'My achievements';
+  $('feedHeading').textContent = 'My Achievements';
+  setActiveProfileNav('mine');
   loadFeed();
 };
 $('refreshFeedBtn').onclick = () => loadFeed();
