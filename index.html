@@ -1362,22 +1362,7 @@ const allPhotos = combinedPhotos.length
 
   
 
-  // Make the large destination photo clickable.
-  const mainPhoto = $('detailMainPhoto');
-
-  if (mainPhoto) {
-    mainPhoto.style.cursor = 'zoom-in';
-
-    mainPhoto.addEventListener('click', () => {
-      window.openTravelTasteLightbox(
-        allPhotos,
-        Number(
-          detailContent.querySelector('.detail-thumb[aria-current="true"]')
-            ?.dataset.photoIndex || 0
-        )
-      );
-    });
-  }
+ 
 
 
   // Rating elements exist now because the detail HTML is already rendered.
