@@ -1230,6 +1230,87 @@ async function openListingDetails(listingId) {
       </a>
     </div>
   `;
+  
+  const visitorPhotoForm = $('visitorPhotoForm');
+
+  if (visitorPhotoForm) {
+    visitorPhotoForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const message = $('visitorPhotoMessage');
+      const file = $('visitorPhotoFile').files[0];
+      const caption = $('visitorPhotoCaption').value.trim();
+      const submitButton = visitorPhotoForm.querySelector(
+        'button[type="submit"]'
+      );
+
+      if (!file) {
+        message.textContent = 'Please choose a photo.';
+        return;
+      }
+
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+        message.textContent = 'Choose a JPG, PNG or WebP photo.';
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        message.textContent = 'Your photo must be 5 MB or smaller.';
+        return;
+      }
+
+      submitButton.disabled = true;
+      message.textContent = 'Uploading photo...';
+
+      try {
+        const { data: { user }, error: authError } =
+          await supabase.auth.getUser();
+
+        if (authError || !user) {
+          message.textContent =
+            'Please log in to Community before submitting a photo.';
+          return;
+        }
+
+        const path = `${user.id}/${crypto.randomUUID()}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('traveltaste-images')
+          .upload(path, file, {
+            contentType: file.type,
+            upsert: false
+          });
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicFile } = supabase.storage
+          .from('traveltaste-images')
+          .getPublicUrl(path);
+
+        const { error: insertError } = await supabase
+          .from('place_photo_submissions')
+          .insert({
+            listing_id: item.id,
+            user_id: user.id,
+            image_url: publicFile.publicUrl,
+            caption: caption || null,
+            status: 'pending'
+          });
+
+        if (insertError) throw insertError;
+
+        visitorPhotoForm.reset();
+        message.textContent =
+          'Photo submitted successfully! It will appear after admin approval.';
+      } catch (error) {
+        console.error('Photo submission failed:', error);
+        message.textContent = 'Could not submit photo: ' + error.message;
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+  }
+
 
   
   detailContent.querySelectorAll('.detail-thumb').forEach(button => {
