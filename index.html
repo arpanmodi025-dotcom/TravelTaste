@@ -107,6 +107,45 @@ nav {
   background:white;
   padding:12px;
 }
+.destination-search-field {
+  position:relative;
+  flex:1;
+  min-width:0;
+}
+.destination-search-field input {
+  width:100%;
+  box-sizing:border-box;
+}
+.destination-suggestions {
+  position:absolute;
+  z-index:1000;
+  top:calc(100% + 8px);
+  left:0;
+  right:0;
+  max-height:260px;
+  overflow-y:auto;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:12px;
+  box-shadow:0 12px 28px #17203320;
+  display:none;
+  text-align:left;
+}
+.destination-suggestions.open { display:block; }
+.destination-suggestion {
+  display:block;
+  width:100%;
+  border:0;
+  background:#fff;
+  color:var(--text, #172033);
+  padding:12px 14px;
+  text-align:left;
+  cursor:pointer;
+  font:inherit;
+}
+.destination-suggestion:hover,
+.destination-suggestion.active { background:#fff1e9; }
+.destination-empty { padding:12px 14px; color:var(--muted); }
 main { background:var(--soft); }
 .section {
   max-width:1240px;
@@ -363,15 +402,19 @@ footer p { color:#c8d0d8; }
   <p>Discover memorable places, local food, famous food shops, activities and hidden gems — all in one place.</p>
  
 <div class="search">
-  <input
-    id="citySearch"
-    type="text"
-    list="cityOptions"
-    placeholder="Search a city or destination..."
-    aria-label="Search a destination"
-    autocomplete="off"
-  />
-  <datalist id="cityOptions"></datalist>
+  <div class="destination-search-field">
+    <input
+      id="citySearch"
+      type="text"
+      placeholder="Search a city or destination..."
+      aria-label="Search a destination"
+      autocomplete="off"
+      aria-autocomplete="list"
+      aria-controls="cityOptions"
+      aria-expanded="false"
+    />
+    <div id="cityOptions" class="destination-suggestions" role="listbox"></div>
+  </div>
   <button class="btn primary" id="exploreBtn" type="button">Explore</button>
 </div>
 
@@ -1030,10 +1073,7 @@ async function start() {
       `<option value="${escapeHtml(city.id)}">${escapeHtml(city.name)}</option>`
     ).join('');
 
-  $('cityOptions').innerHTML = cities.map(city => {
-    const label = city.name + (city.state ? ', ' + city.state : '');
-    return `<option value="${escapeHtml(label)}"></option>`;
-  }).join('');
+  renderCitySuggestions('');
 
   // Automatically select Ahmedabad when it exists.
   const ahmedabad = cities.find(city =>
@@ -1570,47 +1610,100 @@ $('backToRecommendations').addEventListener('click', () => {
   }).join('');
 }
 
-function findCityFromSearch(value) {
-  const search = String(value || '').trim().toLowerCase();
-  if (!search) return null;
+function cityLabel(city) {
+  return city.name + (city.state ? ', ' + city.state : '');
+}
 
+function renderCitySuggestions(query) {
+  const box = $('cityOptions');
+  const input = $('citySearch');
+  const term = String(query || '').trim().toLocaleLowerCase();
+  const matches = (cities || []).filter(city => {
+    const name = String(city.name || '').toLocaleLowerCase();
+    const state = String(city.state || '').toLocaleLowerCase();
+    const label = cityLabel(city).toLocaleLowerCase();
+    return !term || name.includes(term) || state.includes(term) || label.includes(term);
+  }).slice(0, 10);
+
+  if (!term || !matches.length) {
+    box.innerHTML = term ? '<div class="destination-empty">No matching destinations</div>' : '';
+    box.classList.toggle('open', Boolean(term));
+    input.setAttribute('aria-expanded', String(Boolean(term)));
+    return;
+  }
+
+  box.innerHTML = matches.map(city =>
+    `<button type="button" class="destination-suggestion" role="option" data-city-id="${escapeHtml(city.id)}">${escapeHtml(cityLabel(city))}</button>`
+  ).join('');
+  box.classList.add('open');
+  input.setAttribute('aria-expanded', 'true');
+
+  box.querySelectorAll('[data-city-id]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const city = cities.find(item => String(item.id) === button.dataset.cityId);
+      if (!city) return;
+      input.value = cityLabel(city);
+      closeCitySuggestions();
+      await loadDestination(city.id);
+    });
+  });
+}
+
+function closeCitySuggestions() {
+  $('cityOptions').classList.remove('open');
+  $('citySearch').setAttribute('aria-expanded', 'false');
+}
+
+function findCityFromSearch(value) {
+  const search = String(value || '').trim().toLocaleLowerCase();
+  if (!search) return null;
   return cities.find(city => {
-    const name = String(city.name || '').trim().toLowerCase();
-    const label = name + (city.state ? ', ' + String(city.state).trim().toLowerCase() : '');
+    const name = String(city.name || '').trim().toLocaleLowerCase();
+    const label = cityLabel(city).trim().toLocaleLowerCase();
     return search === name || search === label;
   }) || null;
 }
 
 async function exploreSearchedCity() {
   const city = findCityFromSearch($('citySearch').value);
-
   if (!city) {
-    alert('Please choose a destination from the suggestions, or type an exact city name such as Ahmedabad or Vadodara.');
+    renderCitySuggestions($('citySearch').value);
     $('citySearch').focus();
     return;
   }
-
-  $('citySearch').value = city.name + (city.state ? ', ' + city.state : '');
+  $('citySearch').value = cityLabel(city);
+  closeCitySuggestions();
   await loadDestination(city.id);
   $('discover').scrollIntoView({ behavior: 'smooth' });
 }
 
-$('exploreBtn').addEventListener('click', exploreSearchedCity);
+$('citySearch').addEventListener('input', event => {
+  renderCitySuggestions(event.target.value);
+});
 
-$('citySearch').addEventListener('change', async () => {
-  const city = findCityFromSearch($('citySearch').value);
-  if (city) {
-    $('citySearch').value = city.name + (city.state ? ', ' + city.state : '');
-    await loadDestination(city.id);
-  }
+$('citySearch').addEventListener('focus', () => {
+  if ($('citySearch').value.trim()) renderCitySuggestions($('citySearch').value);
 });
 
 $('citySearch').addEventListener('keydown', event => {
   if (event.key === 'Enter') {
     event.preventDefault();
-    exploreSearchedCity();
+    const firstSuggestion = $('cityOptions').querySelector('[data-city-id]');
+    if (!findCityFromSearch($('citySearch').value) && firstSuggestion) {
+      firstSuggestion.click();
+    } else {
+      exploreSearchedCity();
+    }
+  } else if (event.key === 'Escape') {
+    closeCitySuggestions();
   }
 });
+
+document.addEventListener('click', event => {
+  if (!event.target.closest('.destination-search-field')) closeCitySuggestions();
+});
+
+$('exploreBtn').addEventListener('click', exploreSearchedCity);
 
 document.querySelectorAll('.style-card').forEach(button => {
   button.addEventListener('click', () => {
