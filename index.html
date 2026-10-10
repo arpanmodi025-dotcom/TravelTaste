@@ -564,15 +564,87 @@ footer p { color:#c8d0d8; }
 }
 
 #communityPage[hidden]{display:none!important}
+
+/* TravelTaste full-site navigation inspired by the approved reference */
+.site-nav{min-height:72px;display:flex;align-items:center;gap:clamp(12px,2vw,30px);padding:10px max(22px,calc((100% - 1440px)/2));border-bottom:1px solid #f0e5dc;background:rgba(255,255,255,.96);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(63,40,25,.025);backdrop-filter:blur(14px)}
+.site-nav .logo{display:flex;align-items:center;gap:5px;white-space:nowrap;font-family:Georgia,serif;font-size:25px;font-weight:900;letter-spacing:-1px;color:#b84a25}
+.brand-pin{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#ed5c24;color:#fff;font-size:8px;margin-right:1px}
+.site-nav-links{display:flex;align-items:stretch;align-self:stretch;gap:2px;margin-left:auto}
+.site-nav-link{position:relative;border:0;background:transparent;color:#5d5b59;padding:0 13px;font-size:13px;font-weight:650;white-space:nowrap}
+.site-nav-link:hover{color:#d94a13}
+.site-nav-link.active{color:#df4b13;font-weight:800}
+.site-nav-link.active:after{content:"";height:3px;position:absolute;bottom:-10px;left:12px;right:12px;background:#ed5c24;border-radius:4px 4px 0 0}
+.site-nav-tools{display:flex;align-items:center;gap:10px;min-width:0}
+.global-search-wrap{display:flex;align-items:center;gap:8px;width:clamp(160px,19vw,270px);height:38px;padding:0 12px;border:1px solid #f0e8e2;border-radius:22px;background:#f7f4f2;color:#8a8885}
+.global-search-symbol{font-size:22px;line-height:1}
+.global-search-wrap input{width:100%;min-width:0;border:0;outline:0;background:transparent;font-size:12px;color:#38312d}
+.global-search-wrap input::placeholder{color:#918984}
+.global-search-wrap button{border:0;background:transparent;color:#8a817b;font-size:20px;padding:0}
+.nav-icon-button,.nav-profile-button{position:relative;flex:0 0 auto;width:36px;height:36px;border:0;border-radius:50%;display:grid;place-items:center;background:transparent;color:#55473e;font-size:20px}
+.nav-icon-button:hover,.nav-profile-button:hover{background:#fff0e7}
+.nav-profile-button{background:linear-gradient(140deg,#ffe0c6,#ef9463);font-size:17px}
+.notification-dot{position:absolute;right:3px;top:3px;width:7px;height:7px;border-radius:50%;background:#e74a20;border:1px solid white}
+.mobile-community-button{display:none}
+.site-nav button:focus-visible,.site-nav a:focus-visible{outline:2px solid #e96535;outline-offset:3px}
+#about{scroll-margin-top:90px}
+@media(max-width:1050px){
+ .site-nav{gap:12px;padding-left:18px;padding-right:18px}
+ .site-nav .logo{font-size:23px}
+ .site-nav-link{padding:0 9px}
+ .global-search-wrap{width:170px}
+}
+@media(max-width:820px){
+ .site-nav{flex-wrap:wrap;gap:9px;padding:10px 14px}
+ .site-nav .logo{margin-right:auto}
+ .site-nav-links{order:3;width:100%;height:39px;justify-content:space-between;margin:0;overflow-x:auto}
+ .site-nav-link{padding:0 12px;flex:1}
+ .site-nav-link.active:after{bottom:0;left:12px;right:12px}
+ .site-nav-tools{gap:6px}
+ .global-search-wrap{width:min(36vw,220px);height:35px}
+ .site-nav-tools .nav-icon-button,.site-nav-tools .nav-profile-button{width:32px;height:32px}
+}
+@media(max-width:520px){
+ .site-nav{padding:9px 10px;gap:8px}
+ .site-nav .logo{font-size:22px}
+ .global-search-wrap{order:4;width:100%;flex-basis:100%;height:36px}
+ .site-nav-tools{display:contents}
+ .site-nav-tools .nav-icon-button,.site-nav-tools .nav-profile-button{display:grid}
+ .site-nav-links{gap:0}
+ .site-nav-link{font-size:12px;padding:0 6px}
+ .site-nav-link.active:after{left:6px;right:6px}
+}
+
+
+.site-footer{padding:34px 20px 42px;text-align:center;background:#fff;border-top:1px solid #f0e5dc;color:#766b64}
+.site-footer strong{font-family:Georgia,serif;font-size:24px;color:#b84a25}
+.site-footer p{margin:9px 0 16px}
+.footer-links{display:flex;justify-content:center;gap:22px;flex-wrap:wrap}
+.footer-links a{font-size:13px;color:#8d5a43;text-decoration:none}
+.footer-links a:hover{color:#d94a13;text-decoration:underline}
+
 </style>
 </head>
 
 <body>
-<nav>
-  <a class="logo" href="/">TravelTaste</a>
-  <div class="spacer"></div>
-  <button class="btn secondary"
-    id="communityNavButton" type="button">📸 Community</button>
+<nav class="site-nav" aria-label="Main navigation">
+  <a class="logo" href="#top" id="brandHome" aria-label="TravelTaste home"><span class="brand-pin">●</span>TravelTaste</a>
+  <div class="site-nav-links">
+    <button type="button" class="site-nav-link active" data-site-nav="home" id="homeNavButton">Home</button>
+    <button type="button" class="site-nav-link" data-site-nav="places" id="placesNavButton">Places</button>
+    <button type="button" class="site-nav-link" data-site-nav="food" id="foodNavButton">Food</button>
+    <button type="button" class="site-nav-link" data-site-nav="community" id="communityNavButton">Community</button>
+    <button type="button" class="site-nav-link" data-site-nav="about" id="aboutNavButton">About</button>
+  </div>
+  <div class="site-nav-tools">
+    <label class="global-search-wrap" aria-label="Search TravelTaste">
+      <icon class="global-search-symbol" aria-hidden="true">⌕</icon>
+      <input id="globalSearch" type="search" placeholder="Search places, food..." autocomplete="off">
+      <button type="button" id="clearGlobalSearch" aria-label="Clear search" hidden>×</button>
+    </label>
+    <button type="button" class="nav-icon-button" id="notificationsNavButton" aria-label="Community notifications" title="Friend requests">♧<span id="notificationDot" class="notification-dot" hidden></span></button>
+    <button type="button" class="nav-profile-button" id="profileNavButton" aria-label="Open my profile" title="My profile">👤</button>
+    <button class="btn secondary mobile-community-button" id="communityMobileButton" type="button">Community</button>
+  </div>
 </nav>
 
 <header class="hero" id="top">
@@ -798,9 +870,10 @@ footer p { color:#c8d0d8; }
 
 </main>
 
-<footer>
+<footer id="about" class="site-footer">
   <strong>TravelTaste</strong>
   <p>Discover the taste of every destination.</p>
+  <div class="footer-links"><a href="#top" id="footerHomeLink">Home</a><a href="#recommendations" id="footerPlacesLink">Places</a><a href="#top" id="footerFoodLink">Food</a><a href="#communityPage" id="footerCommunityLink">Community</a></div>
 </footer>
 
 <section id="communityPage" hidden>
@@ -927,17 +1000,123 @@ function showCommunityPage(show) {
   const footer = document.querySelector('footer');
   if (footer) footer.hidden = show;
   $('communityPage').hidden = !show;
-  $('communityNavButton').textContent = show ? '← Back to Explore' : '📸 Community';
+  $('communityNavButton').textContent = 'Community';
   if (show) {
+    setActiveSiteNav('community');
     $('communityPage').scrollIntoView({ behavior: 'smooth' });
     if (currentUser) loadFeed();
   } else {
     $('top').scrollIntoView({ behavior: 'smooth' });
   }
 }
+
+function setActiveSiteNav(key) {
+  document.querySelectorAll('[data-site-nav]').forEach(button => {
+    button.classList.toggle('active', button.dataset.siteNav === key);
+  });
+}
+function showHomeSection(sectionId, activeKey) {
+  showCommunityPage(false);
+  setActiveSiteNav(activeKey);
+  const target = $(sectionId);
+  if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 $('communityNavButton').addEventListener('click', () => {
   showCommunityPage($('communityPage').hidden);
+  setActiveSiteNav($('communityPage').hidden ? 'home' : 'community');
 });
+$('homeNavButton').addEventListener('click', () => showHomeSection('top', 'home'));
+$('brandHome').addEventListener('click', event => {
+  event.preventDefault();
+  showHomeSection('top', 'home');
+});
+$('placesNavButton').addEventListener('click', () => showHomeSection('recommendations', 'places'));
+$('foodNavButton').addEventListener('click', () => {
+  showHomeSection('recommendations', 'food');
+  const foodCategory = document.querySelector('[data-category="food"]');
+  if (foodCategory) foodCategory.click();
+});
+$('aboutNavButton').addEventListener('click', () => {
+  if (!$('communityPage').hidden) showCommunityPage(false);
+  setActiveSiteNav('about');
+  $('about').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+$('communityMobileButton').addEventListener('click', () => {
+  showCommunityPage(true);
+  setActiveSiteNav('community');
+});
+$('profileNavButton').addEventListener('click', () => {
+  showCommunityPage(true);
+  setActiveSiteNav('community');
+  if (currentUser) {
+    $('myAchievementProfile').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } else {
+    $('communityAuthGate').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+});
+$('notificationsNavButton').addEventListener('click', () => {
+  showCommunityPage(true);
+  setActiveSiteNav('community');
+  if (currentUser) {
+    $('incomingFriendRequests').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } else {
+    $('communityAuthGate').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    $('status').textContent = 'Log in to view friend requests and community notifications.';
+  }
+});
+$('footerHomeLink').addEventListener('click', event => { event.preventDefault(); showHomeSection('top', 'home'); });
+$('footerPlacesLink').addEventListener('click', event => { event.preventDefault(); showHomeSection('recommendations', 'places'); });
+$('footerFoodLink').addEventListener('click', event => { event.preventDefault(); $('foodNavButton').click(); });
+$('footerCommunityLink').addEventListener('click', event => { event.preventDefault(); showCommunityPage(true); setActiveSiteNav('community'); });
+
+const globalSearchInput = $('globalSearch');
+const clearGlobalSearch = $('clearGlobalSearch');
+function runGlobalSearch() {
+  const query = globalSearchInput.value.trim().toLowerCase();
+  clearGlobalSearch.hidden = !query;
+  if ($('communityPage') && !$('communityPage').hidden) {
+    if (friendSearchInput) {
+      friendSearchInput.value = query;
+      searchFriendMembers(query);
+    }
+    return;
+  }
+  if (query) {
+    showCommunityPage(false);
+    setActiveSiteNav('places');
+    $('recommendations').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const cards = [...document.querySelectorAll('#list > *')];
+    let matches = 0;
+    cards.forEach(card => {
+      const found = card.textContent.toLowerCase().includes(query);
+      card.hidden = !found;
+      if (found) matches++;
+    });
+    $('resultsMeta').textContent = matches
+      ? `${matches} result${matches === 1 ? '' : 's'} matching “${globalSearchInput.value.trim()}”`
+      : `No visible recommendations match “${globalSearchInput.value.trim()}”. Try another destination or category.`;
+  } else {
+    document.querySelectorAll('#list > *').forEach(card => card.hidden = false);
+    if (selectedCity) {
+      $('resultsMeta').textContent = `${listings.length} recommendations for ${selectedCity.name}`;
+    } else {
+      $('resultsMeta').textContent = 'Select a destination to begin.';
+    }
+  }
+}
+globalSearchInput.addEventListener('input', runGlobalSearch);
+globalSearchInput.addEventListener('keydown', event => {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    runGlobalSearch();
+  }
+});
+clearGlobalSearch.addEventListener('click', () => {
+  globalSearchInput.value = '';
+  runGlobalSearch();
+  globalSearchInput.focus();
+});
+
 
 function message(text) {
   const authStatus = $('status');
@@ -1505,6 +1684,7 @@ async function loadFriendArea() {
 
   const allRequests = requests || [];
   const incoming = allRequests.filter(r => r.recipient_id === currentUser.id && r.status === 'pending');
+  $('notificationDot').hidden = incoming.length === 0;
   const outgoing = allRequests.filter(r => r.requester_id === currentUser.id && r.status === 'pending');
   const accepted = allRequests.filter(r => r.status === 'accepted');
 
