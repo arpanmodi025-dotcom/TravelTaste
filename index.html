@@ -1451,12 +1451,40 @@ if (mainPhoto) {
 
 window.openListingDetails = openListingDetails;
 
-$('backToRecommendations').addEventListener('click', () => {
+
+let travelTasteDetailOpen = false;
+
+function returnToRecommendations() {
   $('locationDetails').hidden = true;
   $('discover').hidden = false;
   $('recommendations').hidden = false;
   $('recommendations').scrollIntoView({ behavior: 'smooth' });
+  travelTasteDetailOpen = false;
+}
+
+window.openListingDetails = async function(listingId) {
+  if (!travelTasteDetailOpen) {
+    history.pushState({ travelTasteDetail: true }, '');
+    travelTasteDetailOpen = true;
+  }
+
+  await openListingDetails(listingId);
+};
+
+window.addEventListener('popstate', () => {
+  if (travelTasteDetailOpen) {
+    returnToRecommendations();
+  }
 });
+
+$('backToRecommendations').addEventListener('click', () => {
+  if (travelTasteDetailOpen) {
+    history.back();
+  } else {
+    returnToRecommendations();
+  }
+});
+
 
  
   function renderListings() {
