@@ -715,6 +715,49 @@ footer p { color:#c8d0d8; }
  #communityPage .post-action{font-size:12px!important;padding:7px 9px!important}
 }
 
+/* Top navigation profile dropdown */
+.profile-dropdown-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  z-index: 200;
+  min-width: 190px;
+  padding: 7px;
+  background: #fff;
+  border: 1px solid #f0e5dc;
+  border-radius: 13px;
+  box-shadow: 0 12px 30px rgba(23, 32, 42, 0.14);
+  display: grid;
+  gap: 4px;
+}
+
+.profile-dropdown[hidden] {
+  display: none !important;
+}
+
+.profile-dropdown button {
+  width: 100%;
+  padding: 11px 13px;
+  border: 0;
+  border-radius: 8px;
+  background: #fff;
+  color: #55473e;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.profile-dropdown button:hover {
+  background: #fff0e7;
+  color: #d94a13;
+}
+
 </style>
 </head>
 
@@ -736,7 +779,16 @@ footer p { color:#c8d0d8; }
       <button type="button" id="clearGlobalSearch" aria-label="Clear search" hidden>×</button>
     </label>
     <button type="button" class="nav-icon-button" id="notificationsNavButton" aria-label="Community notifications" title="Friend requests">♧<span id="notificationDot" class="notification-dot" hidden></span></button>
-    <button type="button" class="nav-profile-button" id="profileNavButton" aria-label="Open my profile" title="My profile">👤</button>
+
+<div class="profile-dropdown-wrap" id="profileDropdownWrap">
+  <button type="button" class="nav-profile-button" id="profileNavButton"
+    aria-label="Open profile menu" aria-expanded="false" title="My profile">👤</button>
+  <div class="profile-dropdown" id="profileDropdown" hidden>
+    <button type="button" id="profileLoginOption">Login</button>
+    <button type="button" id="profileLogoutOption">Logout</button>
+    <button type="button" id="profileChangeOption">Change Profile</button>
+  </div>
+</div>
     <button class="btn secondary mobile-community-button" id="communityMobileButton" type="button">Community</button>
   </div>
 </nav>
@@ -1170,14 +1222,59 @@ $('aboutNavButton').addEventListener('click', () => {
 });
 $('communityMobileButton').addEventListener('click', () => setPageView('community'));
 
-$('profileNavButton').addEventListener('click', () => {
+function closeProfileDropdown() {
+  const menu = $('profileDropdown');
+  const trigger = $('profileNavButton');
+  if (menu) menu.hidden = true;
+  if (trigger) trigger.setAttribute('aria-expanded', 'false');
+}
+
+$('profileNavButton').addEventListener('click', event => {
+  event.stopPropagation();
+
+  const menu = $('profileDropdown');
+  if (!menu) return;
+
+  menu.hidden = !menu.hidden;
+  $('profileNavButton').setAttribute('aria-expanded', String(!menu.hidden));
+
+  // Show only the actions that make sense for the current sign-in state.
+  $('profileLoginOption').hidden = !!currentUser;
+  $('profileLogoutOption').hidden = !currentUser;
+  $('profileChangeOption').hidden = !currentUser;
+});
+
+$('profileLoginOption').addEventListener('click', () => {
+  closeProfileDropdown();
   setPageView('community');
   setActiveSiteNav('community');
-  if (currentUser) {
-    $('myAchievementProfile').scrollIntoView({ behavior: 'smooth', block: 'center' });
-  } else {
+  $('communityAuthGate').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  const emailInput = $('email');
+  if (emailInput) emailInput.focus({ preventScroll: true });
+});
+
+$('profileLogoutOption').addEventListener('click', async () => {
+  closeProfileDropdown();
+  if (currentUser) await $('logout').click();
+});
+
+$('profileChangeOption').addEventListener('click', () => {
+  closeProfileDropdown();
+  if (!currentUser) {
+    setPageView('community');
+    setActiveSiteNav('community');
     $('communityAuthGate').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
   }
+  $('showCommunitySettings').click();
+});
+
+document.addEventListener('click', event => {
+  if (!event.target.closest('#profileDropdownWrap')) closeProfileDropdown();
+});
+
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') closeProfileDropdown();
 });
 $('notificationsNavButton').addEventListener('click', () => {
   setPageView('community');
