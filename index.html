@@ -662,6 +662,12 @@ footer p { color:#c8d0d8; }
 #communityPage .post-meta{font-size:12px;color:#78879a}
 #communityPage .post-profile-points{font-size:11px;color:#d44c14;font-weight:750;margin-top:4px}
 #communityPage .post-more{color:#23476e!important;font-size:25px!important}
+#communityPage .post-menu-wrap{position:relative;margin-left:auto;flex:0 0 auto}
+#communityPage .post-menu{position:absolute;right:0;top:38px;z-index:30;min-width:170px;padding:6px;background:#fff;border:1px solid #f0dfd1;border-radius:12px;box-shadow:0 12px 30px #17202a20;display:grid;gap:3px}
+#communityPage .post-menu[hidden]{display:none!important}
+#communityPage .post-menu button{width:100%;margin:0;padding:10px 12px;text-align:left;background:#fff;color:#25364b;border-radius:8px;font-size:13px;font-weight:650}
+#communityPage .post-menu button:hover{background:#fff1e7}
+#communityPage .post-menu button.danger{color:#b42318}
 #communityPage .post-achievement-label{margin:0 17px 10px;padding:9px 12px;border:1px solid #ffdfbd;border-radius:9px;background:#fff5e9;color:#b54718;font-size:12px;font-weight:850;letter-spacing:.04em;text-transform:uppercase}
 #communityPage .post-achievement-title{font-size:20px;line-height:1.3;color:#172d4e;margin:0 17px 10px;font-weight:850}
 #communityPage .post-media{margin:0 17px;border-radius:8px;overflow:hidden;background:#f5ede7}
@@ -1023,8 +1029,8 @@ footer p { color:#c8d0d8; }
             <input id="achievementTitle" type="text" maxlength="100" placeholder="e.g. Completed my first trek">
             <label for="caption">Your story</label>
             <textarea id="caption" rows="4" maxlength="1000" placeholder="Tell us what you achieved, why it matters, and what you learned…"></textarea>
-            <label for="photo">Achievement photo (maximum 5 MB)</label>
-            <input id="photo" type="file" accept="image/jpeg,image/png,image/webp">
+            <label for="photo">Achievement photos (up to 5 photos, maximum 5 MB each)</label>
+            <input id="photo" type="file" accept="image/jpeg,image/png,image/webp" multiple>
             <button id="publish" type="button">🏆 Share achievement</button>
             <p class="small">Only upload photos you have permission to share.</p>
           </section>
@@ -1369,6 +1375,19 @@ async function loadFeed() {
     return;
   }
   if (feedMode === 'mine') postsQuery = postsQuery.eq('user_id', currentUser.id);
+  if (feedMode === 'saved') {
+    const { data: savedRows, error: savedError } = await supabase.from('community_saved_posts').select('post_id').eq('user_id', currentUser.id);
+    if (savedError) {
+      feed.textContent = 'Saved posts need the one-time Community setup SQL. ' + savedError.message;
+      return;
+    }
+    const savedIds = (savedRows || []).map(row => row.post_id);
+    if (!savedIds.length) {
+      feed.innerHTML = '<div class="community-card">You have not saved any achievements yet. Use the three-dot menu on a post to save it.</div>';
+      return;
+    }
+    postsQuery = postsQuery.in('id', savedIds);
+  }
   const { data: posts, error } = await postsQuery;
 
   if (error) {
@@ -1430,13 +1449,47 @@ async function loadFeed() {
     authorPoints.className = 'post-profile-points';
     authorPoints.textContent = `🏆 ${pointsByAuthor[post.user_id] || 0} profile points`;
     author.append(authorName, meta, authorPoints);
+    const menuWrap = document.createElement('div');
+    menuWrap.className = 'post-menu-wrap';
     const more = document.createElement('button');
     more.type = 'button';
     more.className = 'post-more';
-    more.setAttribute('aria-label', 'Post details');
+    more.setAttribute('aria-label', 'Open post options');
+    more.setAttribute('aria-expanded', 'false');
     more.textContent = '⋯';
-    more.onclick = () => message('Achievement shared on TravelTaste.');
-    header.append(avatar, author, more);
+    const postMenu = document.createElement('div');
+    postMenu.className = 'post-menu';
+    postMenu.hidden = true;
+    const menuButton = (label, action, danger = false) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = label;
+      if (danger) button.classList.add('danger');
+      button.onclick = async () => {
+        postMenu.hidden = true;
+        more.setAttribute('aria-expanded', 'false');
+        await action();
+      };
+      postMenu.appendChild(button);
+    };
+    const isOwner = currentUser?.id === post.user_id;
+    menuButton('🔖 Save post', async () => toggleSavedPost(post.id, card));
+    if (isOwner) {
+      menuButton('✏️ Edit post', async () => editCommunityPost(post));
+      menuButton('🗑️ Delete post', async () => deleteCommunityPost(post));
+    } else {
+      menuButton('⚑ Report post', async () => reportCommunityPost(post));
+    }
+    more.onclick = event => {
+      event.stopPropagation();
+      const opening = postMenu.hidden;
+      document.querySelectorAll('#communityPage .post-menu').forEach(menu => menu.hidden = true);
+      document.querySelectorAll('#communityPage .post-more').forEach(button => button.setAttribute('aria-expanded', 'false'));
+      postMenu.hidden = !opening;
+      more.setAttribute('aria-expanded', String(opening));
+    };
+    menuWrap.append(more, postMenu);
+    header.append(avatar, author, menuWrap);
     card.appendChild(header);
 
     const achievementLabel = document.createElement('div');
@@ -1657,12 +1710,103 @@ async function loadFeed() {
   if (currentUser) await renderMyAchievementProfile();
 }
 
+async function toggleSavedPost(postId, card) {
+  if (!currentUser) return message('Please log in to save posts.');
+  try {
+    const { data: existing, error: checkError } = await supabase.from('community_saved_posts')
+      .select('post_id').eq('post_id', postId).eq('user_id', currentUser.id).maybeSingle();
+    if (checkError) throw checkError;
+    if (existing) {
+      const { error } = await supabase.from('community_saved_posts').delete().eq('post_id', postId).eq('user_id', currentUser.id);
+      if (error) throw error;
+      message('Post removed from Saved.');
+    } else {
+      const { error } = await supabase.from('community_saved_posts').insert({ post_id: postId, user_id: currentUser.id });
+      if (error) throw error;
+      message('Post saved.');
+    }
+  } catch (error) {
+    message('Could not save post. Run the supplied Community setup SQL first. ' + error.message);
+  }
+}
+
+async function editCommunityPost(post) {
+  if (!currentUser || currentUser.id !== post.user_id) return message('You can only edit your own posts.');
+  const title = window.prompt('Edit achievement title:', post.title || '');
+  if (title === null) return;
+  const cleanTitle = title.trim().slice(0, 100);
+  if (!cleanTitle) return message('Achievement title cannot be empty.');
+  const caption = window.prompt('Edit your story:', post.caption || '');
+  if (caption === null) return;
+  try {
+    const { error } = await supabase.from('community_posts').update({ title: cleanTitle, caption: caption.trim().slice(0, 1000) })
+      .eq('id', post.id).eq('user_id', currentUser.id);
+    if (error) throw error;
+    message('Your post has been updated.');
+    await loadFeed();
+  } catch (error) { message('Could not edit post: ' + error.message); }
+}
+
+async function deleteCommunityPost(post) {
+  if (!currentUser || currentUser.id !== post.user_id) return message('You can only delete your own posts.');
+  if (!window.confirm('Delete this achievement and its photos? This cannot be undone.')) return;
+  try {
+    const { data: photos, error: photosError } = await supabase.from('community_post_photos').select('photo_url').eq('post_id', post.id);
+    if (photosError) throw photosError;
+    const paths = (photos || []).map(row => {
+      try { const url = new URL(row.photo_url); const marker = '/traveltaste-images/'; const index = url.pathname.indexOf(marker); return index >= 0 ? decodeURIComponent(url.pathname.slice(index + marker.length)) : null; }
+      catch { return null; }
+    }).filter(path => path && path.startsWith(currentUser.id + '/'));
+    const { error: deletePhotosError } = await supabase.from('community_post_photos').delete().eq('post_id', post.id);
+    if (deletePhotosError) throw deletePhotosError;
+    const { error: deletePostError } = await supabase.from('community_posts').delete().eq('id', post.id).eq('user_id', currentUser.id);
+    if (deletePostError) throw deletePostError;
+    if (paths.length) {
+      const { error: storageError } = await supabase.storage.from('traveltaste-images').remove(paths);
+      if (storageError) console.warn('Post removed, but one or more image files may remain in Storage:', storageError.message);
+    }
+    await supabase.from('community_saved_posts').delete().eq('post_id', post.id);
+    message('Your achievement has been deleted.');
+    await loadFeed();
+  } catch (error) { message('Could not delete post: ' + error.message); }
+}
+
+async function reportCommunityPost(post) {
+  if (!currentUser) return message('Please log in to report a post.');
+  const reason = window.prompt('Why are you reporting this post? (spam, inappropriate content, or other)');
+  if (reason === null || !reason.trim()) return;
+  message('Please contact TravelTaste support with post ID ' + post.id + ' and your reason: ' + reason.trim().slice(0, 200) + '. A report table is not configured yet.');
+}
+
 function setActiveProfileNav(mode) {
   $('showCommunityAchievements')?.classList.toggle('active', mode === 'community');
   $('showMyAchievements')?.classList.toggle('active', mode === 'mine');
+  $('showSavedAchievements')?.classList.toggle('active', mode === 'saved');
+  $('showCommunitySettings')?.classList.toggle('active', mode === 'settings');
 }
-$('showSavedAchievements').onclick = () => message('Saved achievements will be available in a future update.');
-$('showCommunitySettings').onclick = () => message('Profile settings will be available in a future update.');
+$('showSavedAchievements').onclick = () => {
+  feedMode = 'saved';
+  setActiveProfileNav('saved');
+  $('feedHeading').textContent = 'Saved achievements';
+  setActiveProfileNav('saved');
+  loadFeed();
+};
+$('showCommunitySettings').onclick = async () => {
+  if (!currentUser) return message('Please log in to edit your profile.');
+  const currentName = displayNameFor(currentUser);
+  const nextName = window.prompt('Choose your display name (up to 40 characters):', currentName);
+  if (nextName === null) return;
+  const displayName = nextName.trim().slice(0, 40);
+  if (!displayName) return message('Display name cannot be empty.');
+  const { error: authError } = await supabase.auth.updateUser({ data: { display_name: displayName } });
+  if (authError) return message('Could not update account profile: ' + authError.message);
+  const { error: profileError } = await supabase.from('community_profiles').upsert({ user_id: currentUser.id, display_name: displayName }, { onConflict: 'user_id' });
+  if (profileError) return message('Account name updated, but community profile could not be synced: ' + profileError.message);
+  currentUser = (await supabase.auth.getUser()).data.user || currentUser;
+  await renderMyAchievementProfile();
+  message('Your display name has been updated.');
+  await loadFeed();
+};
 $('addAchievementBtn').onclick = () => {
   $('composer').classList.toggle('hidden');
   if (!$('composer').classList.contains('hidden')) {
@@ -1683,72 +1827,57 @@ $('showMyAchievements').onclick = () => {
   loadFeed();
 };
 $('refreshFeedBtn').onclick = () => loadFeed();
+document.addEventListener('click', event => { if (!event.target.closest('.post-menu-wrap')) { document.querySelectorAll('#communityPage .post-menu').forEach(menu => menu.hidden = true); document.querySelectorAll('#communityPage .post-more').forEach(button => button.setAttribute('aria-expanded', 'false')); } });
 
 $('publish').onclick = async () => {
   if (!currentUser) return message('Please log in first.');
 
-  const file = $('photo').files[0];
+  const files = Array.from($('photo').files || []);
   const caption = $('caption').value.trim();
   const achievementTitle = $('achievementTitle').value.trim();
 
   if (!achievementTitle) return message('Add a title for your achievement.');
-  if (!file) return message('Please choose a photo.');
-  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-    return message('Choose a JPG, PNG or WebP image.');
-  }
-  if (file.size > 5 * 1024 * 1024) {
-    return message('Your photo must be 5 MB or smaller.');
+  if (files.length < 1 || files.length > 5) return message('Choose between 1 and 5 photos.');
+  for (const file of files) {
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) return message('Choose JPG, PNG or WebP photos only.');
+    if (file.size > 5 * 1024 * 1024) return message('Each photo must be 5 MB or smaller.');
   }
 
   $('publish').disabled = true;
-  message('Uploading photo…');
-
-  let uploadedPath = null;
+  message('Uploading photos…');
+  const uploadedPaths = [];
+  let createdPostId = null;
 
   try {
-    uploadedPath = currentUser.id + '/' + crypto.randomUUID();
-
-    const { error: uploadError } = await supabase.storage
-      .from('traveltaste-images')
-      .upload(uploadedPath, file, {
-        contentType: file.type,
-        upsert: false
-      });
-
-    if (uploadError) throw uploadError;
-
     const { data: post, error: postError } = await supabase
       .from('community_posts')
-      .insert({
-        user_id: currentUser.id,
-        title: achievementTitle,
-        caption,
-        type: 'place'
-      })
-      .select('id')
-      .single();
-
+      .insert({ user_id: currentUser.id, title: achievementTitle, caption, type: 'place' })
+      .select('id').single();
     if (postError) throw postError;
+    createdPostId = post.id;
 
-    const { data: publicFile } = supabase.storage
-      .from('traveltaste-images')
-      .getPublicUrl(uploadedPath);
-
-    const { error: photoError } = await supabase
-      .from('community_post_photos')
-      .insert({
-        post_id: post.id,
-        photo_url: publicFile.publicUrl
-      });
-
+    const photoRows = [];
+    for (const file of files) {
+      const path = currentUser.id + '/' + crypto.randomUUID();
+      const { error: uploadError } = await supabase.storage.from('traveltaste-images').upload(path, file, { contentType: file.type, upsert: false });
+      if (uploadError) throw uploadError;
+      uploadedPaths.push(path);
+      const { data: publicFile } = supabase.storage.from('traveltaste-images').getPublicUrl(path);
+      photoRows.push({ post_id: post.id, photo_url: publicFile.publicUrl });
+    }
+    const { error: photoError } = await supabase.from('community_post_photos').insert(photoRows);
     if (photoError) throw photoError;
 
     $('achievementTitle').value = '';
     $('caption').value = '';
     $('photo').value = '';
-    message('Your post has been shared!');
+    $('composer').classList.add('hidden');
+    message('Your achievement has been shared with ' + files.length + ' photo(s)!');
     await loadFeed();
   } catch (error) {
+    if (createdPostId) await supabase.from('community_post_photos').delete().eq('post_id', createdPostId);
+    if (createdPostId) await supabase.from('community_posts').delete().eq('id', createdPostId).eq('user_id', currentUser.id);
+    if (uploadedPaths.length) await supabase.storage.from('traveltaste-images').remove(uploadedPaths);
     message('Could not publish: ' + error.message);
   } finally {
     $('publish').disabled = false;
