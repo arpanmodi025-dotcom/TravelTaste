@@ -587,10 +587,21 @@ footer p { color:#c8d0d8; }
 .suggest-place-nav-button{flex:0 0 auto;border:0;border-radius:22px;background:#ef6c3b;color:#fff;padding:10px 14px;font-size:12px;font-weight:800;white-space:nowrap;box-shadow:0 4px 12px #ef6c3b25}
 .suggest-place-nav-button:hover{background:#c94d20;transform:translateY(-1px)}
 #suggestPlace[hidden]{display:none!important}
+#suggestPlace:not([hidden]){position:fixed;inset:68px 0 0;z-index:9990;display:block;overflow-y:auto;padding:24px clamp(16px,5vw,72px);box-sizing:border-box;background:rgba(22,35,52,.48);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#suggestPlace .section-head,#suggestPlace form{width:min(100%,520px);box-sizing:border-box;margin-left:auto;margin-right:0}
+#suggestPlace .section-head{background:#fff;padding:22px 24px 10px;border-radius:18px 18px 0 0;align-items:flex-start;gap:14px}
+#suggestPlace .section-head h2{margin:4px 0 6px;font-size:28px;line-height:1.15}
+#suggestPlace .section-head p{margin:0;color:#718096;font-size:14px}
+#suggestPlace .section-head .eyebrow{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#ed4c0b;font-weight:800}
+#suggestPlace form{max-width:none!important;margin-top:0!important;padding:10px 24px 24px!important;border:0!important;border-radius:0 0 18px 18px!important;gap:12px!important;max-height:calc(100vh - 200px);overflow-y:auto}
+#suggestPlace form label{font-size:13px;font-weight:600;color:#182538}
+#suggestPlace form input,#suggestPlace form select,#suggestPlace form textarea{border:1px solid #d8dee7;border-radius:5px;background:#fff;font-size:14px;box-sizing:border-box}
 .suggest-place-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
-.suggest-place-close{border:1px solid #f0ded0;border-radius:10px;background:#fff;color:#8c4b2c;padding:9px 12px;font-weight:700}
-@media(max-width:820px){.suggest-place-nav-button{padding:9px 11px;font-size:11px}}
-@media(max-width:520px){.suggest-place-nav-button{order:5;width:100%;margin-top:3px}}
+.suggest-place-close{border:0;background:transparent;color:#7b8490;padding:3px 5px;font-size:22px;line-height:1;cursor:pointer}
+.suggest-place-hero-button{margin-top:18px;display:inline-flex;align-items:center;gap:12px;border:0;border-radius:15px;background:linear-gradient(135deg,#f04408,#f4510b);color:#fff;padding:16px 26px;font-size:18px;font-weight:750;box-shadow:0 12px 24px #ef4b1026;cursor:pointer}
+.suggest-place-hero-button:hover{transform:translateY(-1px);background:#d94008}
+@media(max-width:820px){.suggest-place-nav-button{padding:9px 11px;font-size:11px}#suggestPlace:not([hidden]){inset:60px 0 0;padding:12px}#suggestPlace .section-head,#suggestPlace form{width:100%;max-width:560px;margin:0 auto}#suggestPlace form{max-height:calc(100vh - 190px)}}
+@media(max-width:520px){.suggest-place-nav-button{order:5;width:100%;margin-top:3px}.suggest-place-hero-button{font-size:16px;padding:14px 20px}#suggestPlace .section-head{padding:18px 18px 8px}#suggestPlace form{padding:8px 18px 18px!important}}
 .mobile-community-button{display:none}
 .site-nav button:focus-visible,.site-nav a:focus-visible{outline:2px solid #e96535;outline-offset:3px}
 #about{scroll-margin-top:90px}
@@ -805,6 +816,7 @@ footer p { color:#c8d0d8; }
   <div class="eyebrow">Your next adventure starts here</div>
   <h1>Where do you want to travel?</h1>
   <p>Discover memorable places, local food, famous food shops, activities and hidden gems — all in one place.</p>
+  <button type="button" class="suggest-place-hero-button" id="openSuggestPlaceHeroButton">＋ Suggest a Place</button>
  
 <div class="search">
   <div class="destination-search-field">
@@ -1236,17 +1248,26 @@ $('aboutNavButton').addEventListener('click', () => {
 });
 $('communityMobileButton').addEventListener('click', () => setPageView('community'));
 
-// Always start with the Suggest a Place form closed on a fresh page load.
-$('suggestPlace').hidden = true;
-
-$('openSuggestPlaceButton').addEventListener('click', () => {
-  setPageView('home');
-  $('suggestPlace').hidden = false;
-  $('suggestPlace').scrollIntoView({ behavior: 'smooth', block: 'start' });
+// Keep the suggestion form closed until a visitor opens it.
+const suggestionModal = $('suggestPlace');
+suggestionModal.hidden = true;
+function openSuggestPlaceModal() {
+  suggestionModal.hidden = false;
+  document.body.style.overflow = 'hidden';
+  $('closeSuggestPlaceButton').focus();
+}
+function closeSuggestPlaceModal() {
+  suggestionModal.hidden = true;
+  document.body.style.overflow = '';
+}
+$('openSuggestPlaceButton').addEventListener('click', openSuggestPlaceModal);
+$('openSuggestPlaceHeroButton').addEventListener('click', openSuggestPlaceModal);
+$('closeSuggestPlaceButton').addEventListener('click', closeSuggestPlaceModal);
+suggestionModal.addEventListener('click', event => {
+  if (event.target === suggestionModal) closeSuggestPlaceModal();
 });
-$('closeSuggestPlaceButton').addEventListener('click', () => {
-  $('suggestPlace').hidden = true;
-  $('top').scrollIntoView({ behavior: 'smooth', block: 'start' });
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && !suggestionModal.hidden) closeSuggestPlaceModal();
 });
 
 function closeProfileDropdown() {
