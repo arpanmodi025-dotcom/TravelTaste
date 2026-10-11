@@ -972,7 +972,6 @@ body.community-active #suggestPlace { display:none !important; }
       <input id="globalSearch" type="search" placeholder="Search places, food..." autocomplete="off">
       <button type="button" id="clearGlobalSearch" aria-label="Clear search" hidden>×</button>
     </label>
-    <button type="button" class="suggest-place-nav-button" id="openSuggestPlaceButton">＋ Suggest a Place</button>
     <button type="button" class="nav-icon-button" id="notificationsNavButton" aria-label="Community notifications" title="Friend requests">♧<span id="notificationDot" class="notification-dot" hidden></span></button>
 
 <div class="profile-dropdown-wrap" id="profileDropdownWrap">
@@ -1451,7 +1450,8 @@ function closeSuggestPlaceModal() {
   suggestionModal.hidden = true;
   document.body.style.overflow = '';
 }
-$('openSuggestPlaceButton').addEventListener('click', openSuggestPlaceModal);
+const openSuggestPlaceButton = $('openSuggestPlaceButton');
+if (openSuggestPlaceButton) openSuggestPlaceButton.addEventListener('click', openSuggestPlaceModal);
 $('openSuggestPlaceHeroButton').addEventListener('click', openSuggestPlaceModal);
 $('closeSuggestPlaceButton').addEventListener('click', closeSuggestPlaceModal);
 suggestionModal.addEventListener('click', event => {
@@ -1533,8 +1533,9 @@ $('footerCommunityLink').addEventListener('click', event => { event.preventDefau
 const globalSearchInput = $('globalSearch');
 const clearGlobalSearch = $('clearGlobalSearch');
 function runGlobalSearch() {
-  const query = globalSearchInput.value.trim().toLowerCase();
+  const query = globalSearchInput.value.trim().toLocaleLowerCase();
   clearGlobalSearch.hidden = !query;
+
   if ($('communityPage') && !$('communityPage').hidden) {
     if (friendSearchInput) {
       friendSearchInput.value = query;
@@ -1542,35 +1543,35 @@ function runGlobalSearch() {
     }
     return;
   }
-  if (query) {
-    setPageView('places');
-    setActiveSiteNav('places');
-    $('recommendations').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    const cards = [...document.querySelectorAll('#list > *')];
-    let matches = 0;
-    cards.forEach(card => {
-      const found = card.textContent.toLowerCase().includes(query);
-      card.hidden = !found;
-      if (found) matches++;
-    });
-    $('resultsMeta').textContent = matches
-      ? `${matches} result${matches === 1 ? '' : 's'} matching “${globalSearchInput.value.trim()}”`
-      : `No visible recommendations match “${globalSearchInput.value.trim()}”. Try another destination or category.`;
-  } else {
-    document.querySelectorAll('#list > *').forEach(card => card.hidden = false);
-    if (selectedCity) {
-      $('resultsMeta').textContent = `${listings.length} recommendations for ${selectedCity.name}`;
-    } else {
-      $('resultsMeta').textContent = 'Select a destination to begin.';
-    }
-  }
+
+  // Search the actual listing data and re-render results, so later category,
+  // travel-style, or destination updates do not silently undo the search.
+  setPageView('places', { scroll: false });
+  setActiveSiteNav('places');
+  renderListings();
+  $('recommendations').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 globalSearchInput.addEventListener('input', runGlobalSearch);
-globalSearchInput.addEventListener('keydown', event => {
-  if (event.key === 'Enter') {
-    event.preventDefault();
-    runGlobalSearch();
+globalSearchInput.addEventListener('keydown', async event => {
+  if (event.key !== 'Enter') return;
+  event.preventDefault();
+  const query = globalSearchInput.value.trim().toLocaleLowerCase();
+  // If the user typed a destination name, load that city's recommendations.
+  const matchingCity = (cities || []).find(city => {
+    const name = String(city.name || '').trim().toLocaleLowerCase();
+    const label = cityLabel(city).trim().toLocaleLowerCase();
+    return query && (query === name || query === label);
+  });
+  if (matchingCity) {
+    globalSearchInput.value = '';
+    clearGlobalSearch.hidden = true;
+    await loadDestination(matchingCity.id);
+    setPageView('places', { scroll: false });
+    setActiveSiteNav('places');
+    $('recommendations').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
   }
+  runGlobalSearch();
 });
 clearGlobalSearch.addEventListener('click', () => {
   globalSearchInput.value = '';
@@ -3114,6 +3115,17 @@ $('backToRecommendations').addEventListener('click', () => {
   const hasStyleMatches = selectedStyle === 'all' || styleFiltered.length > 0;
   if (selectedStyle !== 'all' && hasStyleMatches) items = styleFiltered;
 
+  const searchQuery = (globalSearchInput?.value || '').trim().toLocaleLowerCase();
+  if (searchQuery) {
+    items = items.filter(item => {
+      const searchableText = [
+        item.name, item.type, item.description, item.address, item.price_range,
+        item.travel_tips, item.category, item.city_name, item.state
+      ].filter(Boolean).join(' ').toLocaleLowerCase();
+      return searchableText.includes(searchQuery);
+    });
+  }
+
   $('styleStatus').textContent = styleNames[selectedStyle];
   $('resultsTitle').textContent = selectedCity
     ? `Explore ${selectedCity.name}`
@@ -3129,16 +3141,15 @@ $('backToRecommendations').addEventListener('click', () => {
       `Discover ${styleNames[selectedStyle].toLowerCase()} ideas in ${selectedCity.name}.`;
   }
 
-  $('resultsMeta').textContent =
-    `${items.length} recommendation${items.length === 1 ? '' : 's'}`;
+  $('resultsMeta').textContent = searchQuery
+    ? `${items.length} result${items.length === 1 ? '' : 's'} matching “${escapeHtml(searchQuery)}”`
+    : `${items.length} recommendation${items.length === 1 ? '' : 's'}`;
 
   if (!items.length) {
-    $('list').innerHTML = `
-      <div class="empty">
-        <div style="font-size:38px">🧭</div>
-        <strong>No recommendations in this category yet.</strong>
-        <p>Add published recommendations for ${escapeHtml(selectedCity?.name || 'this destination')} in Supabase to fill this section.</p>
-      </div>`;
+    const searchQuery = (globalSearchInput?.value || '').trim();
+    $('list').innerHTML = searchQuery
+      ? `<div class="empty"><div style="font-size:38px">🔎</div><strong>No results found for “${escapeHtml(searchQuery)}”.</strong><p>Try another word, or press Enter after typing a destination name.</p></div>`
+      : `<div class="empty"><div style="font-size:38px">🧭</div><strong>No recommendations in this category yet.</strong><p>Add published recommendations for ${escapeHtml(selectedCity?.name || 'this destination')} in Supabase to fill this section.</p></div>`;
     return;
   }
 
