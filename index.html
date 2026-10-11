@@ -1029,15 +1029,17 @@ footer p { color:#c8d0d8; }
       <h1>TravelTaste Community</h1>
       <p class="auth-intro">Sign in to celebrate achievements, share your milestones, and encourage other members.</p>
       <div id="auth">
+        <label for="loginId">Login ID (for new accounts)</label>
+        <input id="loginId" type="text" maxlength="20" placeholder="3–20 letters, numbers, or underscores" autocomplete="username" autocapitalize="none">
         <label for="displayName">Display name (for new accounts)</label>
         <input id="displayName" type="text" maxlength="40" placeholder="Your display name" autocomplete="nickname">
-        <label for="email">Email address</label>
+        <label for="email">Email address (required for registration)</label>
         <input id="email" type="email" placeholder="you@example.com" autocomplete="email">
         <label for="password">Password</label>
         <input id="password" type="password" placeholder="At least 6 characters" autocomplete="current-password">
         <button id="login" type="button">Log in</button>
         <button id="signup" type="button" class="secondary">Create account</button>
-        <p class="small">New accounts may need email confirmation before signing in.</p>
+        <p class="small">To log in, enter your Login ID or your email address and password. New accounts must confirm their email.</p>
       </div>
       <p id="account" class="small">Log in or create an account to continue.</p>
       <p id="status" role="status" aria-live="polite"></p>
@@ -1376,43 +1378,105 @@ function showAccount(user) {
 }
 
 $('signup').onclick = async () => {
+  const username = $('loginId').value.trim().toLowerCase();
   const email = $('email').value.trim();
   const password = $('password').value;
   const displayName = $('displayName').value.trim();
 
+  if (!/^[a-z0-9_]{3,20}$/.test(username)) {
+    message('Login ID must be 3–20 characters using letters, numbers, or underscores.');
+    return;
+  }
   if (!email || password.length < 6) {
     message('Enter a valid email and a password of at least 6 characters.');
     return;
   }
 
   message('Creating your account…');
-  const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { display_name: displayName || email.split('@')[0] } } });
+  const { data, error } = await supabase.functions.invoke('username-register-', {
+    body: { username, email, password, displayName }
+  });
 
-  if (error) return message(error.message);
-
-  if (data.session) {
-    showAccount(data.user);
-    await ensureCommunityProfile(data.user, displayName);
-    await loadFeed();
-    message('Account created successfully!');
-  } else {
-    message('Check your email for a confirmation link, then log in.');
+  if (error) {
+    console.error('Registration request failed:', error);
+    let details = '';
+    try {
+      if (error.context && typeof error.context.json === 'function') {
+        const responseBody = await error.context.json();
+        details = responseBody?.error || '';
+      }
+    } catch (_) {}
+    return message(details || error.message || 'Registration failed. Please try again.');
   }
+
+  if (data?.error) return message(data.error);
+  if (!data?.success) return message('Registration did not finish. Please try again.');
+
+  message(data.message || 'Account created. Check your email to confirm your account before logging in.');
 };
 
 $('login').onclick = async () => {
+  const loginValue = $('loginId').value.trim();
   const email = $('email').value.trim();
   const password = $('password').value;
 
+  if (!password) return message('Enter your password.');
+
   message('Logging in…');
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email, password
+
+  // If the user enters an email address, preserve the existing email-login route.
+  if (loginValue.includes('@') || (!loginValue && email)) {
+    const emailToUse = loginValue.includes('@') ? loginValue : email;
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: emailToUse,
+      password
+    });
+    if (error) return message(error.message);
+
+    showAccount(data.user);
+    await ensureCommunityProfile(data.user);
+    message('Login successful!');
+    await loadFeed();
+    return;
+  }
+
+  if (!loginValue) {
+    return message('Enter your Login ID. Existing users can also enter their email address in the Login ID field.');
+  }
+
+  // Resolve Login ID on the server; the browser never looks up or receives the account email.
+  const { data, error } = await supabase.functions.invoke('username-login', {
+    body: { username: loginValue, password }
   });
 
-  if (error) return message(error.message);
+  if (error) {
+    console.error('Login ID request failed:', error);
+    let details = '';
+    try {
+      if (error.context && typeof error.context.json === 'function') {
+        const responseBody = await error.context.json();
+        details = responseBody?.error || '';
+      }
+    } catch (_) {}
+    return message(details || 'Login failed. Check your Login ID and password, or use your email address.');
+  }
 
-  showAccount(data.user);
-  await ensureCommunityProfile(data.user);
+  if (data?.error) return message(data.error);
+
+  const access_token = data?.access_token || data?.session?.access_token;
+  const refresh_token = data?.refresh_token || data?.session?.refresh_token;
+  if (!access_token || !refresh_token) {
+    return message('Login service returned an unexpected response. Please try email login or contact support.');
+  }
+
+  const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
+    access_token,
+    refresh_token
+  });
+  if (sessionError) return message(sessionError.message);
+
+  showAccount(sessionData.user);
+  await ensureCommunityProfile(sessionData.user);
   message('Login successful!');
   await loadFeed();
 };
