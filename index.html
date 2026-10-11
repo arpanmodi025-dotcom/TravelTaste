@@ -923,6 +923,35 @@ body.community-active #suggestPlace { display:none !important; }
     height: 175px;
   }
 }
+
+/* Minimal update: keep all five travel-style cards on one row. */
+#styles.styles {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 18px;
+}
+@media (max-width: 850px) {
+  #styles.styles {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    padding: 2px 2px 12px;
+    scroll-snap-type: x proximity;
+  }
+  #styles.styles > .style-card {
+    flex: 0 0 250px;
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+}
+@media (max-width: 560px) {
+  #styles.styles > .style-card {
+    flex-basis: 78vw;
+    max-width: 300px;
+  }
+}
+
 </style>
 </head>
 
