@@ -885,6 +885,44 @@ body.community-active #suggestPlace { display:none !important; }
 @media(max-width:820px){.hero.hero-showcase{grid-template-columns:1fr;gap:12px;padding:36px 24px 28px;min-height:0}.hero-showcase .hero-copy{max-width:100%}.hero-showcase h1{font-size:42px}.hero-collage-wrap{max-width:580px;width:100%}#suggestPlace:not([hidden]){inset:58px 0 0;padding:10px}#suggestPlace .suggest-place-panel{width:min(100%,560px)}}
 @media(max-width:520px){.hero.hero-showcase{padding:30px 18px 24px}.hero-showcase h1{font-size:36px}.hero-showcase p{font-size:16px}.hero-showcase .suggest-place-hero-button{min-width:0;font-size:16px;padding:14px 20px}#suggestPlace:not([hidden]){inset:104px 0 0;padding:8px}}
 
+
+/* Compact recommendation cards only: keep all other TravelTaste features unchanged. */
+#list .card-photo,
+#list .photo-placeholder {
+  height: 165px;
+}
+#list .card-body {
+  padding: 14px;
+}
+#list .card .tag {
+  padding: 5px 9px;
+}
+#list .card h3 {
+  font-size: 19px;
+  line-height: 1.3;
+  margin: 10px 0 7px;
+}
+#list .card p:not(.address) {
+  line-height: 1.45;
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+#list .card .address {
+  font-size: 13px;
+  line-height: 1.4;
+}
+#list .card-actions {
+  padding-top: 8px;
+}
+@media(max-width:560px) {
+  #list .card-photo,
+  #list .photo-placeholder {
+    height: 175px;
+  }
+}
 </style>
 </head>
 
