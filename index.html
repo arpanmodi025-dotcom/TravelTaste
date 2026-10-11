@@ -1236,6 +1236,9 @@ $('aboutNavButton').addEventListener('click', () => {
 });
 $('communityMobileButton').addEventListener('click', () => setPageView('community'));
 
+// Always start with the Suggest a Place form closed on a fresh page load.
+$('suggestPlace').hidden = true;
+
 $('openSuggestPlaceButton').addEventListener('click', () => {
   setPageView('home');
   $('suggestPlace').hidden = false;
