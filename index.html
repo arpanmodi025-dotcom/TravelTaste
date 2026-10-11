@@ -848,6 +848,11 @@ footer p { color:#c8d0d8; }
 }
 
 
+/* Keep the Home-only hero and Suggest a Place entry out of Community. */
+body.community-active .hero-showcase,
+body.community-active #openSuggestPlaceButton,
+body.community-active #suggestPlace { display:none !important; }
+
 /* Reference-inspired TravelTaste hero and Suggest-a-Place overlay */
 #discover[hidden]{display:none!important}
 .hero.hero-showcase{display:grid;grid-template-columns:minmax(320px,.9fr) minmax(380px,1.1fr);align-items:center;gap:22px;text-align:left;min-height:470px;padding:38px clamp(28px,5vw,76px);background:linear-gradient(105deg,#f0f7ff 0%,#edf5fc 63%,#e8f1f8 100%);overflow:hidden}
@@ -1269,6 +1274,7 @@ const $ = id => document.getElementById(id);
 function setPageView(page, { updateUrl = true, scroll = true } = {}) {
   const showCommunity = page === 'community';
   const showHomeHero = page === 'home';
+  document.body.classList.toggle('community-active', showCommunity);
   const homeIds = ['top', 'recommendations', 'locationDetails'];
   homeIds.forEach(id => {
     const element = $(id);
