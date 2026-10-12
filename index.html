@@ -952,6 +952,128 @@ body.community-active #suggestPlace { display:none !important; }
   }
 }
 
+
+
+/* Layout 2 — Travel Scrapbook homepage hero only */
+.hero.hero-showcase{
+  position:relative;
+  isolation:isolate;
+  grid-template-columns:minmax(280px,.82fr) minmax(360px,1.18fr);
+  gap:clamp(22px,4vw,58px);
+  min-height:510px;
+  padding:clamp(34px,5vw,68px) clamp(24px,5vw,76px);
+  text-align:left;
+  background-color:#fff8ef;
+  background-image:
+    radial-gradient(ellipse at 12% 18%,rgba(239,108,59,.10),transparent 26%),
+    radial-gradient(ellipse at 88% 82%,rgba(222,177,126,.16),transparent 30%),
+    repeating-linear-gradient(0deg,rgba(145,105,72,.025) 0,rgba(145,105,72,.025) 1px,transparent 1px,transparent 5px);
+  overflow:hidden;
+}
+.hero.hero-showcase:before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  width:250px;
+  height:250px;
+  left:-105px;
+  bottom:-120px;
+  border:1px dashed rgba(220,91,43,.35);
+  border-radius:50%;
+}
+.hero.hero-showcase:after{
+  content:"✦";
+  position:absolute;
+  z-index:-1;
+  right:4%;
+  top:7%;
+  color:#ef6c3b;
+  font-size:30px;
+  transform:rotate(12deg);
+}
+.hero-showcase .hero-copy{max-width:440px}
+.hero-showcase .eyebrow{
+  color:#b84a25;
+  font-size:11px;
+  letter-spacing:1.7px;
+  line-height:1.6;
+  text-transform:uppercase;
+}
+.hero-showcase h1{
+  max-width:460px;
+  margin:17px 0 18px;
+  color:#17202a;
+  font-size:clamp(40px,4.5vw,64px);
+  line-height:.99;
+  letter-spacing:-2.5px;
+}
+.hero-showcase h1 span{color:#ef5b26}
+.hero-showcase p{
+  max-width:420px;
+  margin:0 0 22px;
+  color:#68737d;
+  font-size:17px;
+  line-height:1.7;
+}
+.hero-showcase .suggest-place-hero-button{
+  margin-top:4px;
+  min-width:215px;
+  justify-content:center;
+  border:1px solid rgba(255,255,255,.8);
+  border-radius:12px;
+  background:#ef5b26;
+  padding:15px 22px;
+  font-size:15px;
+  box-shadow:0 8px 20px rgba(201,77,32,.18);
+}
+.hero-showcase .suggest-place-hero-button:hover{background:#c94d20}
+.hero-collage-wrap{
+  width:100%;
+  max-width:700px;
+  padding:12px;
+  justify-self:center;
+  position:relative;
+  background:#fff;
+  border:1px solid #f1dfcf;
+  border-radius:8px;
+  box-shadow:0 18px 42px rgba(91,59,38,.14);
+  transform:rotate(1.2deg);
+}
+.hero-collage-wrap:before{
+  content:"";
+  position:absolute;
+  z-index:2;
+  width:104px;
+  height:25px;
+  top:-9px;
+  left:calc(50% - 52px);
+  background:rgba(232,179,124,.55);
+  transform:rotate(-4deg);
+  box-shadow:0 2px 5px rgba(100,70,45,.06);
+}
+.hero-collage{
+  display:block;
+  width:100%;
+  height:auto;
+  object-fit:contain;
+  border-radius:3px;
+  filter:none;
+}
+@media(max-width:820px){
+  .hero.hero-showcase{grid-template-columns:1fr;gap:28px;padding:38px 24px 34px;min-height:0}
+  .hero-showcase .hero-copy{max-width:100%}
+  .hero-showcase h1{font-size:clamp(42px,8vw,58px)}
+  .hero-showcase p{font-size:16px}
+  .hero-collage-wrap{max-width:600px;width:calc(100% - 12px);margin:8px auto 0}
+}
+@media(max-width:520px){
+  .hero.hero-showcase{padding:30px 18px 28px}
+  .hero-showcase h1{font-size:40px;letter-spacing:-1.6px}
+  .hero-showcase .suggest-place-hero-button{min-width:0;font-size:15px;padding:14px 18px}
+  .hero-collage-wrap{padding:7px;width:calc(100% - 8px)}
+  .hero-collage-wrap:before{width:78px;left:calc(50% - 39px)}
+}
+
 </style>
 </head>
 
@@ -1210,9 +1332,9 @@ body.community-active #suggestPlace { display:none !important; }
 
   <header class="hero hero-showcase" id="top">
   <div class="hero-copy">
-    <div class="eyebrow">Share your discovery</div>
-    <h1>Discover something<br>special?</h1>
-    <p>Know a place others should visit?<br>Share it with the community.</p>
+    <div class="eyebrow">A little inspiration for your next trip</div>
+    <h1>Your Next<br><span>Adventure</span><br>Starts Here</h1>
+    <p>Find places worth visiting, experiences worth remembering, and hidden gems for your next journey.</p>
     <button type="button" class="suggest-place-hero-button" id="openSuggestPlaceHeroButton"><span aria-hidden="true">＋</span> Suggest a Place</button>
   </div>
   <div class="hero-collage-wrap" aria-label="Travel inspiration photos">
