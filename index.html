@@ -1346,6 +1346,99 @@ body:not(.community-active) .community-cta-gallery img:nth-child(5) { display: n
 #myFavouritesPage[hidden]{display:none!important}
 @media(max-width:640px){.travel-favourite-button{width:36px;height:36px;top:9px;right:9px}.community-recommended-badge{top:9px;left:9px;font-size:10px;padding:5px 8px}}
 
+
+
+/* Final Explore-card refinement: compact photos/text and two horizontal rows. */
+#list .card-photo {
+  display: block;
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+#list .card-body > p:not(.address) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  min-height: 0;
+  margin-bottom: 10px;
+}
+#list .travel-card-meta {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+}
+#list .travel-card-badge {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  padding: 8px 9px;
+  font-size: 12px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+#list .travel-card-badge > span:last-child { min-width: 0; }
+#list .travel-card-actions {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+}
+#list .travel-card-actions > .travel-details-button,
+#list .travel-card-actions > .map-link {
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  flex: initial;
+}
+#list .travel-card-actions > .travel-details-button,
+#list .travel-card-actions > .map-link > .btn {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  height: 100%;
+  padding: 9px 6px;
+  font-size: 12px;
+  line-height: 1.25;
+  white-space: normal;
+  text-align: center;
+}
+#list .travel-card-actions > .map-link > .btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.community-recommended-badge {
+  max-width: calc(100% - 64px);
+  white-space: normal;
+}
+.community-recommended-badge .recommendation-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  min-width: 18px;
+  padding: 2px 5px;
+  background: rgba(255,255,255,.22);
+  font-size: 10px;
+}
+@media (max-width: 560px) {
+  #list .card-photo { height: 165px; }
+  #list .travel-card-meta,
+  #list .travel-card-actions { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  #list .travel-card-badge { font-size: 11px; padding: 7px 6px; gap: 5px; }
+  #list .travel-card-actions > .travel-details-button,
+  #list .travel-card-actions > .map-link > .btn { font-size: 11px; padding: 8px 4px; }
+}
+
 </style>
 </head>
 
@@ -1856,6 +1949,7 @@ let savedListingIds = new Set();
 let savedListingItems = [];
 let favouriteFilter = 'all';
 let approvedCommunityKeys = new Set();
+let approvedCommunityCounts = new Map();
 let approvedCommunityLoaded = false;
 let feedMode = 'community';
 
@@ -3848,7 +3942,8 @@ $('backToRecommendations').addEventListener('click', () => {
 
     const favouriteSaved = savedListingIds.has(String(item.id));
     const communityKey = `${String(item.city_id || '')}|${String(item.name || '').trim().toLocaleLowerCase()}`;
-    const isCommunityRecommended = approvedCommunityKeys.has(communityKey);
+    const recommendationCount = approvedCommunityCounts.get(communityKey) || 0;
+    const isCommunityRecommended = recommendationCount > 0;
     return `
       <article class="card" role="button" tabindex="0" data-listing-id="${escapeHtml(item.id)}" onclick="openListingDetails('${escapeHtml(item.id)}')">
         ${image}
@@ -3856,7 +3951,7 @@ $('backToRecommendations').addEventListener('click', () => {
           aria-label="${favouriteSaved ? 'Remove from' : 'Save to'} My Favourites" aria-pressed="${favouriteSaved}"
           title="${favouriteSaved ? 'Remove from My Favourites' : 'Save to My Favourites'}"
           onclick="event.stopPropagation(); toggleFavourite('${escapeHtml(item.id)}', this)">${favouriteSaved ? '♥' : '♡'}</button>
-        ${isCommunityRecommended ? '<span class="community-recommended-badge">✦ Community Recommended</span>' : ''}
+        ${isCommunityRecommended ? `<span class="community-recommended-badge" title="${recommendationCount} approved community contributor${recommendationCount === 1 ? '' : 's'} recommended this place">✦ Community Recommended <span class="recommendation-count">${recommendationCount}</span></span>` : ''}
         <div class="card-body">
           <span class="tag">${safeType}</span>
           <h3>${safeName}</h3>
@@ -3916,9 +4011,19 @@ window.toggleFavourite=toggleFavourite;
 async function loadApprovedCommunityKeys(){
   if(approvedCommunityLoaded)return;approvedCommunityLoaded=true;
   try{
-    const {data,error}=await supabase.from('place_submissions').select('city_id,name').eq('status','approved');
+    const {data,error}=await supabase.from('place_submissions')
+      .select('city_id,name,user_id').eq('status','approved');
     if(error){console.warn('Community badges unavailable:',error.message);return;}
-    approvedCommunityKeys=new Set((data||[]).map(row=>`${String(row.city_id||'')}|${String(row.name||'').trim().toLocaleLowerCase()}`));
+    const peopleByPlace = new Map();
+    (data||[]).forEach(row=>{
+      const key=`${String(row.city_id||'')}|${String(row.name||'').trim().toLocaleLowerCase()}`;
+      if(!peopleByPlace.has(key)) peopleByPlace.set(key,new Set());
+      if(row.user_id) peopleByPlace.get(key).add(String(row.user_id));
+    });
+    approvedCommunityCounts = new Map(
+      Array.from(peopleByPlace.entries()).map(([key,people])=>[key,people.size])
+    );
+    approvedCommunityKeys = new Set(approvedCommunityCounts.keys());
   }catch(error){console.warn('Community badges unavailable:',error);}
 }
 function renderFavouritesPage(){
