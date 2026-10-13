@@ -1155,6 +1155,138 @@ body { color: var(--ink); background: #f4f7fb; }
  .community-cta .suggest-place-hero-button{justify-self:start}
 }
 
+
+
+/* Final correction: keep the Suggest a Place banner in one horizontal row on desktop. */
+body:not(.community-active) .community-cta {
+  box-sizing: border-box;
+  width: min(calc(100% - 48px), 1440px);
+  max-width: 1440px;
+  min-height: 118px;
+  margin: 24px auto 28px;
+  padding: 14px 18px;
+  display: grid;
+  grid-template-columns: minmax(250px, 1.05fr) auto minmax(360px, 1.35fr);
+  grid-template-areas: "copy action gallery";
+  align-items: center;
+  justify-content: stretch;
+  gap: 22px;
+  overflow: hidden;
+}
+body:not(.community-active) .community-cta-copy {
+  grid-area: copy;
+  min-width: 0;
+  max-width: none;
+}
+body:not(.community-active) .community-cta-copy .eyebrow {
+  margin-bottom: 3px;
+  font-size: 10px;
+  line-height: 1.3;
+  letter-spacing: 1.6px;
+}
+body:not(.community-active) .community-cta-copy h2 {
+  margin: 3px 0 4px;
+  font-size: clamp(21px, 1.8vw, 29px);
+  line-height: 1.12;
+  letter-spacing: -.55px;
+}
+body:not(.community-active) .community-cta-copy p {
+  font-size: 12px;
+  line-height: 1.35;
+}
+body:not(.community-active) .community-cta .suggest-place-hero-button {
+  grid-area: action;
+  justify-self: center;
+  align-self: center;
+  width: auto;
+  min-width: 132px;
+  max-width: 175px;
+  min-height: 40px;
+  margin: 0;
+  padding: 11px 15px;
+  border-radius: 10px;
+  white-space: nowrap;
+  font-size: 12px;
+  line-height: 1.2;
+  gap: 7px;
+}
+body:not(.community-active) .community-cta-gallery {
+  grid-area: gallery;
+  justify-self: stretch;
+  align-self: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 86px;
+  min-height: 86px;
+  display: grid;
+  grid-template-columns: 1.2fr .9fr .9fr .9fr;
+  grid-template-rows: minmax(0, 1fr);
+  gap: 6px;
+  overflow: hidden;
+  border-radius: 12px;
+  transform: none;
+}
+body:not(.community-active) .community-cta-gallery img {
+  display: block;
+  grid-row: 1;
+  grid-column: auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  object-fit: cover;
+  border-radius: 8px;
+}
+/* Use a compact four-photo strip: heritage, city, food and waterfront. */
+body:not(.community-active) .community-cta-gallery img:nth-child(1) { grid-column: 1; }
+body:not(.community-active) .community-cta-gallery img:nth-child(2) { grid-column: 2; }
+body:not(.community-active) .community-cta-gallery img:nth-child(4) { grid-column: 3; }
+body:not(.community-active) .community-cta-gallery img:nth-child(6) { grid-column: 4; }
+body:not(.community-active) .community-cta-gallery img:nth-child(3),
+body:not(.community-active) .community-cta-gallery img:nth-child(5) { display: none; }
+@media (max-width: 1050px) {
+  body:not(.community-active) .community-cta {
+    width: calc(100% - 32px);
+    grid-template-columns: minmax(200px, 1fr) auto minmax(260px, 1.1fr);
+    gap: 14px;
+    padding: 13px 15px;
+  }
+  body:not(.community-active) .community-cta-gallery { height: 76px; min-height: 76px; }
+  body:not(.community-active) .community-cta .suggest-place-hero-button { min-width: 120px; padding: 10px 12px; }
+}
+@media (max-width: 720px) {
+  body:not(.community-active) .community-cta {
+    width: calc(100% - 28px);
+    min-height: 0;
+    margin: 18px auto 22px;
+    padding: 17px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "copy action" "gallery gallery";
+    gap: 14px;
+  }
+  body:not(.community-active) .community-cta-copy h2 { font-size: clamp(21px, 5vw, 27px); }
+  body:not(.community-active) .community-cta-copy p { font-size: 12px; }
+  body:not(.community-active) .community-cta .suggest-place-hero-button {
+    min-width: 0;
+    max-width: none;
+    padding: 10px 12px;
+    font-size: 11px;
+  }
+  body:not(.community-active) .community-cta-gallery {
+    height: 88px;
+    min-height: 88px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (max-width: 460px) {
+  body:not(.community-active) .community-cta {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "copy" "action" "gallery";
+  }
+  body:not(.community-active) .community-cta .suggest-place-hero-button { justify-self: start; }
+  body:not(.community-active) .community-cta-gallery { height: 78px; min-height: 78px; gap: 4px; }
+}
+
 </style>
 </head>
 
@@ -1474,7 +1606,7 @@ body { color: var(--ink); background: #f4f7fb; }
   </div>
   <button type="button" class="suggest-place-hero-button" id="openSuggestPlaceHeroButton"><span aria-hidden="true">＋</span> Suggest a Place</button>
   <div class="community-cta-gallery" aria-label="Travel inspiration photo collage">
-    <img class="cta-photo-heritage" src="https://images.unsplash.com/photo-1606293926075-69a00db06b3b?auto=format&fit=crop&w=900&q=85" alt="Historic Indian architecture" loading="lazy">
+    <img class="cta-photo-heritage" src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=900&q=85" alt="Historic Indian architecture" loading="lazy">
     <img src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=600&q=85" alt="City skyline at sunset" loading="lazy">
     <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=600&q=85" alt="Traveller exploring a scenic destination" loading="lazy">
     <img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=600&q=85" alt="Indian cuisine" loading="lazy">
