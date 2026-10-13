@@ -4136,6 +4136,7 @@ const allPhotos = combinedPhotos.length
                 </button>
               `;
             }).join('')}
+            ${allPhotos.length === 2 ? '<div class="tt-gallery-empty" aria-hidden="true"></div><div class="tt-gallery-empty" aria-hidden="true"></div><div class="tt-gallery-empty" aria-hidden="true"></div>' : ''}
           </div>
         </div>
         <div id="detailPhotoCaption" class="tt-photo-caption">${escapeHtml(allPhotos[0].caption || item.name)}</div>
@@ -5859,51 +5860,42 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
 </style>
 
 
-<style id="travelTasteApprovedPlaceDetailDesign">
-/* Approved TravelTaste place-detail gallery: balanced, not oversized. */
+<style id="travelTasteDetailPhotoLayoutUpgrade">
+/* Detail gallery inspired by a premium travel/hotel photo layout.
+   Existing image URLs, gallery click handlers, and lightbox behavior are retained. */
 body.detail-view-active .tt-photo-gallery {
   display: grid !important;
-  grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr) !important;
+  grid-template-columns: minmax(0, 2fr) minmax(250px, 1fr) !important;
   gap: 8px !important;
   width: 100% !important;
-  max-width: 1360px !important;
-  margin: 16px auto 6px !important;
+  max-width: none !important;
+  margin: 18px 0 8px !important;
   align-items: stretch !important;
 }
 body.detail-view-active .tt-gallery-main {
-  height: clamp(280px, 32vw, 455px) !important;
+  height: clamp(360px, 36vw, 512px) !important;
   min-height: 0 !important;
-  border: 0 !important;
   border-radius: 14px !important;
-  overflow: hidden !important;
   background: #e8eef5 !important;
 }
 body.detail-view-active .tt-gallery-side {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) !important;
   grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
-  gap: 8px !important;
-  min-width: 0 !important;
-  min-height: 0 !important;
   grid-auto-rows: minmax(0, 1fr) !important;
+  gap: 8px !important;
+  min-height: 0 !important;
 }
 body.detail-view-active .tt-gallery-tile,
 body.detail-view-active .tt-gallery-empty {
-  position: relative !important;
-  display: block !important;
-  width: 100% !important;
   min-width: 0 !important;
   min-height: 0 !important;
   height: 100% !important;
-  padding: 0 !important;
-  border: 0 !important;
   border-radius: 12px !important;
-  overflow: hidden !important;
   background: #e8eef5 !important;
 }
 body.detail-view-active .tt-gallery-main img,
 body.detail-view-active .tt-gallery-tile img {
-  display: block !important;
   width: 100% !important;
   height: 100% !important;
   object-fit: cover !important;
@@ -5911,8 +5903,6 @@ body.detail-view-active .tt-gallery-tile img {
 }
 body.detail-view-active .tt-photo-caption {
   margin: 6px 0 14px !important;
-  color: #64748b !important;
-  font-size: 13px !important;
 }
 @media (max-width: 760px) {
   body.detail-view-active .tt-photo-gallery {
@@ -5921,12 +5911,48 @@ body.detail-view-active .tt-photo-caption {
     margin-top: 12px !important;
   }
   body.detail-view-active .tt-gallery-main {
-    height: clamp(220px, 62vw, 340px) !important;
+    height: clamp(230px, 62vw, 360px) !important;
   }
   body.detail-view-active .tt-gallery-side {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    grid-template-rows: minmax(96px, 128px) !important;
-    grid-auto-rows: minmax(96px, 128px) !important;
+    grid-template-rows: minmax(100px, 132px) !important;
+    grid-auto-rows: minmax(100px, 132px) !important;
+  }
+}
+</style>
+
+
+<style id="travelTastePhotoAspectRatioFix">
+/* Preserve original image proportions: show the complete source photo without stretching or forced cropping. */
+body.detail-view-active .tt-gallery-main {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  background: #f8fafc !important;
+}
+body.detail-view-active .tt-gallery-main img,
+body.detail-view-active .tt-gallery-tile img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  background: #f8fafc !important;
+}
+/* Keep gallery tile frames consistent, while the full photo remains visible inside each frame. */
+body.detail-view-active .tt-gallery-tile {
+  overflow: hidden !important;
+  background: #f8fafc !important;
+}
+@media (max-width: 760px) {
+  body.detail-view-active .tt-gallery-main {
+    height: auto !important;
+    min-height: 0 !important;
+    aspect-ratio: 16 / 10;
+  }
+  body.detail-view-active .tt-gallery-main img {
+    height: 100% !important;
   }
 }
 </style>
