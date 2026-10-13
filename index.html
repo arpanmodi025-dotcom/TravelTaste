@@ -1750,11 +1750,15 @@ function setPageView(page, { updateUrl = true, scroll = true } = {}) {
   const showCommunity = page === 'community';
   const showHomeHero = page === 'home';
   document.body.classList.toggle('community-active', showCommunity);
-  const homeIds = ['top', 'budgetBand', 'recommendations', 'locationDetails'];
+  // Only these sections belong to the homepage view. Location details
+  // must stay hidden until a visitor explicitly opens a recommendation.
+  const homeIds = ['top', 'budgetBand', 'recommendations'];
   homeIds.forEach(id => {
     const element = $(id);
     if (element) element.hidden = showCommunity;
   });
+  const locationDetails = $('locationDetails');
+  if (locationDetails) locationDetails.hidden = true;
   // The photo collage and large Suggest a Place button belong only to Home.
   const discoverSection = $('discover');
   if (discoverSection) discoverSection.hidden = !showHomeHero;
