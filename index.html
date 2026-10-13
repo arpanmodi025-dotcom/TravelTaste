@@ -1751,10 +1751,6 @@ body.nearby-drawer-open{overflow:hidden}
 
   
 <section class="section" id="locationDetails" hidden>
-  <button class="btn secondary" id="backToRecommendations" type="button">
-    ← Back to recommendations
-  </button>
-
   <div id="detailContent">
     <p>Loading location details...</p>
   </div>
@@ -3880,14 +3876,6 @@ window.openListingDetails = async function(listingId) {
 
 window.addEventListener('popstate', () => {
   if (travelTasteDetailOpen) {
-    returnToRecommendations();
-  }
-});
-
-$('backToRecommendations').addEventListener('click', () => {
-  if (travelTasteDetailOpen) {
-    history.back();
-  } else {
     returnToRecommendations();
   }
 });
