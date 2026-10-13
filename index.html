@@ -1577,6 +1577,29 @@ body.nearby-drawer-open{overflow:hidden}
 }
 
 
+/* Modern Travel destination-detail theme: scoped to detail view only. */
+body.detail-view-active { background:#F1F5F9; }
+body.detail-view-active #locationDetails { background:#F1F5F9; }
+.tt-detail-heading-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.tt-detail-heading-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:12px}
+.tt-detail-action{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:10px 16px;border:1px solid #e1e8f0;border-radius:11px;background:#fff;color:#183153;font-weight:750;cursor:pointer;text-decoration:none;box-shadow:0 3px 12px rgba(24,49,83,.06)}
+.tt-detail-action:hover{border-color:#ff5a1f;color:#ff5a1f}
+.tt-detail-action[aria-pressed="true"]{color:#ff5a1f;border-color:#ffb59b;background:#fff7f3}
+.tt-detail-highlights{align-items:stretch}
+.tt-detail-highlight{display:flex;flex-direction:column;justify-content:center;gap:5px}
+.tt-detail-highlight a.tt-directions-button{align-self:stretch;display:flex;align-items:center;justify-content:center;margin:0;padding:12px 14px;background:#ff5a1f;color:#fff;border-radius:10px;font-weight:800;white-space:nowrap}
+.tt-detail-highlight a.tt-directions-button:hover{background:#e94a12;color:#fff}
+.tt-info-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,1fr);gap:14px;align-items:stretch}
+.tt-info-grid .tt-detail-card{margin:0;min-width:0}
+.tt-map-frame{display:block;width:100%;height:150px;border:0;border-radius:11px;background:#edf2f8;margin:10px 0}
+.tt-more-places{background:#fff;border:1px solid #e5edf5;border-radius:16px;padding:16px;margin:16px 0 18px;box-shadow:0 4px 18px rgba(23,38,61,.025)}
+.tt-more-places-heading{align-items:center}
+.tt-view-all{border:0;background:transparent;color:#ff5a1f;font-weight:800;cursor:pointer;white-space:nowrap;padding:8px 2px}
+.tt-view-all:hover{text-decoration:underline}
+.tt-rating-buttons button[aria-pressed="true"]{background:#fff2df;border-color:#f5a623;color:#183153;box-shadow:0 0 0 2px rgba(245,166,35,.12)}
+.tt-detail-status{min-height:18px;color:#53657d;font-size:13px;line-height:1.5}
+@media(max-width:760px){.tt-detail-heading-row{display:block}.tt-detail-heading-actions{padding-top:8px;margin-bottom:10px}.tt-info-grid{grid-template-columns:1fr}.tt-detail-highlights{grid-template-columns:repeat(2,minmax(0,1fr))}.tt-detail-highlight a.tt-directions-button{white-space:normal}}
+
 /* Added destination highlights and same-city recommendations; gallery sizing is intentionally unchanged. */
 .tt-detail-highlights{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0 18px}
 .tt-detail-highlight{border:1px solid #e5edf5;border-radius:12px;background:#fff;padding:13px 15px;min-width:0}
@@ -3463,6 +3486,23 @@ async function start() {
     $('citySearch').value = ahmedabad.name + (ahmedabad.state ? ', ' + ahmedabad.state : '');
     await loadDestination(ahmedabad.id);
   }
+
+  const requestedPlaceId = new URL(window.location.href).searchParams.get('place');
+  if (requestedPlaceId) {
+    let requestedPlace = listings.find(place => String(place.id) === String(requestedPlaceId));
+    if (!requestedPlace) {
+      const { data: placeRow, error: placeLookupError } = await supabase
+        .from('listings').select('city_id').eq('id', requestedPlaceId).eq('is_published', true).maybeSingle();
+      if (!placeLookupError && placeRow?.city_id) {
+        const targetCity = cities.find(city => String(city.id) === String(placeRow.city_id));
+        if (targetCity && String(targetCity.id) !== String(selectedCity?.id)) await loadDestination(targetCity.id);
+        requestedPlace = listings.find(place => String(place.id) === String(requestedPlaceId));
+      }
+    }
+    if (requestedPlace && typeof window.openListingDetails === 'function') {
+      await window.openListingDetails(requestedPlaceId);
+    }
+  }
 }
 
 async function loadDestination(cityId) {
@@ -3619,10 +3659,16 @@ const allPhotos = combinedPhotos.length
         <strong>${escapeHtml(item.name)}</strong>
       </nav>
 
-      <div class="tt-detail-heading">
-        <span class="tag">${escapeHtml(categoryNames[item.type] || item.type)}</span>
-        <h1>${escapeHtml(item.name)}</h1>
-        <p class="tt-detail-address">📍 ${escapeHtml(item.address || selectedCity.name)}</p>
+      <div class="tt-detail-heading-row">
+        <div class="tt-detail-heading">
+          <span class="tag">${escapeHtml(categoryNames[item.type] || item.type)}</span>
+          <h1>${escapeHtml(item.name)}</h1>
+          <p class="tt-detail-address">📍 ${escapeHtml(item.address || selectedCity.name)}</p>
+        </div>
+        <div class="tt-detail-heading-actions" aria-label="Place actions">
+          <button type="button" class="tt-detail-action" id="shareDetailButton">↗ Share</button>
+          <button type="button" class="tt-detail-action" id="saveDetailButton" aria-pressed="${savedListingIds.has(String(item.id))}">${savedListingIds.has(String(item.id)) ? '♥ Saved' : '♡ Save'}</button>
+        </div>
       </div>
 
       ${allPhotos.length ? `
@@ -3654,38 +3700,53 @@ const allPhotos = combinedPhotos.length
         <div class="tt-detail-highlight"><small>Category</small><strong>${escapeHtml(categoryNames[item.type] || item.type || 'Place')}</strong></div>
         <div class="tt-detail-highlight"><small>Destination</small><strong>${escapeHtml(selectedCity.name || 'Gujarat')}</strong></div>
         <div class="tt-detail-highlight"><small>Estimated cost</small><strong>${escapeHtml(item.price_range || (getListingPrice(item) !== null ? '₹' + Math.round(getListingPrice(item)).toLocaleString('en-IN') + ' / person' : 'Not added yet'))}</strong></div>
-        <div class="tt-detail-highlight"><small>Visitor rating</small><strong><a href="#placeRatingSection" style="color:inherit;text-decoration:none">⭐ Rate this place ↓</a></strong></div>
+        <div class="tt-detail-highlight"><a class="btn primary tt-directions-button" href="${escapeHtml(mapUrl)}" target="_blank" rel="noopener noreferrer">🗺️ Get Directions</a></div>
       </div>
 
-      <section class="tt-detail-card tt-about-card">
-        <h2>About this place</h2>
-        <p class="tt-about-description">${escapeHtml(item.description || 'More information about this location will be added soon.')}</p>
-        <hr>
-        <h3>Location information</h3>
-        <div class="tt-location-grid">
-          <p>📍 <strong>Address:</strong> ${escapeHtml(item.address || selectedCity.name)}</p>
-          <p>🏷️ <strong>Category:</strong> ${escapeHtml(categoryNames[item.type] || item.type)}</p>
-          <p>💰 <strong>Estimated cost per person:</strong> ${escapeHtml(item.price_range || (getListingPrice(item) !== null ? '₹' + Math.round(getListingPrice(item)).toLocaleString('en-IN') : 'Not added yet'))}</p>
-          ${item.phone ? `<p>📞 <strong>Phone:</strong> ${escapeHtml(item.phone)}</p>` : ''}
-          ${item.website ? `<p>🌐 <strong>Website:</strong> <a href="${escapeHtml(item.website)}" target="_blank" rel="noopener noreferrer">Visit website</a></p>` : ''}
-        </div>
-        <p class="tt-visitor-tip">Visitor tip: Check local opening times and any entry fees before visiting.</p>
-      </section>
+      <div class="tt-info-grid">
+        <section class="tt-detail-card tt-about-card">
+          <h2>About this place</h2>
+          <p class="tt-about-description">${escapeHtml(item.description || 'More information about this location will be added soon.')}</p>
+          <div class="tt-location-grid" style="margin-top:14px">
+            <p>🏷️ <strong>Category:</strong> ${escapeHtml(categoryNames[item.type] || item.type)}</p>
+            ${item.phone ? `<p>📞 <strong>Phone:</strong> ${escapeHtml(item.phone)}</p>` : ''}
+            ${item.website ? `<p>🌐 <strong>Website:</strong> <a href="${escapeHtml(item.website)}" target="_blank" rel="noopener noreferrer">Visit website</a></p>` : ''}
+          </div>
+          <p class="tt-visitor-tip">Visitor tip: Check local opening times and any entry fees before visiting.</p>
+        </section>
+        <section class="tt-detail-card tt-location-card">
+          <h2>📍 Location</h2>
+          <iframe class="tt-map-frame" title="Map showing ${escapeHtml(item.name)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=${encodeURIComponent((item.address || '') + ' ' + selectedCity.name + ' ' + item.name)}&output=embed"></iframe>
+          <p><strong>Address:</strong> ${escapeHtml(item.address || selectedCity.name)}</p>
+          <p class="tt-visitor-tip">Estimated cost per person: ${escapeHtml(item.price_range || (getListingPrice(item) !== null ? '₹' + Math.round(getListingPrice(item)).toLocaleString('en-IN') : 'Not added yet'))}</p>
+        </section>
+      </div>
 
-      <section class="tt-more-places" aria-label="More places in ${escapeHtml(selectedCity.name)}">
+      <section class="tt-more-places" aria-label="Recommended places in ${escapeHtml(selectedCity.name)}">
         <div class="tt-more-places-heading">
-          <div><h2>More places to explore in ${escapeHtml(selectedCity.name)}</h2><p>Discover more places, food and activities in this destination.</p></div>
+          <div><h2>Recommended places in ${escapeHtml(selectedCity.name)}</h2><p>Popular places, food and activities selected by TravelTaste travellers.</p></div>
+          <button type="button" class="tt-view-all" id="viewAllCityPlaces">View all →</button>
         </div>
         <div class="tt-more-places-grid">
-          ${listings.filter(place => String(place.id) !== String(item.id)).slice(0, 4).map(place => {
+          ${listings.filter(place => String(place.id) !== String(item.id))
+            .slice().sort((a,b) => {
+              const aId=String(a.id), bId=String(b.id);
+              const aTop=communityTopFiveIds.has(aId)?1:0, bTop=communityTopFiveIds.has(bId)?1:0;
+              if (aTop !== bTop) return bTop-aTop;
+              const scoreDiff=(communityScores.get(bId)||0)-(communityScores.get(aId)||0);
+              if (scoreDiff) return scoreDiff;
+              return String(a.name||'').localeCompare(String(b.name||''));
+            }).slice(0,4).map(place => {
             const placeImage = place.image_url || '';
             const placeCategory = categoryNames[place.type] || place.type || 'Place';
             const placeCost = place.price_range || (getListingPrice(place) !== null ? '₹' + Math.round(getListingPrice(place)).toLocaleString('en-IN') + ' per person' : 'Cost not listed');
+            const placeScore = communityScores.get(String(place.id)) || 0;
+            const recommended = communityTopFiveIds.has(String(place.id));
             return `
               <article class="tt-more-place-card">
                 <button type="button" class="tt-more-place-open" data-more-place-id="${escapeHtml(place.id)}" aria-label="View ${escapeHtml(place.name)}">
                   ${placeImage ? `<img class="tt-more-place-image" src="${escapeHtml(placeImage)}" alt="${escapeHtml(place.name)}" loading="lazy">` : `<div class="tt-more-place-image" style="display:grid;place-items:center;font-size:30px">📍</div>`}
-                  <div class="tt-more-place-body"><span class="tt-more-place-category">${escapeHtml(placeCategory)}</span><h3>${escapeHtml(place.name)}</h3><p>${escapeHtml(place.address || selectedCity.name)}<br>${escapeHtml(placeCost)}</p></div>
+                  <div class="tt-more-place-body">${recommended ? '<span class="tt-more-place-category">★ Community recommended</span>' : `<span class="tt-more-place-category">${escapeHtml(placeCategory)}</span>`}<h3>${escapeHtml(place.name)}</h3><p>${escapeHtml(place.address || selectedCity.name)}<br>${escapeHtml(placeCost)}</p></div>
                 </button>
               </article>`;
           }).join('') || '<div class="tt-more-place-empty">More places in this destination will appear here as recommendations are added.</div>'}
@@ -3701,7 +3762,7 @@ const allPhotos = combinedPhotos.length
             <button type="button" data-rating="${n}" aria-label="Rate ${n} out of 5 stars">${'★'.repeat(n)}</button>
           `).join('')}
         </div>
-        <p id="ratingMessage" role="status"></p>
+        <p id="ratingMessage" class="tt-detail-status" role="status" aria-live="polite"></p>
       </section>
 
       <section id="visitorPhotoSection" class="tt-detail-card tt-visitor-photo-card">
@@ -3721,21 +3782,115 @@ const allPhotos = combinedPhotos.length
         </form>
       </section>
 
-      <a class="btn primary tt-directions-button" href="${escapeHtml(mapUrl)}" target="_blank" rel="noopener noreferrer">🗺️ Get Directions</a>
     </div>
   `;
 
   // New same-city recommendation cards reuse the existing place-detail flow.
   detailContent.querySelectorAll('[data-more-place-id]').forEach(button => {
-    button.addEventListener('click', () => openListingDetails(button.dataset.morePlaceId));
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      openListingDetails(button.dataset.morePlaceId);
+    });
+  });
+
+  const homeCrumb = detailContent.querySelector('.tt-breadcrumbs a[aria-label="Go to TravelTaste home"]');
+  if (homeCrumb) homeCrumb.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    returnToRecommendations();
+    $('top').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  const placesCrumb = detailContent.querySelector('.tt-breadcrumbs a[aria-label="Explore places"]');
+  if (placesCrumb) placesCrumb.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    returnToRecommendations();
+    $('recommendations').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  const viewAllButton = $('viewAllCityPlaces');
+  if (viewAllButton) viewAllButton.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    // Show the full selected-city list, not a stale subset from previous filters.
+    selectedCategory = 'all';
+    selectedStyle = 'all';
+    selectedBudget = 'all';
+    selectedTripDuration = 'any';
+    selectedBudgetBasis = 'person';
+    if (globalSearchInput) globalSearchInput.value = '';
+    if ($('budgetBasis')) $('budgetBasis').value = 'person';
+    if ($('tripDuration')) $('tripDuration').value = 'any';
+    document.querySelectorAll('.category').forEach(button => {
+      const active = button.dataset.category === 'all';
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+    document.querySelectorAll('.style-card').forEach(button => {
+      const active = button.dataset.style === 'all';
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+    document.querySelectorAll('.budget-chip').forEach(button => {
+      const active = button.dataset.budget === 'all';
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+    if (budgetRangeSlider) {
+      budgetRangeSlider.value = '0';
+      if ($('budgetRangeOutput')) $('budgetRangeOutput').textContent = 'All budgets';
+    }
+    updateBudgetControls();
+    renderListings();
+    setActiveSiteNav('places');
+    returnToRecommendations();
+    $('recommendations').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  const shareDetailButton = $('shareDetailButton');
+  if (shareDetailButton) shareDetailButton.addEventListener('click', async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const shareUrl = new URL(window.location.href);
+    shareUrl.searchParams.set('place', String(item.id));
+    shareUrl.searchParams.delete('page');
+    const shareData = { title: item.name + ' | TravelTaste', text: 'Explore ' + item.name + ' in ' + selectedCity.name + ' on TravelTaste.', url: shareUrl.toString() };
+    try {
+      if (navigator.share) await navigator.share(shareData);
+      else if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(shareData.url);
+        message('Place link copied. You can share it with friends.');
+      } else {
+        window.prompt('Copy this link to share the place:', shareData.url);
+      }
+    } catch (error) {
+      if (error?.name !== 'AbortError') message('Unable to share this place right now.');
+    }
+  });
+
+  const saveDetailButton = $('saveDetailButton');
+  if (saveDetailButton) saveDetailButton.addEventListener('click', async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!currentUser) {
+      message('Please sign in to save this place. Your destination page will stay open.');
+      return;
+    }
+    await toggleFavourite(item.id, saveDetailButton);
+    const saved = savedListingIds.has(String(item.id));
+    saveDetailButton.textContent = saved ? '♥ Saved' : '♡ Save';
+    saveDetailButton.setAttribute('aria-pressed', String(saved));
   });
 
   // Keep the existing main-photo click behavior and open the full photo lightbox.
   const mainGalleryButton = $('detailMainPhotoButton');
   if (mainGalleryButton) {
-    mainGalleryButton.addEventListener('click', () => {
+    mainGalleryButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
       if (typeof window.openTravelTasteLightbox === 'function') {
-        window.openTravelTasteLightbox(allPhotos, 0);
+        window.openTravelTasteLightbox(allPhotos, currentPhotoIndex || 0);
       }
     });
   }
@@ -3850,22 +4005,8 @@ const allPhotos = combinedPhotos.length
 const mainPhoto = $('detailMainPhoto');
 
 if (mainPhoto) {
+  // The containing native button handles click, Enter, and Space exactly once.
   mainPhoto.style.cursor = 'zoom-in';
-  mainPhoto.tabIndex = 0;
-  mainPhoto.setAttribute('role', 'button');
-  mainPhoto.setAttribute('aria-label', 'Open photo gallery');
-  const openCurrentPhoto = () => {
-    if (typeof window.openTravelTasteLightbox === 'function') {
-      window.openTravelTasteLightbox(allPhotos, currentPhotoIndex);
-    }
-  };
-  mainPhoto.addEventListener('click', openCurrentPhoto);
-  mainPhoto.addEventListener('keydown', event => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      openCurrentPhoto();
-    }
-  });
   mainPhoto.addEventListener('error', () => {
     mainPhoto.style.display = 'none';
     const caption = $('detailPhotoCaption');
@@ -3908,52 +4049,51 @@ detailContent.querySelectorAll('.detail-thumb img').forEach(image => {
       return;
     }
 
-    const average =
-      ratings.reduce((sum, row) => sum + Number(row.rating), 0) /
-      ratings.length;
-
-    ratingSummary.textContent =
-      `⭐ ${average.toFixed(1)} / 5 (${ratings.length} rating${ratings.length === 1 ? '' : 's'})`;
+    const average = ratings.reduce((sum, row) => sum + Number(row.rating), 0) / ratings.length;
+    ratingSummary.textContent = `⭐ ${average.toFixed(1)} / 5 (${ratings.length} rating${ratings.length === 1 ? '' : 's'})`;
   }
 
   ratingButtons.forEach(button => {
-    button.addEventListener('click', async () => {
+    button.addEventListener('click', async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
       if (!ratingMessage) return;
 
       const rating = Number(button.dataset.rating);
+      if (!Number.isInteger(rating) || rating < 1 || rating > 5) return;
+      if (!currentUser) {
+        ratingMessage.textContent = 'Please sign in to rate this place. Your destination page will stay open.';
+        return;
+      }
+
+      ratingButtons.forEach(starButton => starButton.disabled = true);
       ratingMessage.textContent = 'Saving your rating...';
+      try {
+        const { error } = await supabase
+          .from('place_ratings')
+          .upsert(
+            { listing_id: item.id, user_id: currentUser.id, rating },
+            { onConflict: 'listing_id,user_id' }
+          );
 
-      const { data: { user }, error: authError } =
-        await supabase.auth.getUser();
+        if (error) throw error;
 
-      if (authError || !user) {
-        ratingMessage.textContent =
-          'Please log in to Community before rating this place.';
-        return;
+        ratingButtons.forEach(starButton => {
+          const selected = Number(starButton.dataset.rating) === rating;
+          starButton.setAttribute('aria-pressed', String(selected));
+          starButton.classList.toggle('is-selected', selected);
+        });
+        ratingMessage.textContent = 'Thanks! Your ' + rating + '-star rating has been saved.';
+        communityRatingsLoaded = false;
+        await loadCommunityRatingScores();
+        await loadPlaceRatings();
+        if (typeof renderListings === 'function') renderListings();
+      } catch (error) {
+        console.error('Rating save failed:', error);
+        ratingMessage.textContent = 'Could not save rating: ' + (error?.message || 'Please try again.');
+      } finally {
+        ratingButtons.forEach(starButton => starButton.disabled = false);
       }
-
-      const { error } = await supabase
-        .from('place_ratings')
-        .upsert(
-          {
-            listing_id: item.id,
-            user_id: user.id,
-            rating
-          },
-          { onConflict: 'listing_id,user_id' }
-        );
-
-      if (error) {
-        ratingMessage.textContent =
-          'Could not save rating: ' + error.message;
-        return;
-      }
-
-      ratingMessage.textContent = 'Thanks! Your rating has been saved.';
-      communityRatingsLoaded = false;
-      await loadCommunityRatingScores();
-      await loadPlaceRatings();
-      if (typeof renderListings === 'function') renderListings();
     });
   });
 
