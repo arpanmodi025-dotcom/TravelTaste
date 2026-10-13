@@ -4952,6 +4952,7 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
   const $ = id => document.getElementById(id);
   const drawer=$('nearbyDrawer'), backdrop=$('nearbyDrawerBackdrop'), status=$('nearbyStatus'), results=$('nearbyResults');
   if(!drawer || !backdrop || !$('nearbyDiscoveriesMenuItem')) return;
+  const NEARBY_RADIUS_KM = 200; // Show published listings within 200 km (straight-line distance).
   let userPosition=null, activeFilter='all';
   const esc = value => String(value ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const number = value => value!==null && value!==undefined && value!=='' && Number.isFinite(Number(value)) && Number(value)>=-180 && Number(value)<=180;
@@ -4986,6 +4987,7 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
   function getItems(){
     return publishedItems().filter(item=>number(item.latitude)&&number(item.longitude)&&Number(item.latitude)>=-90&&Number(item.latitude)<=90)
       .map(item=>({...item,_nearbyDistance:distanceKm(userPosition.lat,userPosition.lon,Number(item.latitude),Number(item.longitude)),_nearbyCategory:typeOf(item)}))
+      .filter(item=>item._nearbyDistance <= NEARBY_RADIUS_KM)
       .filter(item=>activeFilter==='all'||item._nearbyCategory===activeFilter)
       .sort((a,b)=>a._nearbyDistance-b._nearbyDistance);
   }
@@ -4998,8 +5000,8 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
     const all=publishedItems();
     const withCoords=all.filter(item=>number(item.latitude)&&number(item.longitude)&&Number(item.latitude)>=-90&&Number(item.latitude)<=90);
     const items=getItems();
-    $('nearbyResultsCount').textContent=`${items.length} ${items.length===1?'place':'places'}`;
-    $('nearbyResultsTitle').textContent=activeFilter==='all'?'Top recommendations near you':({places:'Places near you',food:'Food spots near you',activities:'Activities near you',hidden:'Hidden gems near you'}[activeFilter]);
+    $('nearbyResultsCount').textContent=`${items.length} ${items.length===1?'place':'places'} · within ${NEARBY_RADIUS_KM} km`;
+    $('nearbyResultsTitle').textContent=(activeFilter==='all'?'Top recommendations near you':({places:'Places near you',food:'Food spots near you',activities:'Activities near you',hidden:'Hidden gems near you'}[activeFilter]))+' (within '+NEARBY_RADIUS_KM+' km)';
     if(!items.length){results.innerHTML=`<div class="nearby-empty">${withCoords.length?'No matching listings in this category with coordinates. Try another category.':'Your published listings do not yet have usable latitude and longitude. Google Maps links can be used for directions, and links that contain coordinates can be used for distance sorting. Other links need coordinates added or resolved.'}</div>`;return;}
     results.innerHTML=items.map(item=>{
       const img=item.image_url||item.image||'';
@@ -5031,7 +5033,7 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
     if(!navigator.geolocation){status.textContent='Your browser does not support location sharing. Please try a modern browser.';return;}
     if(!window.isSecureContext){status.textContent='Location access requires a secure HTTPS website. Open TravelTaste using its HTTPS address.';return;}
     const btn=$('useNearbyLocation');btn.disabled=true;status.textContent='Requesting permission to access your current location…';
-    navigator.geolocation.getCurrentPosition(pos=>{userPosition={lat:pos.coords.latitude,lon:pos.coords.longitude};btn.disabled=false;status.textContent='Location found. Showing published TravelTaste listings with coordinates, sorted by distance.';updateMap();render();},err=>{btn.disabled=false;const messages={1:'Location permission was denied. Allow location access in your browser settings and try again.',2:'Your location could not be determined. Check device location services and try again.',3:'Location request timed out. Please try again.'};status.textContent=messages[err.code]||'Could not access your location. Please try again.';},{enableHighAccuracy:true,timeout:15000,maximumAge:60000});
+    navigator.geolocation.getCurrentPosition(pos=>{userPosition={lat:pos.coords.latitude,lon:pos.coords.longitude};btn.disabled=false;status.textContent='Location found. Showing published TravelTaste listings within '+NEARBY_RADIUS_KM+' km, sorted by distance.';updateMap();render();},err=>{btn.disabled=false;const messages={1:'Location permission was denied. Allow location access in your browser settings and try again.',2:'Your location could not be determined. Check device location services and try again.',3:'Location request timed out. Please try again.'};status.textContent=messages[err.code]||'Could not access your location. Please try again.';},{enableHighAccuracy:true,timeout:15000,maximumAge:60000});
   });
   $('nearbyFilters').addEventListener('click',event=>{const button=event.target.closest('[data-nearby-filter]');if(!button)return;activeFilter=button.dataset.nearbyFilter;$('nearbyFilters').querySelectorAll('[data-nearby-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));if(userPosition)render();});
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!drawer.hidden)closeDrawer();});
