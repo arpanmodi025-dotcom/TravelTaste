@@ -1333,6 +1333,20 @@ body:not(.community-active) .community-cta-gallery img:nth-child(5) { display: n
   #list .travel-card-actions .map-link .btn { width: 100%; }
 }
 
+
+
+/* Minimal Explore-card improvement: shorten long descriptions only.
+   Keeps existing fonts, real photos, buttons, filters, and site features intact. */
+#list .card p:not(.address) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
 </style>
 </head>
 
