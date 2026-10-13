@@ -1431,6 +1431,17 @@ body:not(.community-active) .community-cta-gallery img:nth-child(5) { display: n
           <option value="group">Total group budget</option>
         </select>
       </label>
+      <label class="budget-extra" id="groupSizeWrap" hidden>Travellers
+        <select id="budgetGroupSize" aria-label="Number of travellers" style="border:0;background:transparent;color:inherit;font:inherit">
+          <option value="2">2 people</option>
+          <option value="3">3 people</option>
+          <option value="4" selected>4 people</option>
+          <option value="5">5 people</option>
+          <option value="6">6 people</option>
+          <option value="7">7 people</option>
+          <option value="8">8 people</option>
+        </select>
+      </label>
       <label class="budget-extra">Trip
         <select id="tripDuration" aria-label="Trip duration" style="border:0;background:transparent;color:inherit;font:inherit">
           <option value="any">Any duration</option>
@@ -1439,7 +1450,7 @@ body:not(.community-active) .community-cta-gallery img:nth-child(5) { display: n
           <option value="day">Full day (5+ hours)</option>
         </select>
       </label>
-      <p class="budget-note" id="budgetNote">Budget filtering uses published price details. Places without a price may be hidden when a budget is selected.</p>
+      <p class="budget-note" id="budgetNote">Budget and duration filters use each place’s saved cost and visit-duration details. Existing places may need these details added once.</p>
     </div>
 
   </section>
@@ -1526,6 +1537,27 @@ body:not(.community-active) .community-cta-gallery img:nth-child(5) { display: n
     </label>
 
    
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
+      <label>
+        Estimated cost per person (₹) *
+        <input name="estimated_cost_per_person" type="number" min="0" max="10000000" step="1" required
+          placeholder="e.g. 350"
+          style="display:block;width:100%;padding:12px;margin-top:6px;box-sizing:border-box">
+        <small>Include typical entry, food or activity cost for one person.</small>
+      </label>
+      <label>
+        Typical visit duration *
+        <select name="duration_category" required
+          style="display:block;width:100%;padding:12px;margin-top:6px;box-sizing:border-box">
+          <option value="">Choose duration</option>
+          <option value="short">Quick visit — under 2 hours</option>
+          <option value="half">Half day — 2 to 5 hours</option>
+          <option value="day">Full day — 5+ hours</option>
+        </select>
+        <small>Choose the typical time visitors spend at this place.</small>
+      </label>
+    </div>
 
     <label>
       Google Maps link
@@ -1739,6 +1771,7 @@ let selectedStyle = 'all';
 let selectedCategory = 'all';
 let selectedBudget = 'all';
 let selectedBudgetBasis = 'person';
+let selectedGroupSize = 4;
 let selectedTripDuration = 'any';
 let currentUser = null;
 let feedMode = 'community';
@@ -3087,6 +3120,7 @@ async function loadDestination(cityId) {
   }
 
   listings = data || [];
+  if (typeof updateBudgetControls === 'function') updateBudgetControls();
   renderListings();
 }
 
@@ -3207,7 +3241,7 @@ const allPhotos = combinedPhotos.length
       <h3>Location information</h3>
       <p>📍 <strong>Address:</strong> ${escapeHtml(item.address || selectedCity.name)}</p>
       <p>🏷️ <strong>Category:</strong> ${escapeHtml(categoryNames[item.type] || item.type)}</p>
-      ${item.price_range ? `<p>💰 <strong>Price:</strong> ${escapeHtml(item.price_range)}</p>` : ''}
+      ${(item.price_range || getListingPrice(item) !== null) ? `<p>💰 <strong>Estimated cost per person:</strong> ${escapeHtml(item.price_range || ('₹' + Math.round(getListingPrice(item)).toLocaleString('en-IN')))}</p>` : '<p>💰 <strong>Cost:</strong> Not added yet</p>'}
       ${item.phone ? `<p>📞 <strong>Phone:</strong> ${escapeHtml(item.phone)}</p>` : ''}
       ${item.website ? `<p>🌐 <strong>Website:</strong> <a href="${escapeHtml(item.website)}" target="_blank" rel="noopener noreferrer">Visit website</a></p>` : ''}
 
@@ -3530,44 +3564,67 @@ $('backToRecommendations').addEventListener('click', () => {
 
  
   function getListingPrice(item) {
-    // Extract an explicit rupee amount from the published price range only.
+    // Prefer the explicit numeric field added for budget filtering.
+    const direct = [
+      item.estimated_cost_per_person,
+      item.cost_per_person,
+      item.price_per_person
+    ].find(value => value !== null && value !== undefined && String(value).trim() !== '');
+    if (direct !== undefined) {
+      const numeric = Number(direct);
+      if (Number.isFinite(numeric) && numeric >= 0) return numeric;
+    }
+
+    // Backwards compatibility: use an existing price_range string if present.
     const raw = String(item.price_range || '').replace(/,/g, '');
     const values = [...raw.matchAll(/(?:₹|rs\.?|inr)?\s*(\d+(?:\.\d+)?)/ig)]
       .map(match => Number(match[1]))
       .filter(value => Number.isFinite(value) && value >= 0);
     if (!values.length) return null;
-    // A range such as "₹500 - ₹1,500" is represented by its upper bound,
-    // so a destination is shown only when its stated maximum fits the budget.
-    return Math.max(...values);
+    // A written range is represented by its midpoint, a useful estimate for filtering.
+    if (values.length >= 2) return (values[0] + values[1]) / 2;
+    return values[0];
   }
 
   function getDurationGroup(item) {
-    const text = [
-      item.duration, item.visit_duration, item.travel_tips, item.description
-    ].filter(Boolean).join(' ').toLowerCase();
+    const savedCategory = String(item.duration_category || item.visit_duration_category || '').toLowerCase().trim();
+    if (['short','quick','under_2_hours','under 2 hours'].includes(savedCategory)) return 'short';
+    if (['half','half_day','half day'].includes(savedCategory)) return 'half';
+    if (['day','full_day','full day'].includes(savedCategory)) return 'day';
+
+    const savedHours = item.duration_hours ?? item.visit_duration_hours;
+    if (savedHours !== null && savedHours !== undefined && String(savedHours).trim() !== '') {
+      const hours = Number(savedHours);
+      if (Number.isFinite(hours) && hours >= 0) {
+        if (hours < 2) return 'short';
+        if (hours <= 5) return 'half';
+        return 'day';
+      }
+    }
+
+    // Backwards compatibility with older records that store a duration as text.
+    const text = [item.duration, item.visit_duration, item.travel_tips, item.description]
+      .filter(Boolean).join(' ').toLowerCase();
     const match = text.match(/(\d+(?:\.\d+)?)\s*(minutes?|mins?|hours?|hrs?)/i);
     if (!match) return 'unknown';
     const amount = Number(match[1]);
     const unit = match[2].toLowerCase();
     const hours = unit.startsWith('m') ? amount / 60 : amount;
     if (hours < 2) return 'short';
-    if (hours < 5) return 'half';
+    if (hours <= 5) return 'half';
     return 'day';
+  }
+
+  function getBudgetComparablePrice(item) {
+    const perPerson = getListingPrice(item);
+    if (perPerson === null) return null;
+    return selectedBudgetBasis === 'group' ? perPerson * selectedGroupSize : perPerson;
   }
 
   function matchesBudget(item) {
     if (selectedBudget === 'all') return true;
-    const price = getListingPrice(item);
-    if (price == null) return false;
-    if (selectedBudgetBasis === 'group') {
-      const groupSize = 4; // Conservative default for a group-budget estimate.
-      const perPersonPrice = price;
-      const totalEstimate = perPersonPrice * groupSize;
-      if (selectedBudget === '500') return totalEstimate < 500;
-      if (selectedBudget === '1500') return totalEstimate >= 500 && totalEstimate <= 1500;
-      if (selectedBudget === '3000') return totalEstimate > 1500 && totalEstimate <= 3000;
-      return totalEstimate > 3000;
-    }
+    const price = getBudgetComparablePrice(item);
+    if (price === null) return false;
     if (selectedBudget === '500') return price < 500;
     if (selectedBudget === '1500') return price >= 500 && price <= 1500;
     if (selectedBudget === '3000') return price > 1500 && price <= 3000;
@@ -3629,9 +3686,19 @@ $('backToRecommendations').addEventListener('click', () => {
 
   if (!items.length) {
     const searchQuery = (globalSearchInput?.value || '').trim();
-    $('list').innerHTML = searchQuery
-      ? `<div class="empty"><div style="font-size:38px">🔎</div><strong>No results found for “${escapeHtml(searchQuery)}”.</strong><p>Try another word, or press Enter after typing a destination name.</p></div>`
-      : `<div class="empty"><div style="font-size:38px">🧭</div><strong>No recommendations in this category yet.</strong><p>Add published recommendations for ${escapeHtml(selectedCity?.name || 'this destination')} in Supabase to fill this section.</p></div>`;
+    if (searchQuery) {
+      $('list').innerHTML = `<div class="empty"><div style="font-size:38px">🔎</div><strong>No results found for “${escapeHtml(searchQuery)}”.</strong><p>Try another word, or press Enter after typing a destination name.</p></div>`;
+    } else if (selectedBudget !== 'all' || selectedTripDuration !== 'any') {
+      const missingPrice = listings.filter(item => getListingPrice(item) === null).length;
+      const missingDuration = listings.filter(item => getDurationGroup(item) === 'unknown').length;
+      const missingText = [
+        selectedBudget !== 'all' && missingPrice ? `${missingPrice} place${missingPrice === 1 ? '' : 's'} need a cost per person` : '',
+        selectedTripDuration !== 'any' && missingDuration ? `${missingDuration} place${missingDuration === 1 ? '' : 's'} need a visit duration` : ''
+      ].filter(Boolean).join(' and ');
+      $('list').innerHTML = `<div class="empty"><div style="font-size:38px">🧭</div><strong>No places match these filters yet.</strong><p>${missingText ? `Some existing places are missing filter data: ${escapeHtml(missingText)}. Add these details in Supabase, or submit them with Suggest a Place. ` : ''}Try another budget or duration, or add the missing cost and duration details to published places.</p></div>`;
+    } else {
+      $('list').innerHTML = `<div class="empty"><div style="font-size:38px">🧭</div><strong>No recommendations in this category yet.</strong><p>Add published recommendations for ${escapeHtml(selectedCity?.name || 'this destination')} in Supabase to fill this section.</p></div>`;
+    }
     return;
   }
 
@@ -3795,6 +3862,24 @@ if (budgetRangeSlider) {
   }));
 }
 
+function updateBudgetControls() {
+  const groupWrap = $('groupSizeWrap');
+  if (groupWrap) groupWrap.hidden = selectedBudgetBasis !== 'group';
+  const missingPrice = listings.filter(item => getListingPrice(item) === null).length;
+  const missingDuration = listings.filter(item => getDurationGroup(item) === 'unknown').length;
+  let note = selectedBudget === 'all'
+    ? 'Budget uses estimated cost per person; group mode multiplies it by the selected traveller count.'
+    : selectedBudgetBasis === 'group'
+      ? `Showing places whose estimated total for ${selectedGroupSize} travellers fits the selected budget.`
+      : 'Showing places whose estimated cost for one person fits the selected budget.';
+  if (selectedTripDuration !== 'any') note += ' Visit duration is matched to the selected duration band.';
+  const missing = [];
+  if (selectedBudget !== 'all' && missingPrice) missing.push(`${missingPrice} existing place${missingPrice === 1 ? '' : 's'} without a cost`);
+  if (selectedTripDuration !== 'any' && missingDuration) missing.push(`${missingDuration} existing place${missingDuration === 1 ? '' : 's'} without a duration`);
+  if (missing.length) note += ` Data still needed: ${missing.join(' and ')}.`;
+  $('budgetNote').textContent = note;
+}
+
 document.querySelectorAll('.budget-chip').forEach(button => {
   button.addEventListener('click', () => {
     selectedBudget = button.dataset.budget;
@@ -3803,25 +3888,28 @@ document.querySelectorAll('.budget-chip').forEach(button => {
       chip.classList.toggle('active', active);
       chip.setAttribute('aria-pressed', String(active));
     });
-    $('budgetNote').textContent = selectedBudget === 'all'
-      ? 'Showing all price ranges. Budget filtering uses published price details.'
-      : selectedBudgetBasis === 'group'
-        ? 'Group budget estimates assume 4 travellers and use each listing’s published price.'
-        : 'Only recommendations with published prices in this range are shown.';
+    updateBudgetControls();
     renderListings();
   });
 });
 
 $('budgetBasis').addEventListener('change', event => {
   selectedBudgetBasis = event.target.value;
-  $('budgetNote').textContent = selectedBudgetBasis === 'group'
-    ? 'Group budget estimates assume 4 travellers and use each listing’s published price.'
-    : 'Budget filtering uses each listing’s published price details.';
+  updateBudgetControls();
   renderListings();
 });
 
+if ($('budgetGroupSize')) {
+  $('budgetGroupSize').addEventListener('change', event => {
+    selectedGroupSize = Number(event.target.value) || 4;
+    updateBudgetControls();
+    renderListings();
+  });
+}
+
 $('tripDuration').addEventListener('change', event => {
   selectedTripDuration = event.target.value;
+  updateBudgetControls();
   renderListings();
 });
 
@@ -3901,6 +3989,12 @@ $('placeSubmissionForm').addEventListener('submit', async (event) => {
 
   const formData = new FormData(form);
   const files = Array.from($('submissionPhotos').files || []);
+  const submittedCost = Number(formData.get('estimated_cost_per_person'));
+  const submittedDuration = String(formData.get('duration_category') || '');
+  if (!Number.isFinite(submittedCost) || submittedCost < 0 || !['short','half','day'].includes(submittedDuration)) {
+    message.textContent = 'Please add a valid estimated cost per person and visit duration.';
+    return;
+  }
 
   if (files.length < 1 || files.length > 5) {
     message.textContent = 'Please choose between 1 and 5 photos.';
@@ -3960,6 +4054,9 @@ $('placeSubmissionForm').addEventListener('submit', async (event) => {
         travel_tips: String(formData.get('travel_tips') || '').trim() || null,
         traveler_type: formData.get('traveler_type'),
         rating: Number(formData.get('rating')),
+        estimated_cost_per_person: Number(formData.get('estimated_cost_per_person')),
+        duration_category: formData.get('duration_category'),
+        duration_hours: ({ short: 1, half: 3.5, day: 6 })[formData.get('duration_category')] || null,
         status: 'pending'
       });
 
