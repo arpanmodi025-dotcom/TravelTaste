@@ -1335,41 +1335,77 @@ body:not(.community-active) .community-cta-gallery img:nth-child(5) { display: n
 
 
 
-/* TravelTaste Explore cards: align budget/duration and both actions in two rows.
-   Scoped to listing cards; leaves fonts, photos, filters and other sections intact. */
-#list .card-body .card-meta-row,
-#list .card-body .card-info-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-#list .card-body .card-meta-row > *,
-#list .card-body .card-info-row > * {
-  min-width: 0;
-}
-
-#list .card-body .card-actions .card-action-row,
-#list .card-body .card-actions .action-row {
-  display: grid;
+/* FIX: Use the actual classes rendered by renderListings().
+   Keep budget + duration on one row, and both actions on the row below. */
+#list .travel-card-meta {
+  display: grid !important;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: stretch;
   gap: 8px;
+  width: 100%;
 }
 
-#list .card-body .card-actions .card-action-row > *,
-#list .card-body .card-actions .action-row > * {
+#list .travel-card-badge {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  min-width: 0;
+  padding: 8px 9px;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+#list .travel-card-badge > span:last-child {
+  min-width: 0;
+}
+
+#list .travel-card-actions {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+}
+
+#list .travel-card-actions > .travel-details-button,
+#list .travel-card-actions > .map-link {
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
   min-width: 0;
   width: 100%;
+  max-width: 100%;
+  flex: initial;
+}
+
+#list .travel-card-actions > .travel-details-button,
+#list .travel-card-actions > .map-link > .btn {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  height: 100%;
+  padding: 10px 7px;
+  font-size: 12px;
+  line-height: 1.25;
+  white-space: normal;
   text-align: center;
 }
 
+#list .travel-card-actions > .map-link > .btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 @media (max-width: 560px) {
-  #list .card-body .card-meta-row,
-  #list .card-body .card-info-row {
-    gap: 6px;
+  #list .travel-card-meta,
+  #list .travel-card-actions {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 
