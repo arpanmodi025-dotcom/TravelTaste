@@ -1413,6 +1413,18 @@ body:not(.community-active) .community-cta-gallery img:nth-child(5) { display: n
 }
 
 
+
+.seasonal-autocomplete{position:relative;z-index:5}
+#seasonalSuggestions{position:absolute;left:0;right:0;top:calc(100% + 5px);z-index:2600;max-height:240px;overflow:auto;background:#fff;border:1px solid #e8ddd4;border-radius:12px;box-shadow:0 14px 28px rgba(23,43,70,.16);padding:5px}
+#seasonalSuggestions[hidden]{display:none}
+.seasonal-suggestion{display:flex;align-items:flex-start;gap:10px;width:100%;padding:10px;border:0;border-radius:8px;background:#fff;color:#172b46;text-align:left;cursor:pointer;font:inherit}
+.seasonal-suggestion:hover,.seasonal-suggestion:focus-visible{background:#fff0e8;outline:none}
+.seasonal-suggestion-pin{color:#ef5725;font-size:17px;line-height:1.3}
+.seasonal-suggestion-copy{display:flex;flex-direction:column;gap:2px}
+.seasonal-suggestion-copy strong{font-size:13px}
+.seasonal-suggestion-copy small{font-size:11px;color:#64748b}
+.seasonal-search-status{margin:7px 0 12px;color:#64748b;font-size:11px}
+
 /* Places menu + Festival & Seasonal drawer. Additive styles; existing page styles remain intact. */
 #placesMenuWrap{position:relative;display:flex;align-items:stretch}
 #placesMenu{position:absolute;top:calc(100% + 12px);left:0;z-index:1200;width:230px;padding:8px;background:#fff;border:1px solid #f0e3da;border-radius:14px;box-shadow:0 14px 36px rgba(25,35,50,.16)}
@@ -4573,12 +4585,16 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
     <button type="button" id="closeSeasonalDrawer" aria-label="Close Festival and Seasonal Travel">×</button>
   </div>
   <div class="seasonal-drawer-content">
-    <label class="seasonal-search-wrap" for="seasonalDestinationSearch">
-      <span aria-hidden="true">📍</span>
-      <input id="seasonalDestinationSearch" type="search" placeholder="Search destination, state or country" autocomplete="off">
-      <span aria-hidden="true">⌕</span>
-    </label>
-    <p class="seasonal-search-hint">Try Rajasthan, Shimla, Manali, Kerala, Japan or a festival name.</p>
+    <div class="seasonal-autocomplete">
+      <label class="seasonal-search-wrap" for="seasonalDestinationSearch">
+        <span aria-hidden="true">📍</span>
+        <input id="seasonalDestinationSearch" type="search" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="seasonalSuggestions" aria-expanded="false" placeholder="Search destination, state or country" autocomplete="off">
+        <span aria-hidden="true">⌕</span>
+      </label>
+      <div id="seasonalSuggestions" role="listbox" aria-label="Destination suggestions" hidden></div>
+    </div>
+    <p class="seasonal-search-hint">Type a destination or festival and choose a suggestion to search.</p>
+    <p id="seasonalSearchStatus" class="seasonal-search-status" aria-live="polite">Start typing for destination suggestions.</p>
     <label class="seasonal-label" for="seasonalMonthGrid">Select travel month</label>
     <div id="seasonalMonthGrid" aria-label="Select travel month"></div>
     <section class="seasonal-month-hero" aria-live="polite">
@@ -4635,14 +4651,14 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
     {type:'places',name:'Sikkim & Darjeeling',region:'Northeast India',months:[2,3,4,9,10],best:'March–May; October–November',desc:'Mountain views, tea gardens and scenic routes.',image:'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=700&q=80',tags:'sikkim darjeeling mountains tea northeast'},
     {type:'places',name:'Goa',region:'Goa, India',months:[0,1,2,10,11],best:'November–February',desc:'Beaches, Portuguese heritage and seasonal celebrations.',image:'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=700&q=80',tags:'goa beach coastal carnival'},
     {type:'places',name:'Meghalaya',region:'Meghalaya, India',months:[2,3,9,10,11],best:'October–April for many outdoor trips',desc:'Waterfalls, living-root bridges and green hill scenery.',image:'https://images.unsplash.com/photo-1622308644420-b20142dc993c?auto=format&fit=crop&w=700&q=80',tags:'meghalaya shillong cherrapunji waterfalls'},
-    {type:'festivals',name:'Makar Sankranti',region:'Across India',months:[0],best:'Usually 14 January; confirm annually',desc:'Kite flying and regional harvest celebrations, especially vibrant in Gujarat.',image:'https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?auto=format&fit=crop&w=700&q=80',tags:'makar sankranti kite festival gujarat uttarayan'},
+    {type:'festivals',name:'Makar Sankranti / Uttarayan',region:'Gujarat, India',months:[0,1,2,3,4,5,6,7,8,9,10,11],best:'Usually 14 January; confirm annually',desc:'Kite flying and regional harvest celebrations, especially vibrant in Ahmedabad and Gujarat.',image:'https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?auto=format&fit=crop&w=700&q=80',tags:'makar sankranti uttarayan kite festival gujarat ahmedabad india'},
     {type:'festivals',name:'Rann Utsav',region:'Kutch, Gujarat',months:[0,1,10,11],best:'Season varies; commonly Nov–Feb',desc:'A seasonal celebration of Kutch crafts, music, food and the white desert.',image:'https://images.unsplash.com/photo-1589308078059-be1415eab4c3?auto=format&fit=crop&w=700&q=80',tags:'rann utsav kutch gujarat festival desert'},
     {type:'festivals',name:'Holi',region:'Across India',months:[1,2],best:'Usually February or March; lunar calendar',desc:'Colourful spring festival with local traditions that vary by region.',image:'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=700&q=80',tags:'holi colour festival spring india'},
     {type:'festivals',name:'Baisakhi',region:'Punjab, India',months:[3],best:'Usually 13 or 14 April',desc:'Harvest festivities and cultural events in Punjab and nearby regions.',image:'https://images.unsplash.com/photo-1514222134-b57cbb8ce073?auto=format&fit=crop&w=700&q=80',tags:'baisakhi punjab harvest festival april'},
     {type:'festivals',name:'Onam',region:'Kerala, India',months:[7],best:'Usually August or September; lunar calendar',desc:'Kerala’s harvest festival with cultural events and traditional feasts.',image:'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=700&q=80',tags:'onam kerala boat race harvest festival'},
     {type:'festivals',name:'Navratri',region:'Gujarat and across India',months:[8,9],best:'Usually September or October; dates vary',desc:'Garba, devotional celebrations and cultural nights, especially in Gujarat.',image:'https://images.unsplash.com/photo-1606293926075-69a00db1454b?auto=format&fit=crop&w=700&q=80',tags:'navratri garba gujarat festival dance'},
     {type:'festivals',name:'Durga Puja',region:'West Bengal, India',months:[9],best:'Usually September or October; dates vary',desc:'Major cultural and artistic celebrations, especially in Kolkata.',image:'https://images.unsplash.com/photo-1577083288073-40892c0860a4?auto=format&fit=crop&w=700&q=80',tags:'durga puja kolkata west bengal festival'},
-    {type:'festivals',name:'Diwali',region:'Across India',months:[9,10],best:'Usually October or November; lunar calendar',desc:'Festival lights, local markets and regional celebrations across India.',image:'https://images.unsplash.com/photo-1605640840605-14ac1855827b?auto=format&fit=crop&w=700&q=80',tags:'diwali deepavali lights india festival'},
+    {type:'festivals',name:'Diwali',region:'Ahmedabad, Gujarat and across India',months:[0,1,2,3,4,5,6,7,8,9,10,11],best:'Usually October or November; lunar calendar',desc:'Festival of lights with decorations, markets and cultural events in Ahmedabad and across India.',image:'https://images.unsplash.com/photo-1605640840605-14ac1855827b?auto=format&fit=crop&w=700&q=80',tags:'diwali deepavali lights india festival ahmedabad gujarat'},
     {type:'festivals',name:'Jaipur Literature Festival',region:'Jaipur, Rajasthan',months:[0],best:'Often January; confirm current dates',desc:'A major literary gathering with authors, talks and cultural programming.',image:'https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=700&q=80',tags:'jaipur literature festival books rajasthan'},
     {type:'tips',name:'Plan a winter hill trip',region:'Himachal Pradesh',months:[0,1,11],best:'Winter months; check local snow and road updates',desc:'Reserve stays early, carry layers and keep a flexible travel plan.',image:'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=700&q=80',tags:'winter shimla manali snow tips'},
     {type:'tips',name:'Plan a festival visit',region:'India',months:[0,1,2,3,4,5,6,7,8,9,10,11],best:'Check official dates before booking',desc:'Check dates, venue details, crowd advice and transport before you go.',image:'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=700&q=80',tags:'festival planning events india tips'},
@@ -4651,6 +4667,100 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
     {type:'weather',name:'Desert and heritage cities',region:'Rajasthan and Gujarat',months:[0,1,2,9,10,11],best:'Cooler months are usually more comfortable',desc:'Plan outdoor sightseeing for cooler hours and stay hydrated.',image:'https://images.unsplash.com/photo-1599661046827-dacff0c0f09a?auto=format&fit=crop&w=700&q=80',tags:'weather desert rajasthan gujarat heritage'},
     {type:'weather',name:'Western Ghats and Kerala',region:'Southwest India',months:[5,6,7,8,9,10,11],best:'Depends on rainfall and activity',desc:'Rain can affect trails, roads and boat trips; check local advisories.',image:'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=700&q=80',tags:'weather kerala monsoon western ghats rain'}
   ];
+
+  // Curated destination aliases provide typo-tolerant suggestions without a paid API.
+  const destinationCatalog = [
+    {name:'Ahmedabad',region:'Gujarat, India',aliases:['ahmedabad','amdavad','ahemdabad','ahmadabad','ahmedbad','amdavad']},
+    {name:'Rajasthan',region:'India',aliases:['rajasthan','rajastan','rajasthan']},
+    {name:'Shimla',region:'Himachal Pradesh, India',aliases:['shimla','simla']},
+    {name:'Manali',region:'Himachal Pradesh, India',aliases:['manali','manalli']},
+    {name:'Kerala',region:'India',aliases:['kerala','kerela']},
+    {name:'Jaipur',region:'Rajasthan, India',aliases:['jaipur','jaypur']},
+    {name:'Rann of Kutch',region:'Gujarat, India',aliases:['rann of kutch','kutch','kachchh','rann utsav']},
+    {name:'Goa',region:'India',aliases:['goa']},
+    {name:'Sikkim',region:'India',aliases:['sikkim']},
+    {name:'Darjeeling',region:'West Bengal, India',aliases:['darjeeling','darjiling']},
+    {name:'Meghalaya',region:'India',aliases:['meghalaya']},
+    {name:'Japan',region:'Country',aliases:['japan']},
+    {name:'India',region:'Country',aliases:['india','bharat']},
+    {name:'Gujarat',region:'India',aliases:['gujarat','gujrat']},
+    {name:'Kolkata',region:'West Bengal, India',aliases:['kolkata','calcutta']},
+    {name:'Punjab',region:'India',aliases:['punjab']},
+    {name:'Uttarakhand',region:'India',aliases:['uttarakhand','uttrakhand']},
+    {name:'Uttar Pradesh',region:'India',aliases:['uttar pradesh','up']},
+    {name:'Makar Sankranti / Uttarayan',region:'Festival · Gujarat and India',aliases:['makar sankranti','sankranti','uttarayan','kite festival']},
+    {name:'Diwali',region:'Festival · India',aliases:['diwali','deepavali','dipawali']},
+    {name:'Navratri',region:'Festival · Gujarat and India',aliases:['navratri','navaratri','garba']},
+    {name:'Holi',region:'Festival · India',aliases:['holi']},
+    {name:'Durga Puja',region:'Festival · West Bengal, India',aliases:['durga puja','durga pooja']},
+    {name:'Onam',region:'Festival · Kerala, India',aliases:['onam']}
+  ];
+  function normalizeSeasonalQuery(value) {
+    return String(value || '').toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
+  }
+  function editDistance(a,b) {
+    const row = Array.from({length:b.length+1},(_,i)=>i);
+    for(let i=1;i<=a.length;i++){
+      let prev=row[0]; row[0]=i;
+      for(let j=1;j<=b.length;j++){
+        const temp=row[j];
+        row[j]=Math.min(row[j]+1,row[j-1]+1,prev+(a[i-1]===b[j-1]?0:1));
+        prev=temp;
+      }
+    }
+    return row[b.length];
+  }
+  function destinationSuggestions(query) {
+    const q=normalizeSeasonalQuery(query);
+    if(q.length<2) return [];
+    return destinationCatalog.map(item=>{
+      const aliases=item.aliases.map(normalizeSeasonalQuery);
+      let score=99;
+      for(const alias of aliases){
+        if(alias===q) score=0;
+        else if(alias.startsWith(q)) score=Math.min(score,1);
+        else if(alias.includes(q)) score=Math.min(score,2);
+        else {
+          const first=alias.split(' ')[0];
+          if(q.length>=4) {
+            const d=editDistance(q,first);
+            if(d<=Math.max(1,Math.floor(q.length/4))) score=Math.min(score,3+d);
+          }
+        }
+      }
+      return {...item,score};
+    }).filter(x=>x.score<99).sort((a,b)=>a.score-b.score||a.name.localeCompare(b.name)).slice(0,7);
+  }
+  function applyDestinationSuggestion(item) {
+    const input=$season('seasonalDestinationSearch');
+    input.value=item.name;
+    $season('seasonalSuggestions').hidden=true;
+    input.setAttribute('aria-expanded','false');
+    $season('seasonalSearchStatus').textContent=`Showing recommendations for ${item.name}.`;
+    renderSeasonal();
+  }
+  function renderDestinationSuggestions() {
+    const input=$season('seasonalDestinationSearch');
+    const box=$season('seasonalSuggestions');
+    const query=input.value.trim();
+    const suggestions=destinationSuggestions(query);
+    if(!query || query.length<2) {
+      box.hidden=true; box.innerHTML=''; input.setAttribute('aria-expanded','false');
+      $season('seasonalSearchStatus').textContent='Start typing for destination suggestions.';
+      return;
+    }
+    if(!suggestions.length) {
+      box.innerHTML=`<div class="seasonal-suggestion" role="option" aria-selected="false"><span class="seasonal-suggestion-pin">⌕</span><span class="seasonal-suggestion-copy"><strong>No exact suggestion found</strong><small>Try a city, state, country or festival name.</small></span></div>`;
+      box.hidden=false; input.setAttribute('aria-expanded','true');
+      $season('seasonalSearchStatus').textContent='No matching suggestion yet. You can keep typing.';
+      return;
+    }
+    box.innerHTML=suggestions.map((item,i)=>`<button type="button" class="seasonal-suggestion" role="option" aria-selected="false" data-suggestion-index="${i}"><span class="seasonal-suggestion-pin">📍</span><span class="seasonal-suggestion-copy"><strong>${escSeasonal(item.name)}</strong><small>${escSeasonal(item.region)}</small></span></button>`).join('');
+    box.hidden=false; input.setAttribute('aria-expanded','true');
+    $season('seasonalSearchStatus').textContent='Choose a suggestion to update recommendations.';
+    box.querySelectorAll('[data-suggestion-index]').forEach((button,i)=>button.addEventListener('click',()=>applyDestinationSuggestion(suggestions[i])));
+  }
+
   let selectedMonth = new Date().getMonth();
   let selectedTab = 'places';
 
@@ -4674,15 +4784,37 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
   }
   function itemMatchesSearch(item, query) {
     if (!query) return true;
-    const haystack = [item.name,item.region,item.desc,item.best,item.tags].join(' ').toLocaleLowerCase();
-    return query.split(/\s+/).filter(Boolean).every(token => haystack.includes(token));
+    const normalized = normalizeSeasonalQuery(query);
+    const aliases = destinationCatalog.find(d => d.name.toLocaleLowerCase() === query.toLocaleLowerCase() ||
+      d.aliases.some(a => normalizeSeasonalQuery(a) === normalized));
+    const haystack = normalizeSeasonalQuery([item.name,item.region,item.desc,item.best,item.tags].join(' '));
+    const tokens = normalized.split(/\s+/).filter(Boolean);
+    const direct = tokens.every(token => haystack.includes(token));
+    if (direct) return true;
+    if (aliases) {
+      const target = normalizeSeasonalQuery(aliases.name);
+      const targetTokens = target.split(/\s+/);
+      const itemText = normalizeSeasonalQuery([item.name,item.region,item.desc,item.tags].join(' '));
+      if (targetTokens.some(token => itemText.includes(token))) return true;
+      // A selected city such as Ahmedabad also shows India-wide festivals, not only city-specific entries.
+      if (item.type === 'festivals' && (normalizeSeasonalQuery(item.region).includes('india') || normalizeSeasonalQuery(item.region).includes('gujarat'))) return true;
+    }
+    return false;
   }
   function getSeasonalItems() {
     const query = $season('seasonalDestinationSearch').value.trim().toLocaleLowerCase();
     return seasonalItems.filter(item => {
       const inMonth = item.months.includes(selectedMonth);
       const matches = itemMatchesSearch(item, query);
-      if (selectedTab === 'places' || selectedTab === 'festivals') return item.type === selectedTab && inMonth && matches;
+      const normalizedQuery = normalizeSeasonalQuery(query);
+      const isIndiaOrAhmedabad = ['ahmedabad','amdavad','ahemdabad','ahmadabad','ahmedbad','india','gujarat'].includes(normalizedQuery);
+      const majorFestival = item.type === 'festivals' && (
+        item.name.toLocaleLowerCase().includes('diwali') ||
+        item.name.toLocaleLowerCase().includes('sankranti') ||
+        item.name.toLocaleLowerCase().includes('uttarayan')
+      );
+      const locationFestivalMatch = selectedTab === 'festivals' && isIndiaOrAhmedabad && majorFestival;
+      if (selectedTab === 'places' || selectedTab === 'festivals') return item.type === selectedTab && (inMonth || locationFestivalMatch) && matches;
       return item.type === selectedTab && inMonth && matches;
     });
   }
@@ -4736,7 +4868,12 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
   $season('festivalSeasonalMenuItem').addEventListener('click', openSeasonalDrawer);
   $season('closeSeasonalDrawer').addEventListener('click', closeSeasonalDrawer);
   $season('seasonalDrawerBackdrop').addEventListener('click', closeSeasonalDrawer);
-  $season('seasonalDestinationSearch').addEventListener('input', renderSeasonal);
+  $season('seasonalDestinationSearch').addEventListener('input', () => { renderDestinationSuggestions(); renderSeasonal(); });
+  $season('seasonalDestinationSearch').addEventListener('keydown', event => {
+    if(event.key==='Escape'){ $season('seasonalSuggestions').hidden=true; $season('seasonalDestinationSearch').setAttribute('aria-expanded','false'); }
+    if(event.key==='Enter'){ const first=$season('seasonalSuggestions').querySelector('[data-suggestion-index]'); if(first){event.preventDefault(); first.click();} }
+  });
+  document.addEventListener('click', event => { if(!$season('seasonalSuggestions').contains(event.target) && event.target!==$season('seasonalDestinationSearch')) { $season('seasonalSuggestions').hidden=true; $season('seasonalDestinationSearch').setAttribute('aria-expanded','false'); } });
   $season('seasonalTabs').addEventListener('click', event => {
     const button = event.target.closest('[data-seasonal-tab]');
     if (!button) return;
@@ -4758,6 +4895,7 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
     }
   });
   renderSeasonal();
+  renderDestinationSuggestions();
 })();
 </script>
 
