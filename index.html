@@ -1336,9 +1336,10 @@ body:not(.community-active) .community-cta-gallery img:nth-child(5) { display: n
 
 /* TravelTaste additions only: favourites, approved-community badge, mobile-safe controls. */
 #list .card { position: relative; }
-.travel-favourite-button{position:absolute;z-index:4;top:12px;right:12px;width:40px;height:40px;border:1px solid rgba(255,255,255,.95);border-radius:50%;background:rgba(255,255,255,.96);color:#ef5725;box-shadow:0 3px 12px rgba(20,35,55,.16);display:inline-flex;align-items:center;justify-content:center;font-size:22px;line-height:1;cursor:pointer}
-.travel-favourite-button[aria-pressed="true"]{background:#fff0e9;color:#ef5725}
+.travel-favourite-button{position:absolute;z-index:4;top:12px;right:12px;width:40px;height:40px;border:1px solid rgba(255,255,255,.95);border-radius:50%;background:rgba(255,255,255,.97);color:#e11d48;box-shadow:0 3px 12px rgba(20,35,55,.16);display:inline-flex;align-items:center;justify-content:center;font-size:25px;line-height:1;cursor:pointer;transition:transform .15s ease,background .15s ease,color .15s ease}
+.travel-favourite-button[aria-pressed="true"]{background:#fff0f3;color:#e11d48;border-color:#fecdd3}
 .travel-favourite-button:focus-visible{outline:3px solid #172b46;outline-offset:2px}
+.travel-favourite-button:active{transform:scale(.92)}
 .community-recommended-badge{display:inline-flex;align-items:center;gap:5px;max-width:calc(100% - 64px);position:absolute;z-index:3;top:12px;left:12px;border-radius:999px;padding:6px 10px;background:#6d28d9;color:#fff;font-size:11px;line-height:1.2;font-weight:700;box-shadow:0 3px 10px rgba(40,20,80,.18)}
 #myFavouritesPage{padding-top:28px;padding-bottom:40px}
 #myFavouritesPage .grid{margin:18px 0 24px}
