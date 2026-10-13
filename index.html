@@ -1357,6 +1357,61 @@ body:not(.community-active) .community-cta-gallery img:nth-child(5) { display: n
   background: #6b7280;
 }
 
+
+/* Preserve the requested Explore card layout: budget + duration, then both actions side by side. */
+#list .travel-card-meta {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+}
+#list .travel-card-meta .travel-card-badge {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+#list .travel-card-actions {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+}
+#list .travel-card-actions > .travel-details-button,
+#list .travel-card-actions > .map-link {
+  display: flex;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+#list .travel-card-actions > .travel-details-button,
+#list .travel-card-actions > .map-link > .btn {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  box-sizing: border-box;
+  padding: 9px 6px;
+  white-space: normal;
+  text-align: center;
+  justify-content: center;
+}
+@media (max-width: 560px) {
+  #list .travel-card-meta,
+  #list .travel-card-actions {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  }
+  #list .travel-card-actions > .travel-details-button,
+  #list .travel-card-actions > .map-link > .btn {
+    font-size: 11px;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+}
+
 </style>
 </head>
 
@@ -1867,6 +1922,7 @@ let savedListingIds = new Set();
 let savedListingItems = [];
 let favouriteFilter = 'all';
 let communityScores = new Map();
+let communityTopFiveIds = new Set();
 let communityRatingsLoaded = false;
 let feedMode = 'community';
 
@@ -3862,7 +3918,7 @@ $('backToRecommendations').addEventListener('click', () => {
 
     const favouriteSaved = savedListingIds.has(String(item.id));
     const communityScore = communityScores.get(String(item.id)) || 0;
-    const isCommunityRecommended = communityScore > 0;
+    const isCommunityRecommended = communityTopFiveIds.has(String(item.id));
     return `
       <article class="card" role="button" tabindex="0" data-listing-id="${escapeHtml(item.id)}" onclick="openListingDetails('${escapeHtml(item.id)}')">
         ${image}
@@ -3870,7 +3926,7 @@ $('backToRecommendations').addEventListener('click', () => {
           aria-label="${favouriteSaved ? 'Remove from' : 'Save to'} My Favourites" aria-pressed="${favouriteSaved}"
           title="${favouriteSaved ? 'Remove from My Favourites' : 'Save to My Favourites'}"
           onclick="event.stopPropagation(); toggleFavourite('${escapeHtml(item.id)}', this)">${favouriteSaved ? '♥' : '♡'}</button>
-        ${isCommunityRecommended ? `<span class="community-recommended-badge" title="Based on visitor ratings">✦ Community Recommended <span class="recommendation-count">+${communityScore}</span></span>` : (communityScore < 0 ? `<span class="community-recommended-badge community-score-negative" title="Visitor feedback score">${communityScore} feedback points</span>` : '')}
+        ${isCommunityRecommended ? `<span class="community-recommended-badge" title="One of the five highest community feedback scores">✦ Community Recommended <span class="recommendation-count">+${communityScore}</span></span>` : ''}
         <div class="card-body">
           <span class="tag">${safeType}</span>
           <h3>${safeName}</h3>
@@ -3947,12 +4003,26 @@ async function loadCommunityRatingScores() {
       communityRatingsLoaded = false;
       return;
     }
+
     const scores = new Map();
     (data || []).forEach(row => {
       const id = String(row.listing_id);
       scores.set(id, (scores.get(id) || 0) + ratingToCommunityPoints(row.rating));
     });
+
     communityScores = scores;
+
+    // Recommend only the five highest-scoring places, and only when their score is positive.
+    // Ties at the fifth-place score are included so equal scores are treated fairly.
+    const ranked = Array.from(scores.entries())
+      .filter(([, score]) => score > 0)
+      .sort((a, b) => b[1] - a[1]);
+    const cutoff = ranked.length >= 5 ? ranked[4][1] : null;
+    communityTopFiveIds = new Set(
+      ranked
+        .filter(([, score], index) => index < 5 || (cutoff !== null && score === cutoff))
+        .map(([id]) => id)
+    );
   } catch (error) {
     console.warn('Community rating scores unavailable:', error);
     communityRatingsLoaded = false;
