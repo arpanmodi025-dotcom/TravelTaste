@@ -1347,96 +1347,14 @@ body:not(.community-active) .community-cta-gallery img:nth-child(5) { display: n
 @media(max-width:640px){.travel-favourite-button{width:36px;height:36px;top:9px;right:9px}.community-recommended-badge{top:9px;left:9px;font-size:10px;padding:5px 8px}}
 
 
-
-/* Final Explore-card refinement: compact photos/text and two horizontal rows. */
-#list .card-photo {
-  display: block;
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-}
-#list .card-body > p:not(.address) {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-  min-height: 0;
-  margin-bottom: 10px;
-}
-#list .travel-card-meta {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  align-items: stretch;
-  gap: 8px;
-  width: 100%;
-}
-#list .travel-card-badge {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  min-width: 0;
-  padding: 8px 9px;
-  font-size: 12px;
-  line-height: 1.25;
-  overflow-wrap: anywhere;
-}
-#list .travel-card-badge > span:last-child { min-width: 0; }
-#list .travel-card-actions {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  align-items: stretch;
-  gap: 8px;
-  width: 100%;
-}
-#list .travel-card-actions > .travel-details-button,
-#list .travel-card-actions > .map-link {
-  display: flex;
-  align-items: stretch;
-  justify-content: stretch;
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  flex: initial;
-}
-#list .travel-card-actions > .travel-details-button,
-#list .travel-card-actions > .map-link > .btn {
-  box-sizing: border-box;
-  width: 100%;
-  min-width: 0;
-  min-height: 42px;
-  height: 100%;
-  padding: 9px 6px;
-  font-size: 12px;
-  line-height: 1.25;
-  white-space: normal;
-  text-align: center;
-}
-#list .travel-card-actions > .map-link > .btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.community-recommended-badge {
-  max-width: calc(100% - 64px);
-  white-space: normal;
-}
+/* Community recommendation score: derived from visitor ratings, not submissions. */
 .community-recommended-badge .recommendation-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  min-width: 18px;
-  padding: 2px 5px;
-  background: rgba(255,255,255,.22);
-  font-size: 10px;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 18px; padding: 2px 5px; border-radius: 999px;
+  background: rgba(255,255,255,.22); font-size: 10px;
 }
-@media (max-width: 560px) {
-  #list .card-photo { height: 165px; }
-  #list .travel-card-meta,
-  #list .travel-card-actions { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-  #list .travel-card-badge { font-size: 11px; padding: 7px 6px; gap: 5px; }
-  #list .travel-card-actions > .travel-details-button,
-  #list .travel-card-actions > .map-link > .btn { font-size: 11px; padding: 8px 4px; }
+.community-recommended-badge.community-score-negative {
+  background: #6b7280;
 }
 
 </style>
@@ -1948,9 +1866,8 @@ let currentUser = null;
 let savedListingIds = new Set();
 let savedListingItems = [];
 let favouriteFilter = 'all';
-let approvedCommunityKeys = new Set();
-let approvedCommunityCounts = new Map();
-let approvedCommunityLoaded = false;
+let communityScores = new Map();
+let communityRatingsLoaded = false;
 let feedMode = 'community';
 
 const $ = id => document.getElementById(id);
@@ -3229,7 +3146,7 @@ supabase.auth.onAuthStateChange((_event, session) => {
   });
 });
 
-await loadApprovedCommunityKeys();
+await loadCommunityRatingScores();
 const { data: { session } } = await supabase.auth.getSession();
 showAccount(session?.user || null);
 if (session?.user) {
@@ -3732,7 +3649,10 @@ detailContent.querySelectorAll('.detail-thumb img').forEach(image => {
       }
 
       ratingMessage.textContent = 'Thanks! Your rating has been saved.';
+      communityRatingsLoaded = false;
+      await loadCommunityRatingScores();
       await loadPlaceRatings();
+      if (typeof renderListings === 'function') renderListings();
     });
   });
 
@@ -3941,9 +3861,8 @@ $('backToRecommendations').addEventListener('click', () => {
       : 'Duration not added';
 
     const favouriteSaved = savedListingIds.has(String(item.id));
-    const communityKey = `${String(item.city_id || '')}|${String(item.name || '').trim().toLocaleLowerCase()}`;
-    const recommendationCount = approvedCommunityCounts.get(communityKey) || 0;
-    const isCommunityRecommended = recommendationCount > 0;
+    const communityScore = communityScores.get(String(item.id)) || 0;
+    const isCommunityRecommended = communityScore > 0;
     return `
       <article class="card" role="button" tabindex="0" data-listing-id="${escapeHtml(item.id)}" onclick="openListingDetails('${escapeHtml(item.id)}')">
         ${image}
@@ -3951,7 +3870,7 @@ $('backToRecommendations').addEventListener('click', () => {
           aria-label="${favouriteSaved ? 'Remove from' : 'Save to'} My Favourites" aria-pressed="${favouriteSaved}"
           title="${favouriteSaved ? 'Remove from My Favourites' : 'Save to My Favourites'}"
           onclick="event.stopPropagation(); toggleFavourite('${escapeHtml(item.id)}', this)">${favouriteSaved ? '♥' : '♡'}</button>
-        ${isCommunityRecommended ? `<span class="community-recommended-badge" title="${recommendationCount} approved community contributor${recommendationCount === 1 ? '' : 's'} recommended this place">✦ Community Recommended <span class="recommendation-count">${recommendationCount}</span></span>` : ''}
+        ${isCommunityRecommended ? `<span class="community-recommended-badge" title="Based on visitor ratings">✦ Community Recommended <span class="recommendation-count">+${communityScore}</span></span>` : (communityScore < 0 ? `<span class="community-recommended-badge community-score-negative" title="Visitor feedback score">${communityScore} feedback points</span>` : '')}
         <div class="card-body">
           <span class="tag">${safeType}</span>
           <h3>${safeName}</h3>
@@ -4008,23 +3927,36 @@ async function toggleFavourite(listingId,button){
 }
 window.toggleFavourite=toggleFavourite;
 
-async function loadApprovedCommunityKeys(){
-  if(approvedCommunityLoaded)return;approvedCommunityLoaded=true;
-  try{
-    const {data,error}=await supabase.from('place_submissions')
-      .select('city_id,name,user_id').eq('status','approved');
-    if(error){console.warn('Community badges unavailable:',error.message);return;}
-    const peopleByPlace = new Map();
-    (data||[]).forEach(row=>{
-      const key=`${String(row.city_id||'')}|${String(row.name||'').trim().toLocaleLowerCase()}`;
-      if(!peopleByPlace.has(key)) peopleByPlace.set(key,new Set());
-      if(row.user_id) peopleByPlace.get(key).add(String(row.user_id));
+function ratingToCommunityPoints(rating) {
+  const value = Number(rating);
+  if (value === 4) return 1;
+  if (value === 5) return 2;
+  if (value === 1 || value === 2) return -1;
+  return 0; // A 3-star rating contributes zero points.
+}
+
+async function loadCommunityRatingScores() {
+  if (communityRatingsLoaded) return;
+  communityRatingsLoaded = true;
+  try {
+    const { data, error } = await supabase
+      .from('place_ratings')
+      .select('listing_id,rating');
+    if (error) {
+      console.warn('Community rating scores unavailable:', error.message);
+      communityRatingsLoaded = false;
+      return;
+    }
+    const scores = new Map();
+    (data || []).forEach(row => {
+      const id = String(row.listing_id);
+      scores.set(id, (scores.get(id) || 0) + ratingToCommunityPoints(row.rating));
     });
-    approvedCommunityCounts = new Map(
-      Array.from(peopleByPlace.entries()).map(([key,people])=>[key,people.size])
-    );
-    approvedCommunityKeys = new Set(approvedCommunityCounts.keys());
-  }catch(error){console.warn('Community badges unavailable:',error);}
+    communityScores = scores;
+  } catch (error) {
+    console.warn('Community rating scores unavailable:', error);
+    communityRatingsLoaded = false;
+  }
 }
 function renderFavouritesPage(){
   const container=$('favouritesList');if(!container)return;
