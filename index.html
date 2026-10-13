@@ -6050,5 +6050,110 @@ body.detail-view-active .tt-gallery-tile img {
   box-sizing: border-box !important;
 }
 </style>
+
+<style id="travelTasteGalleryAndClickFix">
+/* Final gallery override: Tripadvisor-inspired, edge-to-edge photo frames. */
+body.detail-view-active .tt-detail-page {
+  width: calc(100% - clamp(24px, 4vw, 64px)) !important;
+  max-width: 1440px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+body.detail-view-active .tt-photo-gallery {
+  display: grid !important;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) !important;
+  grid-template-rows: clamp(300px, 34vw, 460px) !important;
+  gap: 8px !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 16px 0 8px !important;
+  align-items: stretch !important;
+}
+body.detail-view-active .tt-gallery-main {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  background: #e8eef5 !important;
+  cursor: zoom-in !important;
+}
+body.detail-view-active .tt-gallery-side {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
+  grid-auto-rows: minmax(0, 1fr) !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+body.detail-view-active .tt-gallery-tile,
+body.detail-view-active .tt-gallery-empty {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  background: #e8eef5 !important;
+}
+body.detail-view-active .tt-gallery-empty { display: none !important; }
+body.detail-view-active .tt-gallery-main img,
+body.detail-view-active .tt-gallery-tile img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  background: #e8eef5 !important;
+}
+body.detail-view-active .tt-gallery-main:focus-visible,
+body.detail-view-active .tt-gallery-tile:focus-visible {
+  outline: 3px solid #ef6c3b !important;
+  outline-offset: 2px !important;
+}
+body.detail-view-active .tt-photo-caption { margin: 7px 0 14px !important; }
+@media (min-width: 761px) {
+  body.detail-view-active .tt-photo-gallery:has(.tt-gallery-side .tt-gallery-tile:only-child) {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) !important;
+  }
+}
+@media (max-width: 760px) {
+  body.detail-view-active .tt-detail-page {
+    width: calc(100% - 24px) !important;
+  }
+  body.detail-view-active .tt-photo-gallery {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto !important;
+    gap: 8px !important;
+    margin-top: 12px !important;
+  }
+  body.detail-view-active .tt-gallery-main {
+    height: auto !important;
+    aspect-ratio: 16 / 10 !important;
+  }
+  body.detail-view-active .tt-gallery-side {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: minmax(96px, 28vw) !important;
+    grid-auto-rows: minmax(96px, 28vw) !important;
+  }
+}
+@media (max-width: 420px) {
+  body.detail-view-active .tt-gallery-side {
+    grid-template-rows: 100px !important;
+    grid-auto-rows: 100px !important;
+  }
+}
+</style>
+
 </body>
 </html>
