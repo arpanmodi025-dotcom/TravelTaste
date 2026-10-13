@@ -1489,35 +1489,6 @@ body.seasonal-drawer-open{overflow:hidden}
   .seasonal-result-body p{font-size:11px}
 }
 
-
-/* Additive Nearby Discoveries drawer — isolated from existing page styles */
-#nearbyDrawerBackdrop[hidden],#nearbyDrawer[hidden]{display:none!important}
-#nearbyDrawerBackdrop{position:fixed;inset:0;z-index:2600;background:rgba(17,29,45,.48)}
-#nearbyDrawer{position:fixed;z-index:2601;right:0;top:0;height:100dvh;width:min(650px,95vw);background:#fffaf5;box-shadow:-18px 0 50px rgba(18,30,45,.22);display:flex;flex-direction:column;overflow:hidden;color:#172d4e}
-.nearby-head{display:flex;align-items:center;gap:13px;padding:19px 22px;background:#fff;border-bottom:1px solid #f0e5dc;flex:0 0 auto}
-.nearby-head-icon{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:#fff0e7;color:#ed4b13;font-size:24px;flex:0 0 46px}
-.nearby-head-copy{flex:1;min-width:0}.nearby-head h2{margin:0;font-size:23px;letter-spacing:-.5px}.nearby-head p{margin:5px 0 0;color:#687a91;font-size:13px;line-height:1.45}
-#closeNearbyDrawer{border:0;background:transparent;color:#263b55;font-size:27px;line-height:1;padding:5px 8px}
-.nearby-content{padding:16px;overflow-y:auto;min-height:0;overscroll-behavior:contain}
-.nearby-location-prompt{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:13px;border:1px solid #ffe1ce;border-radius:13px;background:#fff3e8;margin-bottom:13px}
-.nearby-location-prompt .nearby-prompt-copy{flex:1;min-width:190px}.nearby-location-prompt strong{display:block;font-size:14px}.nearby-location-prompt small{display:block;color:#718096;margin-top:4px;line-height:1.4}
-#useNearbyLocation{border:0;border-radius:10px;background:#f04408;color:#fff;font-weight:800;font-size:13px;padding:12px 15px;white-space:nowrap}
-#useNearbyLocation:disabled{opacity:.65;cursor:wait}
-.nearby-status{margin:10px 2px 14px;font-size:12px;color:#687a91;line-height:1.5;min-height:18px}
-.nearby-filters{display:flex;gap:8px;overflow-x:auto;padding:1px 1px 12px;scrollbar-width:thin}
-.nearby-filter{border:1px solid #e4e8ee;border-radius:10px;padding:10px 13px;background:#fff;color:#233b58;font-size:12px;font-weight:750;white-space:nowrap}
-.nearby-filter[aria-pressed="true"]{background:#f04408;border-color:#f04408;color:#fff}
-.nearby-map{height:210px;border:1px solid #e3e8ec;border-radius:14px;overflow:hidden;background:#edf3f5;margin-bottom:18px;position:relative}
-.nearby-map iframe{width:100%;height:100%;border:0;display:block}.nearby-map-placeholder{height:100%;display:grid;place-items:center;text-align:center;padding:20px;color:#65758a;font-size:13px;line-height:1.5;background:linear-gradient(135deg,#eff5f5,#f8f2e9)}
-.nearby-results-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:5px 0 13px}.nearby-results-head h3{font-size:18px;margin:0;color:#172d4e}.nearby-results-head p{margin:4px 0 0;color:#687a91;font-size:12px}
-.nearby-results-count{font-size:12px;color:#758398;white-space:nowrap}
-#nearbyResults{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
-.nearby-card{min-width:0;background:#fff;border:1px solid #e7e8e9;border-radius:13px;overflow:hidden;box-shadow:0 4px 15px rgba(25,45,65,.045);display:flex;flex-direction:column}
-.nearby-card-photo{height:142px;position:relative;background:#e8edf1}.nearby-card-photo img{width:100%;height:100%;object-fit:cover;display:block}.nearby-distance{position:absolute;top:9px;left:9px;padding:5px 8px;border-radius:8px;background:#172d4eeb;color:#fff;font-size:11px;font-weight:800}
-.nearby-card-body{padding:12px;display:flex;flex-direction:column;flex:1}.nearby-card-type{align-self:flex-start;background:#fff0e7;color:#bd4e24;border-radius:999px;padding:4px 7px;font-size:10px;font-weight:800}.nearby-card h4{font-size:15px;line-height:1.3;margin:9px 0 6px;color:#172d4e}.nearby-card p{font-size:12px;line-height:1.5;color:#687a91;margin:0 0 10px}.nearby-card-meta{font-size:11px;color:#64758a;margin-top:auto;padding:6px 0 10px}.nearby-card-actions{display:flex;gap:7px}.nearby-card-actions a,.nearby-card-actions button{flex:1;text-align:center;text-decoration:none;border-radius:8px;padding:9px 7px;font-size:11px;font-weight:800;border:1px solid #f04408;color:#e94b12;background:#fff;cursor:pointer}.nearby-card-actions a:first-child,.nearby-card-actions button:first-child{background:#f04408;color:#fff}.nearby-empty{grid-column:1/-1;padding:28px 18px;text-align:center;border:1px dashed #e3d5cb;border-radius:13px;background:#fff;color:#687a91;font-size:13px;line-height:1.6}
-body.nearby-drawer-open{overflow:hidden}
-@media(max-width:520px){#nearbyDrawer{width:100vw}.nearby-head{padding:15px}.nearby-head h2{font-size:20px}.nearby-content{padding:12px}.nearby-location-prompt{align-items:flex-start}.nearby-location-prompt #useNearbyLocation{width:100%}#nearbyResults{grid-template-columns:1fr}.nearby-card{display:grid;grid-template-columns:112px minmax(0,1fr)}.nearby-card-photo{height:100%;min-height:155px}.nearby-card-body{padding:10px}.nearby-card h4{font-size:14px;margin:7px 0 5px}.nearby-card p{font-size:11px}.nearby-card-actions{flex-wrap:wrap}.nearby-card-actions a,.nearby-card-actions button{font-size:10px;padding:8px 5px}.nearby-map{height:180px}}
-
 </style>
 </head>
 
@@ -1531,7 +1502,6 @@ body.nearby-drawer-open{overflow:hidden}
       <div id="placesMenu" role="menu" hidden>
         <button type="button" id="explorePlacesMenuItem" role="menuitem"><span aria-hidden="true">📍</span> Explore Places</button>
         <button type="button" id="festivalSeasonalMenuItem" role="menuitem"><span aria-hidden="true">🗓️</span> Festival &amp; Seasonal</button>
-        <button type="button" id="nearbyDiscoveriesMenuItem" role="menuitem"><span aria-hidden="true">📍</span> Nearby Discoveries</button>
       </div>
     </div>
     <button type="button" class="site-nav-link" data-site-nav="food" id="foodNavButton">Food</button>
@@ -3420,23 +3390,6 @@ async function loadDestination(cityId) {
   }
 
   listings = data || [];
-  // Keep the main Explore page scoped to the selected city, but load all published
-  // listings separately for Nearby Discoveries so places in neighbouring cities
-  // can appear inside the 200 km radius.
-  window.travelTasteNearbyListings = listings;
-  try {
-    const { data: nearbyData, error: nearbyError } = await supabase
-      .from('listings')
-      .select('*')
-      .eq('is_published', true);
-    if (!nearbyError && Array.isArray(nearbyData)) {
-      window.travelTasteNearbyListings = nearbyData;
-    } else if (nearbyError) {
-      console.warn('Nearby Discoveries could not load all published listings:', nearbyError.message);
-    }
-  } catch (nearbyLoadError) {
-    console.warn('Nearby Discoveries could not load all published listings:', nearbyLoadError);
-  }
   if (typeof updateBudgetControls === 'function') updateBudgetControls();
   renderListings();
 }
@@ -4377,6 +4330,62 @@ document.querySelectorAll('.category').forEach(button => {
 });
 
 
+// Resolve coordinates for new place submissions. First parse coordinates already
+// present in the Google Maps URL; then ask the Supabase Edge Function to resolve
+// shortened/other supported links. No existing published listings are modified.
+function extractCoordinatesFromMapUrl(rawUrl) {
+  if (!rawUrl) return null;
+  try {
+    const url = new URL(rawUrl);
+    const candidates = [
+      url.searchParams.get('query'), url.searchParams.get('q'),
+      url.searchParams.get('ll'), url.searchParams.get('center'),
+      url.searchParams.get('destination')
+    ].filter(Boolean);
+    const decoded = decodeURIComponent(rawUrl.replace(/\+/g, ' '));
+    const patterns = [
+      /@(-?\d{1,2}\.\d{3,}),\s*(-?\d{1,3}\.\d{3,})/,
+      /!3d(-?\d{1,2}\.\d+)!4d(-?\d{1,3}\.\d+)/,
+      /(?:^|[?&])(?:query|q|ll|center)=(-?\d{1,2}\.\d+)%2C\s*(-?\d{1,3}\.\d+)/i,
+      /(-?\d{1,2}\.\d{3,})\s*,\s*(-?\d{1,3}\.\d{3,})/
+    ];
+    for (const value of [...candidates, decoded]) {
+      for (const pattern of patterns) {
+        const match = value.match(pattern);
+        if (!match) continue;
+        const latitude = Number(match[1]);
+        const longitude = Number(match[2]);
+        if (Number.isFinite(latitude) && Number.isFinite(longitude) &&
+            latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180) {
+          return { latitude, longitude };
+        }
+      }
+    }
+  } catch (_) { /* invalid or unsupported URL; try server resolver */ }
+  return null;
+}
+
+async function resolveNewSubmissionCoordinates(mapUrl) {
+  if (!mapUrl) return { latitude: null, longitude: null, resolved: false };
+  const direct = extractCoordinatesFromMapUrl(mapUrl);
+  if (direct) return { ...direct, resolved: true };
+  // This Edge Function must be deployed in Supabase as `resolve-map-coordinates`.
+  try {
+    const { data, error } = await supabase.functions.invoke('resolve-map-coordinates', {
+      body: { google_maps_url: mapUrl }
+    });
+    if (!error && data && data.verified === true &&
+        Number.isFinite(Number(data.latitude)) && Number.isFinite(Number(data.longitude)) &&
+        Number(data.latitude) >= -90 && Number(data.latitude) <= 90 &&
+        Number(data.longitude) >= -180 && Number(data.longitude) <= 180) {
+      return { latitude: Number(data.latitude), longitude: Number(data.longitude), resolved: true };
+    }
+  } catch (error) {
+    console.warn('Map URL resolver unavailable; submission can still be reviewed.', error);
+  }
+  return { latitude: null, longitude: null, resolved: false };
+}
+
 // Preview selected Suggest a Place photos before upload; clicking a preview opens it larger.
 const submissionPhotoInput = $('submissionPhotos');
 const submissionPhotoPreview = $('submissionPhotoPreview');
@@ -4454,7 +4463,14 @@ $('placeSubmissionForm').addEventListener('submit', async (event) => {
   }
 
   button.disabled = true;
-  message.textContent = 'Uploading photos…';
+  const submittedMapUrl = String(formData.get('google_maps_url') || '').trim();
+  message.textContent = submittedMapUrl ? 'Checking map location…' : 'Uploading photos…';
+  const resolvedCoordinates = await resolveNewSubmissionCoordinates(submittedMapUrl);
+  if (submittedMapUrl && !resolvedCoordinates.resolved) {
+    message.textContent = 'We could not verify coordinates from this map link yet. Your submission can still be reviewed; Nearby Discoveries will use it once its coordinates are verified.';
+  } else {
+    message.textContent = 'Uploading photos…';
+  }
 
   const uploadedPaths = [];
 
@@ -4489,7 +4505,9 @@ $('placeSubmissionForm').addEventListener('submit', async (event) => {
         name: String(formData.get('name') || '').trim(),
         type: formData.get('type'),
         description: String(formData.get('description') || '').trim() || null,
-        google_maps_url: String(formData.get('google_maps_url') || '').trim() || null,
+        google_maps_url: submittedMapUrl || null,
+        latitude: resolvedCoordinates.latitude,
+        longitude: resolvedCoordinates.longitude,
         image_urls: imageUrls,
         travel_tips: String(formData.get('travel_tips') || '').trim() || null,
         traveler_type: formData.get('traveler_type'),
@@ -4506,8 +4524,9 @@ $('placeSubmissionForm').addEventListener('submit', async (event) => {
     submissionPreviewUrls.forEach(url => URL.revokeObjectURL(url));
     submissionPreviewUrls = [];
     if (submissionPhotoPreview) submissionPhotoPreview.replaceChildren();
-    message.textContent =
-      'Submitted successfully! Your place is pending admin approval.';
+    message.textContent = resolvedCoordinates.resolved
+      ? 'Submitted successfully! Location coordinates were saved automatically. Your place is pending admin approval.'
+      : 'Submitted successfully! Your place is pending admin approval. Its map coordinates could not be verified automatically yet.';
   } catch (error) {
     message.textContent = 'Submission failed: ' + error.message;
   } finally {
@@ -4937,122 +4956,6 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
   });
   renderSeasonal();
   renderDestinationSuggestions();
-})();
-</script>
-
-
-<div id="nearbyDrawerBackdrop" hidden></div>
-<aside id="nearbyDrawer" role="dialog" aria-modal="true" aria-labelledby="nearbyDrawerTitle" hidden>
-  <div class="nearby-head">
-    <div class="nearby-head-icon" aria-hidden="true">➤</div>
-    <div class="nearby-head-copy"><h2 id="nearbyDrawerTitle">Nearby Discoveries</h2><p>Discover places, food spots, activities and hidden gems near your current location.</p></div>
-    <button type="button" id="closeNearbyDrawer" aria-label="Close Nearby Discoveries">×</button>
-  </div>
-  <div class="nearby-content">
-    <div class="nearby-location-prompt"><span aria-hidden="true" style="font-size:24px">📍</span><div class="nearby-prompt-copy"><strong>Find what's around you</strong><small>Use your current location for recommendations from places already listed on TravelTaste.</small></div><button type="button" id="useNearbyLocation">◎ Use My Current Location</button></div>
-    <p class="nearby-status" id="nearbyStatus" aria-live="polite">Your location is not being accessed yet. Select “Use My Current Location” to begin.</p>
-    <div class="nearby-filters" id="nearbyFilters" aria-label="Filter nearby recommendations">
-      <button type="button" class="nearby-filter" data-nearby-filter="all" aria-pressed="true">✨ All</button>
-      <button type="button" class="nearby-filter" data-nearby-filter="places" aria-pressed="false">📍 Places</button>
-      <button type="button" class="nearby-filter" data-nearby-filter="food" aria-pressed="false">🍴 Food Spots</button>
-      <button type="button" class="nearby-filter" data-nearby-filter="activities" aria-pressed="false">🎯 Activities</button>
-      <button type="button" class="nearby-filter" data-nearby-filter="hidden" aria-pressed="false">💎 Hidden Gems</button>
-    </div>
-    <div class="nearby-map" id="nearbyMap"><div class="nearby-map-placeholder">📍 Your map will appear after you share your current location.<br>Recommendations are limited to places listed on TravelTaste.</div></div>
-    <div class="nearby-results-head"><div><h3 id="nearbyResultsTitle">Top recommendations near you</h3><p>Nearby options already listed on TravelTaste, sorted by distance.</p></div><span id="nearbyResultsCount" class="nearby-results-count">Waiting for location</span></div>
-    <div id="nearbyResults"><div class="nearby-empty">Choose “Use My Current Location” to find nearby recommendations from the existing TravelTaste listings.</div></div>
-  </div>
-</aside>
-<script>
-(function(){
-  const $ = id => document.getElementById(id);
-  const drawer=$('nearbyDrawer'), backdrop=$('nearbyDrawerBackdrop'), status=$('nearbyStatus'), results=$('nearbyResults');
-  if(!drawer || !backdrop || !$('nearbyDiscoveriesMenuItem')) return;
-  const NEARBY_RADIUS_KM = 200; // Show published listings within 200 km (straight-line distance).
-  let userPosition=null, activeFilter='all';
-  const esc = value => String(value ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const number = value => value!==null && value!==undefined && value!=='' && Number.isFinite(Number(value)) && Number(value)>=-180 && Number(value)<=180;
-  const distanceKm=(a,b,c,d)=>{const rad=x=>x*Math.PI/180;const x=rad(c-a),y=rad(d-b);const h=Math.max(0,Math.min(1,Math.sin(x/2)**2+Math.cos(rad(a))*Math.cos(rad(c))*Math.sin(y/2)**2));return 6371*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));};
-  // Extract coordinates when the saved Google Maps URL visibly contains them.
-  // Short links and place-name URLs remain usable for directions, but cannot be distance-ranked until coordinates are available.
-  function coordinatesFromMapUrl(url){
-    if(!url)return null; const text=String(url);
-    const patterns=[/@(-?\d{1,2}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/, /!3d(-?\d{1,2}\.\d+)!4d(-?\d{1,3}\.\d+)/, /[?&](?:q|query|destination)=(-?\d{1,2}\.\d+)%2C(-?\d{1,3}\.\d+)/i, /[?&](?:q|query|destination)=(-?\d{1,2}\.\d+),(-?\d{1,3}\.\d+)/i];
-    for(const re of patterns){const m=text.match(re);if(m){const lat=Number(m[1]),lon=Number(m[2]);if(lat>=-90&&lat<=90&&lon>=-180&&lon<=180)return {latitude:lat,longitude:lon};}}
-    return null;
-  }
-  function withCoordinates(item){
-    const fromUrl=coordinatesFromMapUrl(item.google_maps_url);
-    const lat=number(item.latitude)&&Number(item.latitude)>=-90&&Number(item.latitude)<=90?Number(item.latitude):fromUrl?.latitude;
-    const lon=number(item.longitude)?Number(item.longitude):fromUrl?.longitude;
-    return {...item,latitude:lat,longitude:lon};
-  }
-  function typeOf(item){
-    const t=String(item.type||'').toLowerCase();
-    const words=`${item.name||''} ${item.description||''} ${item.tags||''} ${item.address||''}`.toLowerCase();
-    if(/hidden.?gem|secret spot|offbeat/.test(t+' '+words))return 'hidden';
-    if(/food|restaurant|cafe|café|snack|stall|eatery|thali|sweet|bakery|food_shop/.test(t))return 'food';
-    if(/activit|experience|sport|cycling|boating|adventure/.test(t))return 'activities';
-    return 'places';
-  }
-  function categoryLabel(item){const t=String(item.type||'Place').trim();return ({place:'Place',food:'Food Spot',food_shop:'Food Shop',activity:'Activity',hidden_gem:'Hidden Gem'})[t.toLowerCase()]||t||'Place';}
-  function publishedItems(){
-    const source=Array.isArray(window.travelTasteNearbyListings)?window.travelTasteNearbyListings:[];
-    return source.filter(item=>item && item.is_published!==false).map(withCoordinates);
-  }
-  function getItems(){
-    return publishedItems().filter(item=>number(item.latitude)&&number(item.longitude)&&Number(item.latitude)>=-90&&Number(item.latitude)<=90)
-      .map(item=>({...item,_nearbyDistance:distanceKm(userPosition.lat,userPosition.lon,Number(item.latitude),Number(item.longitude)),_nearbyCategory:typeOf(item)}))
-      .filter(item=>item._nearbyDistance <= NEARBY_RADIUS_KM)
-      .filter(item=>activeFilter==='all'||item._nearbyCategory===activeFilter)
-      .sort((a,b)=>a._nearbyDistance-b._nearbyDistance);
-  }
-  function directionsUrl(item){
-    const destination=number(item.latitude)&&number(item.longitude)?`${Number(item.latitude)},${Number(item.longitude)}`:[item.name,item.address,item.city_name].filter(Boolean).join(', ');
-    return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${userPosition.lat},${userPosition.lon}`)}&destination=${encodeURIComponent(destination)}&travelmode=driving`;
-  }
-  function render(){
-    if(!userPosition)return;
-    const all=publishedItems();
-    const withCoords=all.filter(item=>number(item.latitude)&&number(item.longitude)&&Number(item.latitude)>=-90&&Number(item.latitude)<=90);
-    const items=getItems();
-    $('nearbyResultsCount').textContent=`${items.length} ${items.length===1?'place':'places'} · within ${NEARBY_RADIUS_KM} km`;
-    $('nearbyResultsTitle').textContent=(activeFilter==='all'?'Top recommendations near you':({places:'Places near you',food:'Food spots near you',activities:'Activities near you',hidden:'Hidden gems near you'}[activeFilter]))+' (within '+NEARBY_RADIUS_KM+' km)';
-    if(!items.length){results.innerHTML=`<div class="nearby-empty">${withCoords.length?'No matching listings in this category with coordinates. Try another category.':'Your published listings do not yet have usable latitude and longitude. Google Maps links can be used for directions, and links that contain coordinates can be used for distance sorting. Other links need coordinates added or resolved.'}</div>`;return;}
-    results.innerHTML=items.map(item=>{
-      const img=item.image_url||item.image||'';
-      const desc=item.description||'Explore this recommendation on TravelTaste.';
-      const price=item.estimated_cost_per_person!==null&&item.estimated_cost_per_person!==undefined&&item.estimated_cost_per_person!==''&&Number.isFinite(Number(item.estimated_cost_per_person))?`₹${Math.round(Number(item.estimated_cost_per_person)).toLocaleString('en-IN')} per person`:'';
-      const duration=item.duration_category||'';
-      return `<article class="nearby-card"><div class="nearby-card-photo">${img?`<img src="${esc(img)}" alt="${esc(item.name)}" loading="lazy" onerror="this.style.display='none'">`:''}<span class="nearby-distance">${item._nearbyDistance<10?item._nearbyDistance.toFixed(1):Math.round(item._nearbyDistance)} km</span></div><div class="nearby-card-body"><span class="nearby-card-type">${esc(categoryLabel(item))}</span><h4>${esc(item.name||'TravelTaste listing')}</h4><p>${esc(desc)}</p><div class="nearby-card-meta">${[price,duration].filter(Boolean).map(esc).join(' · ')||'Distance calculated from your location'}</div><div class="nearby-card-actions"><button type="button" data-nearby-detail="${esc(item.id||'')}" data-nearby-name="${esc(item.name||'')}">View details</button><a href="${esc(directionsUrl(item))}" target="_blank" rel="noopener noreferrer">Directions ↗</a></div></div></article>`;
-    }).join('');
-    results.querySelectorAll('[data-nearby-detail]').forEach(button=>button.addEventListener('click',event=>{
-      event.preventDefault();
-      const id=button.dataset.nearbyDetail;
-      const item=publishedItems().find(x=>String(x.id||'')===String(id));
-      if(!item){status.textContent='This listing could not be opened. Please refresh the page and try again.';return;}
-      closeDrawer();
-      if(typeof window.openListingDetails==='function') window.openListingDetails(id);
-      else {const card=Array.from(document.querySelectorAll('#list .card')).find(c=>c.dataset.listingId===String(id));if(card){card.scrollIntoView({behavior:'smooth',block:'center'});card.animate([{outline:'3px solid #f04408'},{outline:'none'}],{duration:1400});}else{document.querySelector('#recommendations')?.scrollIntoView({behavior:'smooth'});}}
-    }));
-  }
-  function updateMap(){
-    const map=$('nearbyMap'),lat=userPosition.lat,lon=userPosition.lon,delta=.035;
-    const bbox=[lon-delta,lat-delta,lon+delta,lat+delta].join('%2C');
-    map.innerHTML=`<iframe title="Map around your current location" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lon}"></iframe>`;
-  }
-  function openDrawer(){drawer.hidden=false;backdrop.hidden=false;document.body.classList.add('nearby-drawer-open');if($('placesMenu'))$('placesMenu').hidden=true;if($('placesNavButton'))$('placesNavButton').setAttribute('aria-expanded','false');}
-  function closeDrawer(){drawer.hidden=true;backdrop.hidden=true;document.body.classList.remove('nearby-drawer-open');$('nearbyDiscoveriesMenuItem').focus({preventScroll:true});}
-  $('nearbyDiscoveriesMenuItem').addEventListener('click',openDrawer);
-  $('closeNearbyDrawer').addEventListener('click',closeDrawer);backdrop.addEventListener('click',closeDrawer);
-  $('useNearbyLocation').addEventListener('click',()=>{
-    if(!navigator.geolocation){status.textContent='Your browser does not support location sharing. Please try a modern browser.';return;}
-    if(!window.isSecureContext){status.textContent='Location access requires a secure HTTPS website. Open TravelTaste using its HTTPS address.';return;}
-    const btn=$('useNearbyLocation');btn.disabled=true;status.textContent='Requesting permission to access your current location…';
-    navigator.geolocation.getCurrentPosition(pos=>{userPosition={lat:pos.coords.latitude,lon:pos.coords.longitude};btn.disabled=false;status.textContent='Location found. Showing published TravelTaste listings within '+NEARBY_RADIUS_KM+' km, sorted by distance.';updateMap();render();},err=>{btn.disabled=false;const messages={1:'Location permission was denied. Allow location access in your browser settings and try again.',2:'Your location could not be determined. Check device location services and try again.',3:'Location request timed out. Please try again.'};status.textContent=messages[err.code]||'Could not access your location. Please try again.';},{enableHighAccuracy:true,timeout:15000,maximumAge:60000});
-  });
-  $('nearbyFilters').addEventListener('click',event=>{const button=event.target.closest('[data-nearby-filter]');if(!button)return;activeFilter=button.dataset.nearbyFilter;$('nearbyFilters').querySelectorAll('[data-nearby-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));if(userPosition)render();});
-  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!drawer.hidden)closeDrawer();});
 })();
 </script>
 
