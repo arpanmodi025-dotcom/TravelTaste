@@ -3875,6 +3875,34 @@ async function start() {
   }
 }
 
+// Session-level cache: reuse published nearby listings instead of fetching them
+// again every time a visitor changes destination. Refresh the page to fetch fresh data.
+let travelTasteNearbyListingsPromise = null;
+let travelTasteNearbyListingsCache = null;
+
+async function loadAllPublishedNearbyListings() {
+  if (Array.isArray(travelTasteNearbyListingsCache)) return travelTasteNearbyListingsCache;
+  if (travelTasteNearbyListingsPromise) return travelTasteNearbyListingsPromise;
+
+  travelTasteNearbyListingsPromise = (async () => {
+    const { data, error } = await supabase
+      .from('listings')
+      .select('*')
+      .eq('is_published', true);
+    if (error) throw error;
+    travelTasteNearbyListingsCache = Array.isArray(data) ? data : [];
+    return travelTasteNearbyListingsCache;
+  })();
+
+  try {
+    return await travelTasteNearbyListingsPromise;
+  } catch (error) {
+    // Allow a later retry if the network/database request fails.
+    travelTasteNearbyListingsPromise = null;
+    throw error;
+  }
+}
+
 async function loadDestination(cityId) {
   if (!cityId) return;
 
@@ -3908,22 +3936,18 @@ async function loadDestination(cityId) {
   }
 
   listings = data || [];
-  // Keep the main Explore page scoped to the selected city, but load all published
-  // listings separately for Nearby Discoveries so places in neighbouring cities
-  // can appear inside the 200 km radius.
-  window.travelTasteNearbyListings = listings;
+  // Keep the Explore page scoped to this city. Reuse a session-cached set of
+  // published listings for Nearby Discoveries instead of issuing the same query
+  // on every destination change.
+  window.travelTasteNearbyListings = Array.isArray(travelTasteNearbyListingsCache)
+    ? travelTasteNearbyListingsCache
+    : listings;
   try {
-    const { data: nearbyData, error: nearbyError } = await supabase
-      .from('listings')
-      .select('*')
-      .eq('is_published', true);
-    if (!nearbyError && Array.isArray(nearbyData)) {
-      window.travelTasteNearbyListings = nearbyData;
-    } else if (nearbyError) {
-      console.warn('Nearby Discoveries could not load all published listings:', nearbyError.message);
-    }
+    const nearbyData = await loadAllPublishedNearbyListings();
+    window.travelTasteNearbyListings = nearbyData;
   } catch (nearbyLoadError) {
-    console.warn('Nearby Discoveries could not load all published listings:', nearbyLoadError);
+    // Nearby results gracefully fall back to the current city's listings.
+    console.warn('Nearby Discoveries could not load all published listings:', nearbyLoadError.message || nearbyLoadError);
   }
   if (typeof updateBudgetControls === 'function') updateBudgetControls();
   renderListings();
@@ -4012,7 +4036,7 @@ const allPhotos = combinedPhotos.length
           data-photo-index="${index}"
           aria-label="Show photo ${index + 1}">
           <img src="${escapeHtml(photo.image_url)}"
-            alt="${escapeHtml(photo.caption || item.name)}">
+            alt="${escapeHtml(photo.caption || item.name)}" loading="lazy" decoding="async">
         </button>
       `).join('')
     : '<p>No photos have been added yet.</p>';
@@ -4044,7 +4068,7 @@ const allPhotos = combinedPhotos.length
       ${allPhotos.length ? `
         <div class="tt-photo-gallery" aria-label="Photos of ${escapeHtml(item.name)}">
           <button type="button" class="tt-gallery-main" id="detailMainPhotoButton" aria-label="Open photo gallery">
-            <img id="detailMainPhoto" src="${escapeHtml(allPhotos[0].image_url)}" alt="${escapeHtml(allPhotos[0].caption || item.name)}">
+            <img id="detailMainPhoto" src="${escapeHtml(allPhotos[0].image_url)}" alt="${escapeHtml(allPhotos[0].caption || item.name)}" decoding="async">
           </button>
           <div class="tt-gallery-side">
             ${allPhotos.slice(1, 5).map((photo, sideIndex) => {
@@ -4055,7 +4079,7 @@ const allPhotos = combinedPhotos.length
               return `
                 <button type="button" class="detail-thumb tt-gallery-tile ${showMore ? 'tt-gallery-more' : ''}"
                   data-photo-index="${photoIndex}" aria-label="Show photo ${photoIndex + 1}${showMore ? ` and ${remaining} more photos` : ''}">
-                  <img src="${escapeHtml(photo.image_url)}" alt="${escapeHtml(photo.caption || item.name)}">
+                  <img src="${escapeHtml(photo.image_url)}" alt="${escapeHtml(photo.caption || item.name)}" loading="lazy" decoding="async">
                   ${showMore ? `<span>+${remaining}</span>` : ''}
                 </button>
               `;
@@ -4363,8 +4387,6 @@ const allPhotos = combinedPhotos.length
       const caption = $('detailPhotoCaption');
 
       if (mainPhoto && caption && photo) {
-        // Restore the main image if an earlier image failed to load.
-        mainPhoto.style.display = 'block';
         mainPhoto.src = photo.image_url;
         mainPhoto.alt = photo.caption || item.name;
         caption.textContent = photo.caption || item.name;
@@ -4386,7 +4408,7 @@ if (mainPhoto) {
     mainPhoto.style.display = 'none';
     const caption = $('detailPhotoCaption');
     if (caption) caption.textContent = 'This photo could not be loaded. Try another thumbnail or check the image URL.';
-  });
+  }, { once: true });
 }
 
 detailContent.querySelectorAll('.detail-thumb img').forEach(image => {
@@ -4666,7 +4688,7 @@ window.addEventListener('popstate', () => {
     const safeDescription = escapeHtml(item.description || 'Discover this recommendation on your next trip.');
     const safeAddress = escapeHtml(item.address || '');
     const image = item.image_url
-      ? `<img class="card-photo" src="${escapeHtml(item.image_url)}" alt="${safeName}" loading="lazy">`
+      ? `<img class="card-photo" src="${escapeHtml(item.image_url)}" alt="${safeName}" loading="lazy" decoding="async">`
       : `<div class="photo-placeholder" aria-label="No photo available">📍</div>`;
 
     const mapUrl = item.google_maps_url ||
@@ -4803,7 +4825,7 @@ function renderFavouritesPage(){
   if(!items.length){container.innerHTML='<div class="empty"><div style="font-size:34px">♡</div><strong>No saved places in this category yet.</strong><p>Return to Explore and tap the heart on a destination card to save it.</p></div>';return;}
   container.innerHTML=items.map(item=>{
     const name=escapeHtml(item.name),type=escapeHtml(categoryNames[item.type]||item.type||'Place');
-    const image=item.image_url?`<img class="card-photo" src="${escapeHtml(item.image_url)}" alt="${name}" loading="lazy">`:'<div class="photo-placeholder">📍</div>';
+    const image=item.image_url?`<img class="card-photo" src="${escapeHtml(item.image_url)}" alt="${name}" loading="lazy" decoding="async">`:'<div class="photo-placeholder">📍</div>';
     const price=getListingPrice(item),cost=price!==null?`₹${Math.round(price).toLocaleString('en-IN')} per person`:(item.price_range?escapeHtml(item.price_range):'Budget not added');
     const dur=getDurationGroup(item),duration=dur==='short'?'Under 2 hours':dur==='half'?'2–5 hours':dur==='day'?'5+ hours':'Duration not added';
     const map=item.google_maps_url||(item.latitude!=null&&item.longitude!=null?`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.latitude+','+item.longitude)}`:`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((item.address||'')+' '+(item.city_name||'')+' '+item.name)}`);
