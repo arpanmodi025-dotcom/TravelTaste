@@ -1335,16 +1335,42 @@ body:not(.community-active) .community-cta-gallery img:nth-child(5) { display: n
 
 
 
-/* Minimal Explore-card improvement: shorten long descriptions only.
-   Keeps existing fonts, real photos, buttons, filters, and site features intact. */
-#list .card p:not(.address) {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.4;
-  margin-bottom: 8px;
+/* TravelTaste Explore cards: align budget/duration and both actions in two rows.
+   Scoped to listing cards; leaves fonts, photos, filters and other sections intact. */
+#list .card-body .card-meta-row,
+#list .card-body .card-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+#list .card-body .card-meta-row > *,
+#list .card-body .card-info-row > * {
+  min-width: 0;
+}
+
+#list .card-body .card-actions .card-action-row,
+#list .card-body .card-actions .action-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+  gap: 8px;
+}
+
+#list .card-body .card-actions .card-action-row > *,
+#list .card-body .card-actions .action-row > * {
+  min-width: 0;
+  width: 100%;
+  text-align: center;
+}
+
+@media (max-width: 560px) {
+  #list .card-body .card-meta-row,
+  #list .card-body .card-info-row {
+    gap: 6px;
+  }
 }
 
 </style>
