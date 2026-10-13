@@ -844,6 +844,16 @@ footer p { color:#c8d0d8; }
 }
 #suggestPlace form small {display:block;margin-top:6px;color:#68737d;font-size:11px;line-height:1.45}
 #suggestPlace form button[type="submit"] {width:100%;min-height:44px}
+.submission-photo-preview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+.submission-photo-preview:empty{display:none}
+.submission-photo-preview button{display:block;position:relative;min-width:0;height:92px;padding:0;border:1px solid #e0e6ed;border-radius:10px;overflow:hidden;background:#f2f6fa;cursor:zoom-in}
+.submission-photo-preview img{display:block;width:100%;height:100%;object-fit:cover}
+.submission-photo-preview button:focus-visible{outline:3px solid #f05a24;outline-offset:2px}
+.community-cta-gallery{background:linear-gradient(135deg,#f7e7da,#eaf2f8)}
+.community-cta-gallery img{background:#eaf0f5}
+.detail-main-photo-button{display:block;width:100%;padding:0;border:0;background:transparent;text-align:left;cursor:zoom-in}
+#detailMainPhoto{display:block;transition:opacity .18s ease}
+#detailMainPhoto:focus-visible{outline:3px solid #f05a24;outline-offset:3px}
 @media(max-width:820px) {
   #suggestPlace:not([hidden]) {inset:60px 0 0;padding:10px;}
   #suggestPlace .suggest-place-panel {width:min(100%,560px);}
@@ -1145,6 +1155,184 @@ body { color: var(--ink); background: #f4f7fb; }
  .community-cta .suggest-place-hero-button{justify-self:start}
 }
 
+
+
+/* Final correction: keep the Suggest a Place banner in one horizontal row on desktop. */
+body:not(.community-active) .community-cta {
+  box-sizing: border-box;
+  width: min(calc(100% - 48px), 1440px);
+  max-width: 1440px;
+  min-height: 118px;
+  margin: 24px auto 28px;
+  padding: 14px 18px;
+  display: grid;
+  grid-template-columns: minmax(250px, 1.05fr) auto minmax(360px, 1.35fr);
+  grid-template-areas: "copy action gallery";
+  align-items: center;
+  justify-content: stretch;
+  gap: 22px;
+  overflow: hidden;
+}
+body:not(.community-active) .community-cta-copy {
+  grid-area: copy;
+  min-width: 0;
+  max-width: none;
+}
+body:not(.community-active) .community-cta-copy .eyebrow {
+  margin-bottom: 3px;
+  font-size: 10px;
+  line-height: 1.3;
+  letter-spacing: 1.6px;
+}
+body:not(.community-active) .community-cta-copy h2 {
+  margin: 3px 0 4px;
+  font-size: clamp(21px, 1.8vw, 29px);
+  line-height: 1.12;
+  letter-spacing: -.55px;
+}
+body:not(.community-active) .community-cta-copy p {
+  font-size: 12px;
+  line-height: 1.35;
+}
+body:not(.community-active) .community-cta .suggest-place-hero-button {
+  grid-area: action;
+  justify-self: center;
+  align-self: center;
+  width: auto;
+  min-width: 132px;
+  max-width: 175px;
+  min-height: 40px;
+  margin: 0;
+  padding: 11px 15px;
+  border-radius: 10px;
+  white-space: nowrap;
+  font-size: 12px;
+  line-height: 1.2;
+  gap: 7px;
+}
+body:not(.community-active) .community-cta-gallery {
+  grid-area: gallery;
+  justify-self: stretch;
+  align-self: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 86px;
+  min-height: 86px;
+  display: grid;
+  grid-template-columns: 1.2fr .9fr .9fr .9fr;
+  grid-template-rows: minmax(0, 1fr);
+  gap: 6px;
+  overflow: hidden;
+  border-radius: 12px;
+  transform: none;
+}
+body:not(.community-active) .community-cta-gallery img {
+  display: block;
+  grid-row: 1;
+  grid-column: auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  object-fit: cover;
+  border-radius: 8px;
+}
+/* Use a compact four-photo strip: heritage, city, food and waterfront. */
+body:not(.community-active) .community-cta-gallery img:nth-child(1) { grid-column: 1; }
+body:not(.community-active) .community-cta-gallery img:nth-child(2) { grid-column: 2; }
+body:not(.community-active) .community-cta-gallery img:nth-child(4) { grid-column: 3; }
+body:not(.community-active) .community-cta-gallery img:nth-child(6) { grid-column: 4; }
+body:not(.community-active) .community-cta-gallery img:nth-child(3),
+body:not(.community-active) .community-cta-gallery img:nth-child(5) { display: none; }
+@media (max-width: 1050px) {
+  body:not(.community-active) .community-cta {
+    width: calc(100% - 32px);
+    grid-template-columns: minmax(200px, 1fr) auto minmax(260px, 1.1fr);
+    gap: 14px;
+    padding: 13px 15px;
+  }
+  body:not(.community-active) .community-cta-gallery { height: 76px; min-height: 76px; }
+  body:not(.community-active) .community-cta .suggest-place-hero-button { min-width: 120px; padding: 10px 12px; }
+}
+@media (max-width: 720px) {
+  body:not(.community-active) .community-cta {
+    width: calc(100% - 28px);
+    min-height: 0;
+    margin: 18px auto 22px;
+    padding: 17px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "copy action" "gallery gallery";
+    gap: 14px;
+  }
+  body:not(.community-active) .community-cta-copy h2 { font-size: clamp(21px, 5vw, 27px); }
+  body:not(.community-active) .community-cta-copy p { font-size: 12px; }
+  body:not(.community-active) .community-cta .suggest-place-hero-button {
+    min-width: 0;
+    max-width: none;
+    padding: 10px 12px;
+    font-size: 11px;
+  }
+  body:not(.community-active) .community-cta-gallery {
+    height: 88px;
+    min-height: 88px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (max-width: 460px) {
+  body:not(.community-active) .community-cta {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "copy" "action" "gallery";
+  }
+  body:not(.community-active) .community-cta .suggest-place-hero-button { justify-self: start; }
+  body:not(.community-active) .community-cta-gallery { height: 78px; min-height: 78px; gap: 4px; }
+}
+
+
+
+/* Minimal Explore-card polish only. Existing fonts, photos, page styling and features remain unchanged. */
+#list .travel-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 2px 0 10px;
+}
+#list .travel-card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  padding: 8px 10px;
+  border-radius: 11px;
+  background: #fff6ef;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+#list .travel-card-badge > span:first-child { font-size: 16px; }
+#list .travel-card-actions {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+#list .travel-details-button {
+  background: var(--brand);
+  color: #fff;
+  border: 0;
+  border-radius: 10px;
+  flex: 1 1 135px;
+  min-height: 42px;
+}
+#list .travel-details-button:hover { background: var(--brand-dark); }
+#list .travel-card-actions .map-link { display: inline-flex; text-decoration: none; }
+#list .travel-card-actions .map-link .btn { min-height: 42px; border-radius: 10px; }
+@media(max-width:560px) {
+  #list .travel-card-actions { display: grid; grid-template-columns: 1fr; }
+  #list .travel-card-actions .map-link,
+  #list .travel-card-actions .map-link .btn { width: 100%; }
+}
+
 </style>
 </head>
 
@@ -1289,6 +1477,17 @@ body { color: var(--ink); background: #f4f7fb; }
           <option value="group">Total group budget</option>
         </select>
       </label>
+      <label class="budget-extra" id="groupSizeWrap" hidden>Travellers
+        <select id="budgetGroupSize" aria-label="Number of travellers" style="border:0;background:transparent;color:inherit;font:inherit">
+          <option value="2">2 people</option>
+          <option value="3">3 people</option>
+          <option value="4" selected>4 people</option>
+          <option value="5">5 people</option>
+          <option value="6">6 people</option>
+          <option value="7">7 people</option>
+          <option value="8">8 people</option>
+        </select>
+      </label>
       <label class="budget-extra">Trip
         <select id="tripDuration" aria-label="Trip duration" style="border:0;background:transparent;color:inherit;font:inherit">
           <option value="any">Any duration</option>
@@ -1297,7 +1496,7 @@ body { color: var(--ink); background: #f4f7fb; }
           <option value="day">Full day (5+ hours)</option>
         </select>
       </label>
-      <p class="budget-note" id="budgetNote">Budget filtering uses published price details. Places without a price may be hidden when a budget is selected.</p>
+      <p class="budget-note" id="budgetNote">Budget and duration filters use each place’s saved cost and visit-duration details. Existing places may need these details added once.</p>
     </div>
 
   </section>
@@ -1385,6 +1584,27 @@ body { color: var(--ink); background: #f4f7fb; }
 
    
 
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
+      <label>
+        Estimated cost per person (₹) *
+        <input name="estimated_cost_per_person" type="number" min="0" max="10000000" step="1" required
+          placeholder="e.g. 350"
+          style="display:block;width:100%;padding:12px;margin-top:6px;box-sizing:border-box">
+        <small>Include typical entry, food or activity cost for one person.</small>
+      </label>
+      <label>
+        Typical visit duration *
+        <select name="duration_category" required
+          style="display:block;width:100%;padding:12px;margin-top:6px;box-sizing:border-box">
+          <option value="">Choose duration</option>
+          <option value="short">Quick visit — under 2 hours</option>
+          <option value="half">Half day — 2 to 5 hours</option>
+          <option value="day">Full day — 5+ hours</option>
+        </select>
+        <small>Choose the typical time visitors spend at this place.</small>
+      </label>
+    </div>
+
     <label>
       Google Maps link
       <input name="google_maps_url" type="url"
@@ -1405,7 +1625,8 @@ body { color: var(--ink); background: #f4f7fb; }
         accept="image/jpeg,image/png,image/webp"
         multiple required
         style="display:block;width:100%;padding:12px;margin-top:6px">
-      <small>Select up to 5 photos, maximum 5 MB each.</small>
+      <small>Select up to 5 photos, maximum 5 MB each. Your photos will preview here before submission.</small>
+      <div id="submissionPhotoPreview" class="submission-photo-preview" aria-live="polite" aria-label="Selected photo previews"></div>
     </label>
 
 <label>
@@ -1463,11 +1684,11 @@ body { color: var(--ink); background: #f4f7fb; }
   </div>
   <button type="button" class="suggest-place-hero-button" id="openSuggestPlaceHeroButton"><span aria-hidden="true">＋</span> Suggest a Place</button>
   <div class="community-cta-gallery" aria-label="Travel inspiration photo collage">
-    <img class="cta-photo-heritage" src="https://images.unsplash.com/photo-1606293926075-69a00db06b3b?auto=format&fit=crop&w=900&q=85" alt="Historic Indian architecture" loading="lazy">
+    <img class="cta-photo-heritage" src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=900&q=85" alt="Historic Indian architecture" loading="lazy">
     <img src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=600&q=85" alt="City skyline at sunset" loading="lazy">
     <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=600&q=85" alt="Traveller exploring a scenic destination" loading="lazy">
     <img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=600&q=85" alt="Indian cuisine" loading="lazy">
-    <img src="https://images.unsplash.com/photo-1567157577867-05men5d7d7a?auto=format&fit=crop&w=600&q=85" alt="Historic city architecture" loading="lazy">
+    <img src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=600&q=85" alt="Historic city architecture" loading="lazy">
     <img src="https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=600&q=85" alt="A relaxing waterfront destination" loading="lazy">
   </div>
 </section>
@@ -1596,6 +1817,7 @@ let selectedStyle = 'all';
 let selectedCategory = 'all';
 let selectedBudget = 'all';
 let selectedBudgetBasis = 'person';
+let selectedGroupSize = 4;
 let selectedTripDuration = 'any';
 let currentUser = null;
 let feedMode = 'community';
@@ -1607,11 +1829,15 @@ function setPageView(page, { updateUrl = true, scroll = true } = {}) {
   const showCommunity = page === 'community';
   const showHomeHero = page === 'home';
   document.body.classList.toggle('community-active', showCommunity);
-  const homeIds = ['top', 'budgetBand', 'recommendations', 'locationDetails'];
+  // Only these sections belong to the homepage view. Location details
+  // must stay hidden until a visitor explicitly opens a recommendation.
+  const homeIds = ['top', 'budgetBand', 'recommendations'];
   homeIds.forEach(id => {
     const element = $(id);
     if (element) element.hidden = showCommunity;
   });
+  const locationDetails = $('locationDetails');
+  if (locationDetails) locationDetails.hidden = true;
   // The photo collage and large Suggest a Place button belong only to Home.
   const discoverSection = $('discover');
   if (discoverSection) discoverSection.hidden = !showHomeHero;
@@ -2940,6 +3166,7 @@ async function loadDestination(cityId) {
   }
 
   listings = data || [];
+  if (typeof updateBudgetControls === 'function') updateBudgetControls();
   renderListings();
 }
 
@@ -3060,7 +3287,7 @@ const allPhotos = combinedPhotos.length
       <h3>Location information</h3>
       <p>📍 <strong>Address:</strong> ${escapeHtml(item.address || selectedCity.name)}</p>
       <p>🏷️ <strong>Category:</strong> ${escapeHtml(categoryNames[item.type] || item.type)}</p>
-      ${item.price_range ? `<p>💰 <strong>Price:</strong> ${escapeHtml(item.price_range)}</p>` : ''}
+      ${(item.price_range || getListingPrice(item) !== null) ? `<p>💰 <strong>Estimated cost per person:</strong> ${escapeHtml(item.price_range || ('₹' + Math.round(getListingPrice(item)).toLocaleString('en-IN')))}</p>` : '<p>💰 <strong>Cost:</strong> Not added yet</p>'}
       ${item.phone ? `<p>📞 <strong>Phone:</strong> ${escapeHtml(item.phone)}</p>` : ''}
       ${item.website ? `<p>🌐 <strong>Website:</strong> <a href="${escapeHtml(item.website)}" target="_blank" rel="noopener noreferrer">Visit website</a></p>` : ''}
 
@@ -3238,10 +3465,34 @@ const mainPhoto = $('detailMainPhoto');
 
 if (mainPhoto) {
   mainPhoto.style.cursor = 'zoom-in';
-  mainPhoto.addEventListener('click', () => {
-    window.openTravelTasteLightbox(allPhotos, currentPhotoIndex);
+  mainPhoto.tabIndex = 0;
+  mainPhoto.setAttribute('role', 'button');
+  mainPhoto.setAttribute('aria-label', 'Open photo gallery');
+  const openCurrentPhoto = () => {
+    if (typeof window.openTravelTasteLightbox === 'function') {
+      window.openTravelTasteLightbox(allPhotos, currentPhotoIndex);
+    }
+  };
+  mainPhoto.addEventListener('click', openCurrentPhoto);
+  mainPhoto.addEventListener('keydown', event => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      openCurrentPhoto();
+    }
   });
+  mainPhoto.addEventListener('error', () => {
+    mainPhoto.style.display = 'none';
+    const caption = $('detailPhotoCaption');
+    if (caption) caption.textContent = 'This photo could not be loaded. Try another thumbnail or check the image URL.';
+  }, { once: true });
 }
+
+detailContent.querySelectorAll('.detail-thumb img').forEach(image => {
+  image.addEventListener('error', () => {
+    const thumb = image.closest('.detail-thumb');
+    if (thumb) thumb.hidden = true;
+  }, { once: true });
+});
 
   // Rating elements exist now because the detail HTML is already rendered.
   const ratingSummary = $('ratingSummary');
@@ -3359,44 +3610,67 @@ $('backToRecommendations').addEventListener('click', () => {
 
  
   function getListingPrice(item) {
-    // Extract an explicit rupee amount from the published price range only.
+    // Prefer the explicit numeric field added for budget filtering.
+    const direct = [
+      item.estimated_cost_per_person,
+      item.cost_per_person,
+      item.price_per_person
+    ].find(value => value !== null && value !== undefined && String(value).trim() !== '');
+    if (direct !== undefined) {
+      const numeric = Number(direct);
+      if (Number.isFinite(numeric) && numeric >= 0) return numeric;
+    }
+
+    // Backwards compatibility: use an existing price_range string if present.
     const raw = String(item.price_range || '').replace(/,/g, '');
     const values = [...raw.matchAll(/(?:₹|rs\.?|inr)?\s*(\d+(?:\.\d+)?)/ig)]
       .map(match => Number(match[1]))
       .filter(value => Number.isFinite(value) && value >= 0);
     if (!values.length) return null;
-    // A range such as "₹500 - ₹1,500" is represented by its upper bound,
-    // so a destination is shown only when its stated maximum fits the budget.
-    return Math.max(...values);
+    // A written range is represented by its midpoint, a useful estimate for filtering.
+    if (values.length >= 2) return (values[0] + values[1]) / 2;
+    return values[0];
   }
 
   function getDurationGroup(item) {
-    const text = [
-      item.duration, item.visit_duration, item.travel_tips, item.description
-    ].filter(Boolean).join(' ').toLowerCase();
+    const savedCategory = String(item.duration_category || item.visit_duration_category || '').toLowerCase().trim();
+    if (['short','quick','under_2_hours','under 2 hours'].includes(savedCategory)) return 'short';
+    if (['half','half_day','half day'].includes(savedCategory)) return 'half';
+    if (['day','full_day','full day'].includes(savedCategory)) return 'day';
+
+    const savedHours = item.duration_hours ?? item.visit_duration_hours;
+    if (savedHours !== null && savedHours !== undefined && String(savedHours).trim() !== '') {
+      const hours = Number(savedHours);
+      if (Number.isFinite(hours) && hours >= 0) {
+        if (hours < 2) return 'short';
+        if (hours <= 5) return 'half';
+        return 'day';
+      }
+    }
+
+    // Backwards compatibility with older records that store a duration as text.
+    const text = [item.duration, item.visit_duration, item.travel_tips, item.description]
+      .filter(Boolean).join(' ').toLowerCase();
     const match = text.match(/(\d+(?:\.\d+)?)\s*(minutes?|mins?|hours?|hrs?)/i);
     if (!match) return 'unknown';
     const amount = Number(match[1]);
     const unit = match[2].toLowerCase();
     const hours = unit.startsWith('m') ? amount / 60 : amount;
     if (hours < 2) return 'short';
-    if (hours < 5) return 'half';
+    if (hours <= 5) return 'half';
     return 'day';
+  }
+
+  function getBudgetComparablePrice(item) {
+    const perPerson = getListingPrice(item);
+    if (perPerson === null) return null;
+    return selectedBudgetBasis === 'group' ? perPerson * selectedGroupSize : perPerson;
   }
 
   function matchesBudget(item) {
     if (selectedBudget === 'all') return true;
-    const price = getListingPrice(item);
-    if (price == null) return false;
-    if (selectedBudgetBasis === 'group') {
-      const groupSize = 4; // Conservative default for a group-budget estimate.
-      const perPersonPrice = price;
-      const totalEstimate = perPersonPrice * groupSize;
-      if (selectedBudget === '500') return totalEstimate < 500;
-      if (selectedBudget === '1500') return totalEstimate >= 500 && totalEstimate <= 1500;
-      if (selectedBudget === '3000') return totalEstimate > 1500 && totalEstimate <= 3000;
-      return totalEstimate > 3000;
-    }
+    const price = getBudgetComparablePrice(item);
+    if (price === null) return false;
     if (selectedBudget === '500') return price < 500;
     if (selectedBudget === '1500') return price >= 500 && price <= 1500;
     if (selectedBudget === '3000') return price > 1500 && price <= 3000;
@@ -3458,9 +3732,19 @@ $('backToRecommendations').addEventListener('click', () => {
 
   if (!items.length) {
     const searchQuery = (globalSearchInput?.value || '').trim();
-    $('list').innerHTML = searchQuery
-      ? `<div class="empty"><div style="font-size:38px">🔎</div><strong>No results found for “${escapeHtml(searchQuery)}”.</strong><p>Try another word, or press Enter after typing a destination name.</p></div>`
-      : `<div class="empty"><div style="font-size:38px">🧭</div><strong>No recommendations in this category yet.</strong><p>Add published recommendations for ${escapeHtml(selectedCity?.name || 'this destination')} in Supabase to fill this section.</p></div>`;
+    if (searchQuery) {
+      $('list').innerHTML = `<div class="empty"><div style="font-size:38px">🔎</div><strong>No results found for “${escapeHtml(searchQuery)}”.</strong><p>Try another word, or press Enter after typing a destination name.</p></div>`;
+    } else if (selectedBudget !== 'all' || selectedTripDuration !== 'any') {
+      const missingPrice = listings.filter(item => getListingPrice(item) === null).length;
+      const missingDuration = listings.filter(item => getDurationGroup(item) === 'unknown').length;
+      const missingText = [
+        selectedBudget !== 'all' && missingPrice ? `${missingPrice} place${missingPrice === 1 ? '' : 's'} need a cost per person` : '',
+        selectedTripDuration !== 'any' && missingDuration ? `${missingDuration} place${missingDuration === 1 ? '' : 's'} need a visit duration` : ''
+      ].filter(Boolean).join(' and ');
+      $('list').innerHTML = `<div class="empty"><div style="font-size:38px">🧭</div><strong>No places match these filters yet.</strong><p>${missingText ? `Some existing places are missing filter data: ${escapeHtml(missingText)}. Add these details in Supabase, or submit them with Suggest a Place. ` : ''}Try another budget or duration, or add the missing cost and duration details to published places.</p></div>`;
+    } else {
+      $('list').innerHTML = `<div class="empty"><div style="font-size:38px">🧭</div><strong>No recommendations in this category yet.</strong><p>Add published recommendations for ${escapeHtml(selectedCity?.name || 'this destination')} in Supabase to fill this section.</p></div>`;
+    }
     return;
   }
 
@@ -3469,7 +3753,6 @@ $('backToRecommendations').addEventListener('click', () => {
     const safeType = escapeHtml(categoryNames[item.type] || item.type || 'Recommendation');
     const safeDescription = escapeHtml(item.description || 'Discover this recommendation on your next trip.');
     const safeAddress = escapeHtml(item.address || '');
-    // Keep the original listing image from Supabase; never substitute generated photos.
     const image = item.image_url
       ? `<img class="card-photo" src="${escapeHtml(item.image_url)}" alt="${safeName}" loading="lazy">`
       : `<div class="photo-placeholder" aria-label="No photo available">📍</div>`;
@@ -3477,31 +3760,35 @@ $('backToRecommendations').addEventListener('click', () => {
     const mapUrl = item.google_maps_url ||
       (item.latitude != null && item.longitude != null
         ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.latitude + ',' + item.longitude)}`
-        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((item.address || '') + ' ' + (selectedCity?.name || '') + ' ' + item.name)}`);
+        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((item.address || '') + ' ' + selectedCity.name + ' ' + item.name)}`);
 
-    const estimatedCost = Number(item.estimated_cost_per_person);
-    const budgetLabel = item.estimated_cost_per_person != null && Number.isFinite(estimatedCost)
+    const estimatedCost = getListingPrice(item);
+    const costLabel = estimatedCost !== null
       ? `₹${Math.round(estimatedCost).toLocaleString('en-IN')} per person`
-      : (item.price_range ? escapeHtml(item.price_range) : 'Budget not listed');
-    const rawHours = Number(item.duration_hours);
-    const durationLabel = item.duration_hours != null && Number.isFinite(rawHours) && rawHours > 0
-      ? (rawHours < 1 ? `${Math.round(rawHours * 60)} min` : `${Number.isInteger(rawHours) ? rawHours : rawHours.toFixed(1)} ${rawHours === 1 ? 'hour' : 'hours'}`)
-      : (item.duration_category === 'short' ? 'Quick visit' : item.duration_category === 'half' ? 'Half day' : item.duration_category === 'day' ? 'Full day' : 'Duration not listed');
+      : (item.price_range ? escapeHtml(item.price_range) : 'Budget not added');
+    const durationGroup = getDurationGroup(item);
+    const durationLabel = durationGroup === 'short' ? 'Under 2 hours'
+      : durationGroup === 'half' ? '2–5 hours'
+      : durationGroup === 'day' ? '5+ hours'
+      : 'Duration not added';
 
     return `
-      <article class="card traveltaste-place-card" data-listing-id="${escapeHtml(item.id)}">
-        <button class="place-photo-button" type="button" aria-label="View details for ${safeName}" onclick="openListingDetails('${escapeHtml(item.id)}')">${image}</button>
+      <article class="card" role="button" tabindex="0" data-listing-id="${escapeHtml(item.id)}" onclick="openListingDetails('${escapeHtml(item.id)}')">
+        ${image}
         <div class="card-body">
-          <span class="tag place-category-tag">${safeType}</span>
+          <span class="tag">${safeType}</span>
           <h3>${safeName}</h3>
-          <p class="place-description">${safeDescription}</p>
-          <div class="place-info-row">
-            <span class="place-info-pill"><span aria-hidden="true">👛</span><span>${budgetLabel}</span></span>
-            <span class="place-info-pill"><span aria-hidden="true">◷</span><span>${durationLabel}</span></span>
+          ${safeAddress ? `<p class="address">📍 ${safeAddress}</p>` : ''}
+          <p>${safeDescription}</p>
+          <div class="travel-card-meta" aria-label="Estimated budget and visit duration">
+            <span class="travel-card-badge"><span aria-hidden="true">💰</span><span>${costLabel}</span></span>
+            <span class="travel-card-badge"><span aria-hidden="true">◷</span><span>${durationLabel}</span></span>
           </div>
-          <div class="card-actions place-card-actions">
-            <button class="btn primary view-details-btn" type="button" onclick="openListingDetails('${escapeHtml(item.id)}')">View details <span aria-hidden="true">→</span></button>
-            <a class="exact-location-btn" href="${escapeHtml(mapUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Exact location for ${safeName}"><span aria-hidden="true">🗺️</span><span>Exact<br class="location-break"> Location</span></a>
+          <div class="card-actions travel-card-actions">
+            <button class="btn primary travel-details-button" type="button" onclick="event.stopPropagation(); openListingDetails('${escapeHtml(item.id)}')">View details <span aria-hidden="true">→</span></button>
+            <a class="map-link" href="${escapeHtml(mapUrl)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
+              <button class="btn secondary" type="button">🗺️ Exact Location</button>
+            </a>
           </div>
         </div>
       </article>`;
@@ -3635,6 +3922,24 @@ if (budgetRangeSlider) {
   }));
 }
 
+function updateBudgetControls() {
+  const groupWrap = $('groupSizeWrap');
+  if (groupWrap) groupWrap.hidden = selectedBudgetBasis !== 'group';
+  const missingPrice = listings.filter(item => getListingPrice(item) === null).length;
+  const missingDuration = listings.filter(item => getDurationGroup(item) === 'unknown').length;
+  let note = selectedBudget === 'all'
+    ? 'Budget uses estimated cost per person; group mode multiplies it by the selected traveller count.'
+    : selectedBudgetBasis === 'group'
+      ? `Showing places whose estimated total for ${selectedGroupSize} travellers fits the selected budget.`
+      : 'Showing places whose estimated cost for one person fits the selected budget.';
+  if (selectedTripDuration !== 'any') note += ' Visit duration is matched to the selected duration band.';
+  const missing = [];
+  if (selectedBudget !== 'all' && missingPrice) missing.push(`${missingPrice} existing place${missingPrice === 1 ? '' : 's'} without a cost`);
+  if (selectedTripDuration !== 'any' && missingDuration) missing.push(`${missingDuration} existing place${missingDuration === 1 ? '' : 's'} without a duration`);
+  if (missing.length) note += ` Data still needed: ${missing.join(' and ')}.`;
+  $('budgetNote').textContent = note;
+}
+
 document.querySelectorAll('.budget-chip').forEach(button => {
   button.addEventListener('click', () => {
     selectedBudget = button.dataset.budget;
@@ -3643,25 +3948,28 @@ document.querySelectorAll('.budget-chip').forEach(button => {
       chip.classList.toggle('active', active);
       chip.setAttribute('aria-pressed', String(active));
     });
-    $('budgetNote').textContent = selectedBudget === 'all'
-      ? 'Showing all price ranges. Budget filtering uses published price details.'
-      : selectedBudgetBasis === 'group'
-        ? 'Group budget estimates assume 4 travellers and use each listing’s published price.'
-        : 'Only recommendations with published prices in this range are shown.';
+    updateBudgetControls();
     renderListings();
   });
 });
 
 $('budgetBasis').addEventListener('change', event => {
   selectedBudgetBasis = event.target.value;
-  $('budgetNote').textContent = selectedBudgetBasis === 'group'
-    ? 'Group budget estimates assume 4 travellers and use each listing’s published price.'
-    : 'Budget filtering uses each listing’s published price details.';
+  updateBudgetControls();
   renderListings();
 });
 
+if ($('budgetGroupSize')) {
+  $('budgetGroupSize').addEventListener('change', event => {
+    selectedGroupSize = Number(event.target.value) || 4;
+    updateBudgetControls();
+    renderListings();
+  });
+}
+
 $('tripDuration').addEventListener('change', event => {
   selectedTripDuration = event.target.value;
+  updateBudgetControls();
   renderListings();
 });
 
@@ -3689,6 +3997,40 @@ document.querySelectorAll('.category').forEach(button => {
 });
 
 
+// Preview selected Suggest a Place photos before upload; clicking a preview opens it larger.
+const submissionPhotoInput = $('submissionPhotos');
+const submissionPhotoPreview = $('submissionPhotoPreview');
+let submissionPreviewUrls = [];
+if (submissionPhotoInput && submissionPhotoPreview) {
+  submissionPhotoInput.addEventListener('change', () => {
+    submissionPreviewUrls.forEach(url => URL.revokeObjectURL(url));
+    submissionPreviewUrls = [];
+    submissionPhotoPreview.replaceChildren();
+    const selectedFiles = Array.from(submissionPhotoInput.files || []).filter(file => file.type.startsWith('image/')).slice(0, 5);
+    selectedFiles.forEach((file, index) => {
+      const url = URL.createObjectURL(file);
+      submissionPreviewUrls.push(url);
+      const previewButton = document.createElement('button');
+      previewButton.type = 'button';
+      previewButton.setAttribute('aria-label', `Preview selected photo ${index + 1}`);
+      const previewImage = document.createElement('img');
+      previewImage.src = url;
+      previewImage.alt = file.name || `Selected photo ${index + 1}`;
+      previewImage.loading = 'lazy';
+      previewImage.addEventListener('error', () => previewButton.remove(), { once: true });
+      previewButton.appendChild(previewImage);
+      previewButton.addEventListener('click', () => {
+        if (typeof window.openTravelTasteLightbox === 'function') {
+          window.openTravelTasteLightbox(selectedFiles.map((f, i) => ({
+            image_url: submissionPreviewUrls[i], caption: f.name || `Selected photo ${i + 1}`
+          })), index);
+        }
+      });
+      submissionPhotoPreview.appendChild(previewButton);
+    });
+  });
+}
+
 $('placeSubmissionForm').addEventListener('submit', async (event) => {
   event.preventDefault();
 
@@ -3707,6 +4049,12 @@ $('placeSubmissionForm').addEventListener('submit', async (event) => {
 
   const formData = new FormData(form);
   const files = Array.from($('submissionPhotos').files || []);
+  const submittedCost = Number(formData.get('estimated_cost_per_person'));
+  const submittedDuration = String(formData.get('duration_category') || '');
+  if (!Number.isFinite(submittedCost) || submittedCost < 0 || !['short','half','day'].includes(submittedDuration)) {
+    message.textContent = 'Please add a valid estimated cost per person and visit duration.';
+    return;
+  }
 
   if (files.length < 1 || files.length > 5) {
     message.textContent = 'Please choose between 1 and 5 photos.';
@@ -3766,12 +4114,18 @@ $('placeSubmissionForm').addEventListener('submit', async (event) => {
         travel_tips: String(formData.get('travel_tips') || '').trim() || null,
         traveler_type: formData.get('traveler_type'),
         rating: Number(formData.get('rating')),
+        estimated_cost_per_person: Number(formData.get('estimated_cost_per_person')),
+        duration_category: formData.get('duration_category'),
+        duration_hours: ({ short: 1, half: 3.5, day: 6 })[formData.get('duration_category')] || null,
         status: 'pending'
       });
 
     if (insertError) throw insertError;
 
     form.reset();
+    submissionPreviewUrls.forEach(url => URL.revokeObjectURL(url));
+    submissionPreviewUrls = [];
+    if (submissionPhotoPreview) submissionPhotoPreview.replaceChildren();
     message.textContent =
       'Submitted successfully! Your place is pending admin approval.';
   } catch (error) {
@@ -3814,6 +4168,7 @@ $('placeSubmissionForm').addEventListener('submit', async (event) => {
   function showLightboxPhoto() {
     if (!lightboxPhotos.length) return;
     const photo = lightboxPhotos[lightboxIndex];
+    viewerImage.style.display = 'block';
     viewerImage.src = photo.image_url;
     viewerImage.alt = photo.caption || 'Travel destination photo';
     viewerCaption.textContent = photo.caption || '';
@@ -3834,6 +4189,12 @@ $('placeSubmissionForm').addEventListener('submit', async (event) => {
     viewerImage.src = '';
     document.body.style.overflow = '';
   }
+
+  viewerImage.addEventListener('error', () => {
+    viewerImage.style.display = 'none';
+    viewerCaption.textContent = 'This photo could not be loaded. Please try another photo.';
+  });
+  viewerImage.addEventListener('load', () => { viewerImage.style.display = 'block'; });
 
   document.getElementById('photoLightboxClose').addEventListener('click', closeLightbox);
 
@@ -3869,40 +4230,15 @@ $('placeSubmissionForm').addEventListener('submit', async (event) => {
   window.openTravelTasteLightbox = openLightbox;
 })();
 </script>
+<script>
+// Hide failed inspiration photos cleanly so the Suggest a Place banner never shows broken-image icons.
+document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
+  img.addEventListener('error', () => {
+    img.style.visibility = 'hidden';
+    img.setAttribute('aria-hidden', 'true');
+  }, { once: true });
+});
+</script>
 
 </body>
 </html>
-
-/* TravelTaste Explore cards: visual-only refresh, preserving existing data and actions. */
-#recommendations #list .traveltaste-place-card,
-#list .traveltaste-place-card {
-  min-width:0; display:flex; flex-direction:column; overflow:hidden;
-  border:1px solid #eee5de; border-radius:18px; background:#fff;
-  box-shadow:0 7px 24px rgba(37,48,62,.055); transition:transform .18s ease,box-shadow .18s ease;
-}
-#recommendations #list .traveltaste-place-card:hover,
-#list .traveltaste-place-card:hover { transform:translateY(-3px); box-shadow:0 13px 30px rgba(37,48,62,.10); }
-#list .place-photo-button { display:block; width:100%; padding:0; margin:0; border:0; background:#f4eee8; cursor:pointer; overflow:hidden; }
-#list .place-photo-button .card-photo,
-#list .place-photo-button .photo-placeholder { display:block; width:100%; height:205px; margin:0; object-fit:cover; transition:transform .25s ease; }
-#list .place-photo-button:hover .card-photo { transform:scale(1.025); }
-#list .traveltaste-place-card .card-body { padding:17px; gap:0; }
-#list .traveltaste-place-card .place-category-tag { display:inline-flex; align-items:center; width:max-content; max-width:100%; padding:7px 12px; border-radius:999px; background:#fff0e8; color:#bd4318; font-size:12px; font-weight:800; }
-#list .traveltaste-place-card h3 { margin:12px 0 7px; color:#14243a; font-size:21px; line-height:1.28; letter-spacing:-.35px; }
-#list .traveltaste-place-card .place-description { color:#61738a; font-size:14px; line-height:1.5; margin:0 0 14px; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; overflow:hidden; }
-#list .traveltaste-place-card .place-info-row { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:9px; margin:0 0 14px; }
-#list .traveltaste-place-card .place-info-pill { min-width:0; min-height:48px; display:flex; align-items:center; gap:8px; padding:9px 10px; border-radius:13px; background:#fff7f0; color:#24364e; font-size:12px; line-height:1.35; overflow-wrap:anywhere; }
-#list .traveltaste-place-card .place-info-pill > span:first-child { flex:0 0 auto; font-size:17px; }
-#list .traveltaste-place-card .card-actions.place-card-actions { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(95px,.85fr); gap:9px; padding-top:2px; margin-top:auto; }
-#list .traveltaste-place-card .view-details-btn { width:100%; min-height:46px; display:flex; align-items:center; justify-content:center; gap:9px; padding:10px 12px; border:0; border-radius:12px; background:#f05a24; color:#fff; font-size:14px; font-weight:800; white-space:nowrap; }
-#list .traveltaste-place-card .view-details-btn:hover { background:#c9471b; }
-#list .traveltaste-place-card .exact-location-btn { min-width:0; min-height:46px; display:flex; align-items:center; justify-content:center; gap:7px; padding:7px 9px; border-radius:12px; background:#fff0e7; color:#b9471e; text-decoration:none; text-align:center; font-size:12px; line-height:1.25; font-weight:750; }
-#list .traveltaste-place-card .exact-location-btn:hover { background:#ffe3d4; }
-#list .traveltaste-place-card .location-break { display:none; }
-@media(max-width:560px) {
-  #list .place-photo-button .card-photo, #list .place-photo-button .photo-placeholder { height:210px; }
-  #list .traveltaste-place-card .card-body { padding:15px; }
-  #list .traveltaste-place-card .place-info-pill { padding:9px 8px; font-size:12px; }
-  #list .traveltaste-place-card .card-actions.place-card-actions { grid-template-columns:minmax(0,1.15fr) minmax(100px,.85fr); }
-}
-
