@@ -1526,6 +1526,55 @@ body.seasonal-drawer-open{overflow:hidden}
 body.nearby-drawer-open{overflow:hidden}
 @media(max-width:520px){#nearbyDrawer{width:100vw}.nearby-head{padding:15px}.nearby-head h2{font-size:20px}.nearby-content{padding:12px}.nearby-location-prompt{align-items:flex-start}.nearby-location-prompt #useNearbyLocation{width:100%}#nearbyResults{grid-template-columns:1fr}.nearby-card{display:grid;grid-template-columns:112px minmax(0,1fr)}.nearby-card-photo{height:100%;min-height:155px}.nearby-card-body{padding:10px}.nearby-card h4{font-size:14px;margin:7px 0 5px}.nearby-card p{font-size:11px}.nearby-card-actions{flex-wrap:wrap}.nearby-card-actions a,.nearby-card-actions button{font-size:10px;padding:8px 5px}.nearby-map{height:180px}}
 
+
+
+/* Destination detail gallery layout. Scoped to the detail page so existing site sections stay unchanged. */
+.tt-detail-page { max-width: 1320px; margin: 0 auto; color: #17263d; }
+.tt-breadcrumbs { display:flex; flex-wrap:wrap; align-items:center; gap:9px; margin:0 0 18px; color:#64748b; font-size:14px; }
+.tt-breadcrumbs a { color:#53657d; text-decoration:none; }
+.tt-breadcrumbs a:hover { color:var(--brand); text-decoration:underline; }
+.tt-breadcrumbs strong { color:#17263d; font-weight:700; }
+.tt-detail-heading { margin:0 0 16px; }
+.tt-detail-heading .tag { display:inline-block; margin-bottom:4px; }
+.tt-detail-heading h1 { font-size:clamp(32px,4vw,48px); line-height:1.1; margin:4px 0 8px; color:#17263d; }
+.tt-detail-address { margin:0; color:#334155; font-size:17px; }
+.tt-photo-gallery { display:grid; grid-template-columns:minmax(0, 1.65fr) minmax(280px,1fr); gap:10px; width:100%; margin:16px 0 8px; }
+.tt-gallery-main { display:block; min-width:0; width:100%; height:clamp(300px,34vw,500px); border:0; padding:0; overflow:hidden; border-radius:16px; background:#e8edf4; }
+.tt-gallery-main img { display:block; width:100%; height:100%; object-fit:cover; }
+.tt-gallery-side { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); grid-template-rows:repeat(2,minmax(120px,1fr)); gap:10px; min-width:0; }
+.tt-gallery-tile { display:block; position:relative; width:100%; height:100%; min-height:120px; flex:none; border:0; border-radius:14px; overflow:hidden; padding:0; background:#e8edf4; }
+.tt-gallery-tile img { display:block; width:100%; height:100%; object-fit:cover; }
+.tt-gallery-more::after { content:""; position:absolute; inset:0; background:rgba(12,22,38,.48); }
+.tt-gallery-more span { position:absolute; inset:0; display:grid; place-items:center; z-index:1; color:#fff; font-size:30px; font-weight:800; }
+.tt-gallery-empty { min-height:120px; border-radius:14px; background:#edf2f8; }
+.tt-photo-caption { margin:0 0 18px; color:#64748b; font-size:14px; }
+.tt-detail-card { background:#fff; border:1px solid #e5edf5; border-radius:16px; padding:22px; margin:14px 0; box-shadow:0 4px 18px rgba(23,38,61,.025); }
+.tt-detail-card h2 { color:#17263d; margin:0 0 10px; font-size:24px; }
+.tt-detail-card h3 { color:#17263d; margin:16px 0 10px; font-size:19px; }
+.tt-about-description { line-height:1.75; color:#46566e; margin:0; }
+.tt-about-card hr { border:0; border-top:1px solid #e5edf5; margin:18px 0; }
+.tt-location-grid { display:flex; flex-wrap:wrap; gap:8px 26px; }
+.tt-location-grid p { margin:2px 0; }
+.tt-visitor-tip { color:#64748b; margin:12px 0 0; }
+.tt-rating-buttons { display:flex; flex-wrap:wrap; gap:10px; }
+.tt-rating-buttons button { padding:10px 18px; border:1px solid #d9e0e8; border-radius:9px; background:#fff; color:#17263d; cursor:pointer; }
+.tt-rating-buttons button:hover, .tt-rating-buttons button:focus { border-color:var(--brand); color:var(--brand-dark); }
+.tt-visitor-photo-form { display:grid; grid-template-columns:1fr 1fr; gap:14px 18px; align-items:end; }
+.tt-visitor-photo-form label { display:grid; gap:8px; min-width:0; }
+.tt-visitor-photo-form input[type="file"] { max-width:100%; }
+.tt-visitor-photo-form input[type="text"] { width:100%; padding:11px 12px; border:1px solid #d9e0e8; border-radius:8px; }
+.tt-visitor-photo-form button, .tt-visitor-photo-form #visitorPhotoMessage { grid-column:1 / -1; }
+.tt-directions-button { display:inline-block; text-decoration:none; margin:4px 0 18px; }
+@media (max-width:760px) {
+  .tt-photo-gallery { grid-template-columns:1fr; }
+  .tt-gallery-main { height:clamp(230px,65vw,380px); }
+  .tt-gallery-side { grid-template-rows:repeat(2,minmax(90px,1fr)); }
+  .tt-gallery-tile, .tt-gallery-empty { min-height:90px; }
+  .tt-detail-card { padding:16px; }
+  .tt-visitor-photo-form { grid-template-columns:1fr; }
+  .tt-visitor-photo-form button, .tt-visitor-photo-form #visitorPhotoMessage { grid-column:auto; }
+}
+
 </style>
 </head>
 
@@ -3535,101 +3584,105 @@ const allPhotos = combinedPhotos.length
     : '<p>No photos have been added yet.</p>';
 
   detailContent.innerHTML = `
-    <div style="margin-top:24px">
-      <span class="tag">${escapeHtml(categoryNames[item.type] || item.type)}</span>
-      <h1 style="font-size:clamp(30px,5vw,46px);margin:16px 0">
-        ${escapeHtml(item.name)}
-      </h1>
+    <div class="tt-detail-page">
+      <nav class="tt-breadcrumbs" aria-label="Breadcrumb">
+        <a href="/" aria-label="Go to TravelTaste home">Home</a>
+        <span aria-hidden="true">›</span>
+        <a href="/#discover" aria-label="Explore places">Places</a>
+        <span aria-hidden="true">›</span>
+        <span>${escapeHtml(selectedCity.name || item.address || 'Gujarat')}</span>
+        <span aria-hidden="true">›</span>
+        <strong>${escapeHtml(item.name)}</strong>
+      </nav>
 
-      <div style="max-width:850px;margin:20px 0">
-        ${allPhotos.length ? `
-          <img id="detailMainPhoto"
-            src="${escapeHtml(allPhotos[0].image_url)}"
-            alt="${escapeHtml(item.name)}"
-            style="width:100%;height:clamp(240px,45vw,480px);object-fit:cover;border-radius:18px">
-          <div id="detailPhotoCaption" style="margin:8px 0;color:#68737d">
-            ${escapeHtml(allPhotos[0].caption || item.name)}
-          </div>
-          <div style="display:flex;gap:10px;overflow-x:auto;padding:8px 0">
-            ${photoMarkup}
-          </div>
-        ` : '<div class="photo-placeholder">📍 No photo available</div>'}
+      <div class="tt-detail-heading">
+        <span class="tag">${escapeHtml(categoryNames[item.type] || item.type)}</span>
+        <h1>${escapeHtml(item.name)}</h1>
+        <p class="tt-detail-address">📍 ${escapeHtml(item.address || selectedCity.name)}</p>
       </div>
 
-      <h2>About this place</h2>
-      <p style="line-height:1.8">
-        ${escapeHtml(item.description || 'More information about this location will be added soon.')}
-      </p>
+      ${allPhotos.length ? `
+        <div class="tt-photo-gallery" aria-label="Photos of ${escapeHtml(item.name)}">
+          <button type="button" class="tt-gallery-main" id="detailMainPhotoButton" aria-label="Open photo gallery">
+            <img id="detailMainPhoto" src="${escapeHtml(allPhotos[0].image_url)}" alt="${escapeHtml(allPhotos[0].caption || item.name)}">
+          </button>
+          <div class="tt-gallery-side">
+            ${allPhotos.slice(1, 5).map((photo, sideIndex) => {
+              const photoIndex = sideIndex + 1;
+              const remaining = allPhotos.length - 5;
+              const isLastTile = sideIndex === Math.min(3, allPhotos.length - 2);
+              const showMore = photoIndex === 4 && remaining > 0;
+              return `
+                <button type="button" class="detail-thumb tt-gallery-tile ${showMore ? 'tt-gallery-more' : ''}"
+                  data-photo-index="${photoIndex}" aria-label="Show photo ${photoIndex + 1}${showMore ? ` and ${remaining} more photos` : ''}">
+                  <img src="${escapeHtml(photo.image_url)}" alt="${escapeHtml(photo.caption || item.name)}">
+                  ${showMore ? `<span>+${remaining}</span>` : ''}
+                </button>
+              `;
+            }).join('')}
+            ${allPhotos.length === 2 ? '<div class="tt-gallery-empty" aria-hidden="true"></div><div class="tt-gallery-empty" aria-hidden="true"></div><div class="tt-gallery-empty" aria-hidden="true"></div>' : ''}
+          </div>
+        </div>
+        <div id="detailPhotoCaption" class="tt-photo-caption">${escapeHtml(allPhotos[0].caption || item.name)}</div>
+      ` : '<div class="photo-placeholder">📍 No photo available</div>'}
 
-      <h3>Location information</h3>
-      <p>📍 <strong>Address:</strong> ${escapeHtml(item.address || selectedCity.name)}</p>
-      <p>🏷️ <strong>Category:</strong> ${escapeHtml(categoryNames[item.type] || item.type)}</p>
-      ${(item.price_range || getListingPrice(item) !== null) ? `<p>💰 <strong>Estimated cost per person:</strong> ${escapeHtml(item.price_range || ('₹' + Math.round(getListingPrice(item)).toLocaleString('en-IN')))}</p>` : '<p>💰 <strong>Cost:</strong> Not added yet</p>'}
-      ${item.phone ? `<p>📞 <strong>Phone:</strong> ${escapeHtml(item.phone)}</p>` : ''}
-      ${item.website ? `<p>🌐 <strong>Website:</strong> <a href="${escapeHtml(item.website)}" target="_blank" rel="noopener noreferrer">Visit website</a></p>` : ''}
+      <section class="tt-detail-card tt-about-card">
+        <h2>About this place</h2>
+        <p class="tt-about-description">${escapeHtml(item.description || 'More information about this location will be added soon.')}</p>
+        <hr>
+        <h3>Location information</h3>
+        <div class="tt-location-grid">
+          <p>📍 <strong>Address:</strong> ${escapeHtml(item.address || selectedCity.name)}</p>
+          <p>🏷️ <strong>Category:</strong> ${escapeHtml(categoryNames[item.type] || item.type)}</p>
+          <p>💰 <strong>Estimated cost per person:</strong> ${escapeHtml(item.price_range || (getListingPrice(item) !== null ? '₹' + Math.round(getListingPrice(item)).toLocaleString('en-IN') : 'Not added yet'))}</p>
+          ${item.phone ? `<p>📞 <strong>Phone:</strong> ${escapeHtml(item.phone)}</p>` : ''}
+          ${item.website ? `<p>🌐 <strong>Website:</strong> <a href="${escapeHtml(item.website)}" target="_blank" rel="noopener noreferrer">Visit website</a></p>` : ''}
+        </div>
+        <p class="tt-visitor-tip">Visitor tip: Check local opening times and any entry fees before visiting.</p>
+      </section>
 
-      <p style="color:#68737d">
-        Visitor tip: Check local opening times and any entry fees before visiting.
-      </p>
-
-      
-      <div id="placeRatingSection" style="margin:24px 0;padding:20px;background:#fff;border-radius:14px">
+      <section id="placeRatingSection" class="tt-detail-card tt-rating-card">
         <h2>⭐ Rate this place</h2>
         <p id="ratingSummary">Loading ratings...</p>
         <p>How was your experience?</p>
-        <div id="ratingButtons" style="display:flex;gap:10px;flex-wrap:wrap">
+        <div id="ratingButtons" class="tt-rating-buttons">
           ${[1,2,3,4,5].map(n => `
-            <button type="button" data-rating="${n}"
-              style="padding:10px 14px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;font-size:18px">
-              ${'★'.repeat(n)}
-            </button>
+            <button type="button" data-rating="${n}" aria-label="Rate ${n} out of 5 stars">${'★'.repeat(n)}</button>
           `).join('')}
         </div>
         <p id="ratingMessage" role="status"></p>
-      </div>
-      
-      <div id="visitorPhotoSection" style="margin:24px 0;padding:20px;background:#fff;border-radius:14px">
+      </section>
+
+      <section id="visitorPhotoSection" class="tt-detail-card tt-visitor-photo-card">
         <h2>📸 Share your photos of this place</h2>
         <p>Help other travellers discover this place through your photos.</p>
-
-        <form id="visitorPhotoForm" style="display:grid;gap:12px">
+        <form id="visitorPhotoForm" class="tt-visitor-photo-form">
           <label>
             Choose a photo (JPG, PNG or WebP; maximum 5 MB)
-            <input
-              id="visitorPhotoFile"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              required
-              style="display:block;width:100%;margin-top:8px"
-            >
+            <input id="visitorPhotoFile" type="file" accept="image/jpeg,image/png,image/webp" required>
           </label>
-
           <label>
             Caption (optional)
-            <input
-              id="visitorPhotoCaption"
-              type="text"
-              maxlength="300"
-              placeholder="Describe your photo"
-              style="display:block;width:100%;padding:10px;margin-top:6px"
-            >
+            <input id="visitorPhotoCaption" type="text" maxlength="300" placeholder="Describe your photo">
           </label>
-
-          <button type="submit" class="btn primary">
-            Submit photo for approval
-          </button>
+          <button type="submit" class="btn primary">Submit photo for approval</button>
           <p id="visitorPhotoMessage" role="status"></p>
         </form>
-      </div>
+      </section>
 
-
-      <a class="btn primary" href="${escapeHtml(mapUrl)}"
-        target="_blank" rel="noopener noreferrer"
-        style="display:inline-block;text-decoration:none;margin:12px 0">
-        🗺️ Get Directions
-      </a>
+      <a class="btn primary tt-directions-button" href="${escapeHtml(mapUrl)}" target="_blank" rel="noopener noreferrer">🗺️ Get Directions</a>
     </div>
   `;
+
+  // Keep the existing main-photo click behavior and open the full photo lightbox.
+  const mainGalleryButton = $('detailMainPhotoButton');
+  if (mainGalleryButton) {
+    mainGalleryButton.addEventListener('click', () => {
+      if (typeof window.openTravelTasteLightbox === 'function') {
+        window.openTravelTasteLightbox(allPhotos, 0);
+      }
+    });
+  }
   
   const visitorPhotoForm = $('visitorPhotoForm');
 
