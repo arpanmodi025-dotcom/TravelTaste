@@ -5957,5 +5957,74 @@ body.detail-view-active .tt-gallery-tile {
 }
 </style>
 
+
+<style id="travelTasteLaptopPhotoSizeFix">
+/* Laptop/desktop: match the approved balanced gallery and keep it from dominating the page. */
+body.detail-view-active .tt-photo-gallery {
+  width: min(100%, 1160px) !important;
+  max-width: 1160px !important;
+  margin: 16px auto 10px !important;
+  grid-template-columns: minmax(0, 2.05fr) minmax(0, 1fr) !important;
+  gap: 8px !important;
+  align-items: stretch !important;
+}
+body.detail-view-active .tt-gallery-main {
+  width: 100% !important;
+  height: clamp(280px, 27vw, 370px) !important;
+  min-height: 0 !important;
+  aspect-ratio: auto !important;
+}
+body.detail-view-active .tt-gallery-side {
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
+  grid-auto-rows: minmax(0, 1fr) !important;
+  min-height: 0 !important;
+  gap: 8px !important;
+}
+body.detail-view-active .tt-gallery-tile,
+body.detail-view-active .tt-gallery-empty {
+  min-height: 0 !important;
+  height: 100% !important;
+}
+body.detail-view-active .tt-gallery-main img,
+body.detail-view-active .tt-gallery-tile img {
+  object-fit: contain !important;
+  object-position: center !important;
+}
+/* Medium screens */
+@media (min-width: 761px) and (max-width: 1024px) {
+  body.detail-view-active .tt-photo-gallery {
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr) !important;
+  }
+  body.detail-view-active .tt-gallery-main {
+    height: 300px !important;
+  }
+}
+/* Phones: main image first, two compact thumbnails below. */
+@media (max-width: 760px) {
+  body.detail-view-active .tt-photo-gallery {
+    width: 100% !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    margin: 12px 0 8px !important;
+    gap: 8px !important;
+  }
+  body.detail-view-active .tt-gallery-main {
+    height: auto !important;
+    aspect-ratio: 16 / 10 !important;
+  }
+  body.detail-view-active .tt-gallery-side {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: 105px !important;
+    grid-auto-rows: 105px !important;
+  }
+}
+@media (max-width: 430px) {
+  body.detail-view-active .tt-gallery-side {
+    grid-template-rows: 90px !important;
+    grid-auto-rows: 90px !important;
+  }
+}
+</style>
+
 </body>
 </html>
