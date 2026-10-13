@@ -299,6 +299,14 @@ main { background:var(--soft); }
   display: none;
 }
 
+/* Clean destination detail view: hide homepage-only sections while a place is open.
+   Their HTML and event handlers remain intact and are restored on Back. */
+body.detail-view-active #top,
+body.detail-view-active #budgetBand,
+body.detail-view-active #communityCta {
+  display: none !important;
+}
+
 .photo-placeholder {
   height:220px;
   display:grid;
@@ -2058,6 +2066,7 @@ function setPageView(page, { updateUrl = true, scroll = true } = {}) {
   });
   const locationDetails = $('locationDetails');
   if (locationDetails) locationDetails.hidden = true;
+  document.body.classList.remove('detail-view-active');
   // The photo collage and large Suggest a Place button belong only to Home.
   const discoverSection = $('discover');
   if (discoverSection) discoverSection.hidden = !showHomeHero || showFavourites;
@@ -3469,6 +3478,7 @@ async function openListingDetails(listingId) {
   const detailSection = $('locationDetails');
   const detailContent = $('detailContent');
 
+  document.body.classList.add('detail-view-active');
   $('recommendations').hidden = true;
   $('discover').hidden = true;
   detailSection.hidden = false;
@@ -3851,6 +3861,7 @@ window.openListingDetails = openListingDetails;
 let travelTasteDetailOpen = false;
 
 function returnToRecommendations() {
+  document.body.classList.remove('detail-view-active');
   $('locationDetails').hidden = true;
   $('discover').hidden = false;
   $('recommendations').hidden = false;
