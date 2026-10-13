@@ -4123,11 +4123,11 @@ const allPhotos = combinedPhotos.length
             <img id="detailMainPhoto" src="${escapeHtml(allPhotos[0].image_url)}" alt="${escapeHtml(allPhotos[0].caption || item.name)}">
           </button>
           <div class="tt-gallery-side">
-            ${allPhotos.slice(1, 5).map((photo, sideIndex) => {
+            ${allPhotos.slice(1, 3).map((photo, sideIndex) => {
               const photoIndex = sideIndex + 1;
-              const remaining = allPhotos.length - 5;
-              const isLastTile = sideIndex === Math.min(3, allPhotos.length - 2);
-              const showMore = photoIndex === 4 && remaining > 0;
+              const remaining = allPhotos.length - 3;
+              const isLastTile = sideIndex === Math.min(1, allPhotos.length - 2);
+              const showMore = photoIndex === 2 && remaining > 0;
               return `
                 <button type="button" class="detail-thumb tt-gallery-tile ${showMore ? 'tt-gallery-more' : ''}"
                   data-photo-index="${photoIndex}" aria-label="Show photo ${photoIndex + 1}${showMore ? ` and ${remaining} more photos` : ''}">
@@ -5856,6 +5856,68 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
 }
 @media (max-width: 520px) {
   #placesMenu { top: 305px !important; left: 12px !important; right: 12px !important; }
+}
+</style>
+
+
+<style id="travelTasteDetailPhotoLayoutUpgrade">
+/* Detail gallery inspired by a premium travel/hotel photo layout.
+   Existing image URLs, gallery click handlers, and lightbox behavior are retained. */
+body.detail-view-active .tt-photo-gallery {
+  display: grid !important;
+  grid-template-columns: minmax(0, 2fr) minmax(250px, 1fr) !important;
+  gap: 8px !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 18px 0 8px !important;
+  align-items: stretch !important;
+}
+body.detail-view-active .tt-gallery-main {
+  height: clamp(360px, 36vw, 512px) !important;
+  min-height: 0 !important;
+  border-radius: 14px !important;
+  background: #e8eef5 !important;
+}
+body.detail-view-active .tt-gallery-side {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
+  grid-auto-rows: minmax(0, 1fr) !important;
+  gap: 8px !important;
+  min-height: 0 !important;
+}
+body.detail-view-active .tt-gallery-tile,
+body.detail-view-active .tt-gallery-empty {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  border-radius: 12px !important;
+  background: #e8eef5 !important;
+}
+body.detail-view-active .tt-gallery-main img,
+body.detail-view-active .tt-gallery-tile img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  background: #e8eef5 !important;
+}
+body.detail-view-active .tt-photo-caption {
+  margin: 6px 0 14px !important;
+}
+@media (max-width: 760px) {
+  body.detail-view-active .tt-photo-gallery {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 8px !important;
+    margin-top: 12px !important;
+  }
+  body.detail-view-active .tt-gallery-main {
+    height: clamp(230px, 62vw, 360px) !important;
+  }
+  body.detail-view-active .tt-gallery-side {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: minmax(100px, 132px) !important;
+    grid-auto-rows: minmax(100px, 132px) !important;
+  }
 }
 </style>
 
