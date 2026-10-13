@@ -1034,6 +1034,54 @@ body { color: var(--ink); background: #f4f7fb; }
   .community-cta { margin:22px 18px 30px; padding:22px; align-items:flex-start; flex-direction:column; border-radius:16px; }
 }
 
+
+/* Added budget discovery filters and horizontal recommendation carousel.
+   Existing TravelTaste sections and functionality remain in place. */
+.budget-planner{max-width:1192px;margin:0 auto 22px;padding:16px 18px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;border:1px solid #dceaf4;border-radius:16px;background:linear-gradient(105deg,#eef7fc,#f7fbff);box-shadow:0 5px 18px rgba(30,65,90,.035)}
+.budget-intro{display:flex;align-items:center;gap:12px;min-width:210px;flex:1}
+.budget-icon{width:48px;height:48px;flex:0 0 48px;border-radius:50%;display:grid;place-items:center;background:#fff0e4;font-size:24px}
+.budget-intro strong{display:block;font-size:17px;color:#14243a}
+.budget-intro small{display:block;margin-top:4px;color:#61738a;font-size:13px;line-height:1.4}
+.budget-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.budget-chip{border:1px solid #dce5ee;border-radius:999px;padding:10px 13px;background:#fff;color:#263a51;font-size:12px;font-weight:700;white-space:nowrap}
+.budget-chip:hover{border-color:#f05a24}
+.budget-chip.active{background:#f05a24;border-color:#f05a24;color:#fff}
+.budget-extra{border:1px solid #dce5ee;border-radius:11px;background:#fff;color:#263a51;padding:10px 12px;font-size:12px}
+.budget-note{flex-basis:100%;margin:0 0 0 60px;color:#718096;font-size:11px}
+.recommendation-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px}
+.recommendation-toolbar .results-meta{margin:0}
+.carousel-actions{display:flex;align-items:center;gap:7px}
+.carousel-arrow{width:38px;height:38px;border:1px solid #dfe7ef;border-radius:50%;background:#fff;color:#19314d;font-size:23px;line-height:1;box-shadow:0 4px 12px #17202a0b}
+.carousel-arrow:hover{background:#fff0e8;border-color:#f05a24;color:#d94a13}
+#recommendations #list{display:flex;gap:16px;overflow-x:auto;overflow-y:hidden;padding:2px 2px 14px;scroll-snap-type:x mandatory;scroll-behavior:smooth;overscroll-behavior-x:contain;scrollbar-width:thin;scrollbar-color:#f2b092 #f6eee8}
+#recommendations #list .card{flex:0 0 calc((100% - 48px)/4);min-width:245px;scroll-snap-align:start}
+#recommendations #list .empty{flex:0 0 100%;min-width:0}
+#recommendations #list .card-photo,#recommendations #list .photo-placeholder{height:185px}
+.community-cta{position:relative;overflow:hidden}
+.community-cta-copy{position:relative;z-index:1;max-width:560px}
+.community-cta-gallery{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:8px;width:min(48%,560px);align-self:stretch;min-height:170px}
+.community-cta-gallery img{width:100%;height:100%;min-height:150px;object-fit:cover;border-radius:12px}
+.community-cta-gallery img:first-child{grid-row:span 2}
+@media(max-width:900px){
+ .budget-planner{margin-left:24px;margin-right:24px}
+ #recommendations #list .card{flex-basis:calc((100% - 16px)/2)}
+ .community-cta-gallery{width:100%;min-height:130px}
+}
+@media(max-width:640px){
+ .budget-planner{margin:0 18px 18px;padding:14px;gap:12px}
+ .budget-intro{min-width:100%}
+ .budget-controls{width:100%;gap:7px}
+ .budget-chip{flex:1 1 calc(50% - 7px);padding:10px 8px}
+ .budget-extra{flex:1;min-width:0}
+ .budget-note{margin:0;line-height:1.4}
+ .recommendation-toolbar{align-items:flex-start}
+ .carousel-arrow{width:34px;height:34px}
+ #recommendations #list .card{flex:0 0 min(82vw,330px)}
+ #recommendations #list .card-photo,#recommendations #list .photo-placeholder{height:175px}
+ .community-cta-gallery{grid-template-columns:repeat(3,minmax(0,1fr));min-height:105px}
+ .community-cta-gallery img{min-height:105px}
+}
+
 </style>
 </head>
 
@@ -1163,6 +1211,35 @@ body { color: var(--ink); background: #f4f7fb; }
       </div>
     </div>
 
+    <div class="budget-planner" id="budgetPlanner" aria-label="Filter recommendations by budget">
+      <div class="budget-intro">
+        <span class="budget-icon" aria-hidden="true">👛</span>
+        <span><strong>Plan by budget</strong><small>Find amazing places that fit your budget.</small></span>
+      </div>
+      <div class="budget-controls" role="group" aria-label="Budget range">
+        <button type="button" class="budget-chip active" data-budget="all" aria-pressed="true">✨ All budgets</button>
+        <button type="button" class="budget-chip" data-budget="500" aria-pressed="false">Under ₹500</button>
+        <button type="button" class="budget-chip" data-budget="1500" aria-pressed="false">₹500–₹1,500</button>
+        <button type="button" class="budget-chip" data-budget="3000" aria-pressed="false">₹1,500–₹3,000</button>
+        <button type="button" class="budget-chip" data-budget="3001" aria-pressed="false">₹3,000+</button>
+      </div>
+      <label class="budget-extra">Cost
+        <select id="budgetBasis" aria-label="Cost basis" style="border:0;background:transparent;color:inherit;font:inherit">
+          <option value="person">Per person</option>
+          <option value="group">Total group budget</option>
+        </select>
+      </label>
+      <label class="budget-extra">Trip
+        <select id="tripDuration" aria-label="Trip duration" style="border:0;background:transparent;color:inherit;font:inherit">
+          <option value="any">Any duration</option>
+          <option value="short">Quick visit (under 2 hours)</option>
+          <option value="half">Half day (2–5 hours)</option>
+          <option value="day">Full day (5+ hours)</option>
+        </select>
+      </label>
+      <p class="budget-note" id="budgetNote">Budget filtering uses published price details. Places without a price may be hidden when a budget is selected.</p>
+    </div>
+
     <div class="categories" id="categories">
       <button class="category active" data-category="all">✨ All</button>
       <button class="category" data-category="place">📍 Places</button>
@@ -1172,8 +1249,14 @@ body { color: var(--ink); background: #f4f7fb; }
       <button class="category" data-category="hidden_gem">💎 Hidden Gems</button>
     </div>
 
-    <div class="results-meta" id="resultsMeta">Select a destination to begin.</div>
-    <div class="grid" id="list">
+    <div class="recommendation-toolbar">
+      <div class="results-meta" id="resultsMeta">Select a destination to begin.</div>
+      <div class="carousel-actions" aria-label="Browse recommendations">
+        <button type="button" class="carousel-arrow" id="recommendationsPrev" aria-label="Previous recommendations" title="Previous places">‹</button>
+        <button type="button" class="carousel-arrow" id="recommendationsNext" aria-label="Next recommendations" title="Next places">›</button>
+      </div>
+    </div>
+    <div class="grid" id="list" aria-label="Scrollable recommendations">
       <div class="empty">Choose a destination above, then tap Explore to discover recommendations.</div>
     </div>
   </section>
@@ -1308,6 +1391,11 @@ body { color: var(--ink); background: #f4f7fb; }
     <p>Know a place others should visit? Share it with the community.</p>
   </div>
   <button type="button" class="suggest-place-hero-button" id="openSuggestPlaceHeroButton"><span aria-hidden="true">＋</span> Suggest a Place</button>
+  <div class="community-cta-gallery" aria-label="Travel inspiration photos">
+    <img src="https://images.unsplash.com/photo-1606293926075-69a00db06b3b?auto=format&fit=crop&w=700&q=85" alt="Historic Indian architecture" loading="lazy">
+    <img src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=500&q=80" alt="City skyline at sunset" loading="lazy">
+    <img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=500&q=80" alt="Indian cuisine" loading="lazy">
+  </div>
 </section>
 
 </main>
@@ -1432,6 +1520,9 @@ let listings = [];
 let selectedCity = null;
 let selectedStyle = 'all';
 let selectedCategory = 'all';
+let selectedBudget = 'all';
+let selectedBudgetBasis = 'person';
+let selectedTripDuration = 'any';
 let currentUser = null;
 let feedMode = 'community';
 
@@ -3193,6 +3284,51 @@ $('backToRecommendations').addEventListener('click', () => {
 
 
  
+  function getListingPrice(item) {
+    // Extract an explicit rupee amount from the published price range only.
+    const raw = String(item.price_range || '').replace(/,/g, '');
+    const values = [...raw.matchAll(/(?:₹|rs\.?|inr)?\s*(\d+(?:\.\d+)?)/ig)]
+      .map(match => Number(match[1]))
+      .filter(value => Number.isFinite(value) && value >= 0);
+    if (!values.length) return null;
+    // A range such as "₹500 - ₹1,500" is represented by its upper bound,
+    // so a destination is shown only when its stated maximum fits the budget.
+    return Math.max(...values);
+  }
+
+  function getDurationGroup(item) {
+    const text = [
+      item.duration, item.visit_duration, item.travel_tips, item.description
+    ].filter(Boolean).join(' ').toLowerCase();
+    const match = text.match(/(\d+(?:\.\d+)?)\s*(minutes?|mins?|hours?|hrs?)/i);
+    if (!match) return 'unknown';
+    const amount = Number(match[1]);
+    const unit = match[2].toLowerCase();
+    const hours = unit.startsWith('m') ? amount / 60 : amount;
+    if (hours < 2) return 'short';
+    if (hours < 5) return 'half';
+    return 'day';
+  }
+
+  function matchesBudget(item) {
+    if (selectedBudget === 'all') return true;
+    const price = getListingPrice(item);
+    if (price == null) return false;
+    if (selectedBudgetBasis === 'group') {
+      const groupSize = 4; // Conservative default for a group-budget estimate.
+      const perPersonPrice = price;
+      const totalEstimate = perPersonPrice * groupSize;
+      if (selectedBudget === '500') return totalEstimate < 500;
+      if (selectedBudget === '1500') return totalEstimate >= 500 && totalEstimate <= 1500;
+      if (selectedBudget === '3000') return totalEstimate > 1500 && totalEstimate <= 3000;
+      return totalEstimate > 3000;
+    }
+    if (selectedBudget === '500') return price < 500;
+    if (selectedBudget === '1500') return price >= 500 && price <= 1500;
+    if (selectedBudget === '3000') return price > 1500 && price <= 3000;
+    return price > 3000;
+  }
+
   function renderListings() {
   let items = listings.filter(item =>
     selectedCategory === 'all' || item.type === selectedCategory
@@ -3204,6 +3340,13 @@ $('backToRecommendations').addEventListener('click', () => {
   // In that case, keep the category results visible and explain the limitation.
   const hasStyleMatches = selectedStyle === 'all' || styleFiltered.length > 0;
   if (selectedStyle !== 'all' && hasStyleMatches) items = styleFiltered;
+
+  if (selectedBudget !== 'all') {
+    items = items.filter(matchesBudget);
+  }
+  if (selectedTripDuration !== 'any') {
+    items = items.filter(item => getDurationGroup(item) === selectedTripDuration);
+  }
 
   const searchQuery = (globalSearchInput?.value || '').trim().toLocaleLowerCase();
   if (searchQuery) {
@@ -3231,9 +3374,13 @@ $('backToRecommendations').addEventListener('click', () => {
       `Discover ${styleNames[selectedStyle].toLowerCase()} ideas in ${selectedCity.name}.`;
   }
 
-  $('resultsMeta').textContent = searchQuery
+  const activeFilters = [];
+  if (selectedBudget !== 'all') activeFilters.push(document.querySelector(`[data-budget="${selectedBudget}"]`)?.textContent.trim() || 'Budget');
+  if (selectedTripDuration !== 'any') activeFilters.push($('tripDuration').selectedOptions[0]?.textContent || 'Trip duration');
+  $('resultsMeta').textContent = (searchQuery
     ? `${items.length} result${items.length === 1 ? '' : 's'} matching “${escapeHtml(searchQuery)}”`
-    : `${items.length} recommendation${items.length === 1 ? '' : 's'}`;
+    : `${items.length} recommendation${items.length === 1 ? '' : 's'}`) +
+    (activeFilters.length ? ` · ${activeFilters.join(' · ')}` : '');
 
   if (!items.length) {
     const searchQuery = (globalSearchInput?.value || '').trim();
@@ -3384,6 +3531,45 @@ document.querySelectorAll('.style-card').forEach(button => {
     renderListings();
     $('recommendations').scrollIntoView({behavior:'smooth'});
   });
+});
+
+document.querySelectorAll('.budget-chip').forEach(button => {
+  button.addEventListener('click', () => {
+    selectedBudget = button.dataset.budget;
+    document.querySelectorAll('.budget-chip').forEach(chip => {
+      const active = chip === button;
+      chip.classList.toggle('active', active);
+      chip.setAttribute('aria-pressed', String(active));
+    });
+    $('budgetNote').textContent = selectedBudget === 'all'
+      ? 'Showing all price ranges. Budget filtering uses published price details.'
+      : selectedBudgetBasis === 'group'
+        ? 'Group budget estimates assume 4 travellers and use each listing’s published price.'
+        : 'Only recommendations with published prices in this range are shown.';
+    renderListings();
+  });
+});
+
+$('budgetBasis').addEventListener('change', event => {
+  selectedBudgetBasis = event.target.value;
+  $('budgetNote').textContent = selectedBudgetBasis === 'group'
+    ? 'Group budget estimates assume 4 travellers and use each listing’s published price.'
+    : 'Budget filtering uses each listing’s published price details.';
+  renderListings();
+});
+
+$('tripDuration').addEventListener('change', event => {
+  selectedTripDuration = event.target.value;
+  renderListings();
+});
+
+$('recommendationsNext').addEventListener('click', () => {
+  const list = $('list');
+  list.scrollBy({ left: Math.max(280, list.clientWidth * 0.8), behavior: 'smooth' });
+});
+$('recommendationsPrev').addEventListener('click', () => {
+  const list = $('list');
+  list.scrollBy({ left: -Math.max(280, list.clientWidth * 0.8), behavior: 'smooth' });
 });
 
 document.querySelectorAll('.category').forEach(button => {
