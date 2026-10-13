@@ -2587,6 +2587,70 @@ let feedMode = 'community';
 
 const $ = id => document.getElementById(id);
 
+// Keep Explore state in the URL so refreshes and direct links restore the same view.
+function syncTravelTasteUrlState({ replace = true, placeId = undefined } = {}) {
+  try {
+    const url = new URL(window.location.href);
+    const put = (key, value, defaultValue = '') => {
+      if (value !== undefined && value !== null && String(value) !== '' && String(value) !== String(defaultValue)) {
+        url.searchParams.set(key, String(value));
+      } else {
+        url.searchParams.delete(key);
+      }
+    };
+    put('city', selectedCity?.id || '', '');
+    put('q', globalSearchInput?.value?.trim() || '', '');
+    put('category', selectedCategory, 'all');
+    put('style', selectedStyle, 'all');
+    put('budget', selectedBudget, 'all');
+    put('basis', selectedBudgetBasis, 'person');
+    put('groupSize', selectedGroupSize, 4);
+    put('duration', selectedTripDuration, 'any');
+    if (placeId !== undefined) {
+      if (placeId !== null && String(placeId) !== '') url.searchParams.set('place', String(placeId));
+      else url.searchParams.delete('place');
+    }
+    if (replace) history.replaceState({ ...(history.state || {}), travelTaste: true }, '', url);
+    else history.pushState({ ...(history.state || {}), travelTaste: true }, '', url);
+  } catch (error) {
+    console.warn('Could not save Explore state to URL:', error);
+  }
+}
+
+function restoreTravelTasteControlsFromUrl() {
+  const params = new URL(window.location.href).searchParams;
+  selectedCategory = params.get('category') || 'all';
+  selectedStyle = params.get('style') || 'all';
+  selectedBudget = params.get('budget') || 'all';
+  selectedBudgetBasis = params.get('basis') || 'person';
+  selectedGroupSize = Number(params.get('groupSize')) || 4;
+  selectedTripDuration = params.get('duration') || 'any';
+  if (globalSearchInput) globalSearchInput.value = params.get('q') || '';
+  if (typeof clearGlobalSearch !== 'undefined' && clearGlobalSearch) {
+    clearGlobalSearch.hidden = !String(params.get('q') || '').trim();
+  }
+  if ($('budgetBasis')) $('budgetBasis').value = selectedBudgetBasis;
+  if ($('budgetGroupSize')) $('budgetGroupSize').value = String(selectedGroupSize);
+  if ($('tripDuration')) $('tripDuration').value = selectedTripDuration;
+  document.querySelectorAll('.category').forEach(button => {
+    const active = button.dataset.category === selectedCategory;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+  document.querySelectorAll('.style-card').forEach(button => {
+    const active = button.dataset.style === selectedStyle;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+  document.querySelectorAll('.budget-chip').forEach(button => {
+    const active = button.dataset.budget === selectedBudget;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+  if (typeof updateBudgetControls === 'function') updateBudgetControls();
+}
+
+
 // Community section navigation: switch views without leaving index.html.
 function setPageView(page, { updateUrl = true, scroll = true } = {}) {
   const showCommunity = page === 'community';
@@ -2813,6 +2877,7 @@ const clearGlobalSearch = $('clearGlobalSearch');
 function runGlobalSearch() {
   const query = globalSearchInput.value.trim().toLocaleLowerCase();
   clearGlobalSearch.hidden = !query;
+  syncTravelTasteUrlState({ replace: true });
 
   if ($('communityPage') && !$('communityPage').hidden) {
     if (friendSearchInput) {
@@ -2844,6 +2909,7 @@ globalSearchInput.addEventListener('keydown', async event => {
     globalSearchInput.value = '';
     clearGlobalSearch.hidden = true;
     await loadDestination(matchingCity.id);
+    syncTravelTasteUrlState({ replace: true });
     setPageView('places', { scroll: false });
     setActiveSiteNav('places');
     $('recommendations').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -3844,9 +3910,27 @@ function readPageFromUrl() {
   if (requested === 'community') setPageView('community', { updateUrl: false, scroll: false });
   else setPageView('home', { updateUrl: false, scroll: false });
 }
-window.addEventListener('popstate', () => {
-  const requested = new URL(window.location.href).searchParams.get('page');
-  setPageView(requested === 'community' ? 'community' : 'home', { updateUrl: false, scroll: true });
+window.addEventListener('popstate', async () => {
+  const params = new URL(window.location.href).searchParams;
+  const requestedPlaceId = params.get('place');
+  const requestedPage = params.get('page');
+  if (requestedPlaceId) {
+    let place = (listings || []).find(item => String(item.id) === String(requestedPlaceId));
+    if (place && typeof window.openListingDetails === 'function') {
+      await window.openListingDetails(requestedPlaceId, { fromHistory: true });
+    } else if (typeof start === 'function') {
+      await start();
+    }
+    return;
+  }
+  if (typeof travelTasteDetailOpen !== 'undefined' && travelTasteDetailOpen) {
+    returnToRecommendations({ updateUrl: false });
+  }
+  setPageView(requestedPage === 'community' ? 'community' : 'home', { updateUrl: false, scroll: false });
+  if (requestedPage !== 'community') {
+    restoreTravelTasteControlsFromUrl();
+    if (selectedCity) renderListings();
+  }
 });
 readPageFromUrl();
 
@@ -3923,15 +4007,21 @@ async function start() {
 
   renderCitySuggestions('');
 
-  // Automatically select Ahmedabad when it exists.
+  const initialParams = new URL(window.location.href).searchParams;
+  const requestedCityId = initialParams.get('city');
+  const requestedCity = requestedCityId
+    ? cities.find(city => String(city.id) === String(requestedCityId))
+    : null;
   const ahmedabad = cities.find(city =>
     String(city.name).trim().toLowerCase() === 'ahmedabad'
   );
-
-  if (ahmedabad) {
-    $('citySearch').value = ahmedabad.name + (ahmedabad.state ? ', ' + ahmedabad.state : '');
-    await loadDestination(ahmedabad.id);
+  const initialCity = requestedCity || ahmedabad;
+  if (initialCity) {
+    $('citySearch').value = cityLabel(initialCity);
+    await loadDestination(initialCity.id);
   }
+  restoreTravelTasteControlsFromUrl();
+  if (selectedCity) { renderListings(); syncTravelTasteUrlState({ replace: true }); }
 
   const requestedPlaceId = new URL(window.location.href).searchParams.get('place');
   if (requestedPlaceId) {
@@ -4003,6 +4093,7 @@ async function loadDestination(cityId) {
   }
   if (typeof updateBudgetControls === 'function') updateBudgetControls();
   renderListings();
+  syncTravelTasteUrlState({ replace: true });
 }
 
 function styleMatches(item) {
@@ -4569,29 +4660,25 @@ window.openListingDetails = openListingDetails;
 
 let travelTasteDetailOpen = false;
 
-function returnToRecommendations() {
+function returnToRecommendations({ updateUrl = true } = {}) {
   document.body.classList.remove('detail-view-active');
   $('locationDetails').hidden = true;
   $('discover').hidden = false;
   $('recommendations').hidden = false;
   $('recommendations').scrollIntoView({ behavior: 'smooth' });
   travelTasteDetailOpen = false;
+  if (updateUrl) syncTravelTasteUrlState({ replace: true, placeId: null });
 }
 
-window.openListingDetails = async function(listingId) {
-  if (!travelTasteDetailOpen) {
-    history.pushState({ travelTasteDetail: true }, '');
-    travelTasteDetailOpen = true;
+window.openListingDetails = async function(listingId, { fromHistory = false } = {}) {
+  if (!travelTasteDetailOpen && !fromHistory) {
+    syncTravelTasteUrlState({ replace: false, placeId: listingId });
+  } else if (fromHistory) {
+    syncTravelTasteUrlState({ replace: true, placeId: listingId });
   }
-
+  travelTasteDetailOpen = true;
   await openListingDetails(listingId);
 };
-
-window.addEventListener('popstate', () => {
-  if (travelTasteDetailOpen) {
-    returnToRecommendations();
-  }
-});
 
 
  
@@ -4993,6 +5080,7 @@ document.querySelectorAll('.style-card').forEach(button => {
     });
 
     renderListings();
+    syncTravelTasteUrlState({ replace: true });
     $('recommendations').scrollIntoView({behavior:'smooth'});
   });
 });
@@ -5042,6 +5130,7 @@ document.querySelectorAll('.budget-chip').forEach(button => {
     });
     updateBudgetControls();
     renderListings();
+    syncTravelTasteUrlState({ replace: true });
   });
 });
 
@@ -5049,6 +5138,7 @@ $('budgetBasis').addEventListener('change', event => {
   selectedBudgetBasis = event.target.value;
   updateBudgetControls();
   renderListings();
+  syncTravelTasteUrlState({ replace: true });
 });
 
 if ($('budgetGroupSize')) {
@@ -5056,6 +5146,7 @@ if ($('budgetGroupSize')) {
     selectedGroupSize = Number(event.target.value) || 4;
     updateBudgetControls();
     renderListings();
+    syncTravelTasteUrlState({ replace: true });
   });
 }
 
@@ -5063,6 +5154,7 @@ $('tripDuration').addEventListener('change', event => {
   selectedTripDuration = event.target.value;
   updateBudgetControls();
   renderListings();
+  syncTravelTasteUrlState({ replace: true });
 });
 
 $('recommendationsNext').addEventListener('click', () => {
@@ -5085,6 +5177,7 @@ document.querySelectorAll('.category').forEach(button => {
     });
 
     renderListings();
+    syncTravelTasteUrlState({ replace: true });
   });
 });
 
