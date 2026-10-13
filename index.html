@@ -1412,6 +1412,71 @@ body:not(.community-active) .community-cta-gallery img:nth-child(5) { display: n
   }
 }
 
+
+/* Places menu + Festival & Seasonal drawer. Additive styles; existing page styles remain intact. */
+#placesMenuWrap{position:relative;display:flex;align-items:stretch}
+#placesMenu{position:absolute;top:calc(100% + 12px);left:0;z-index:1200;width:230px;padding:8px;background:#fff;border:1px solid #f0e3da;border-radius:14px;box-shadow:0 14px 36px rgba(25,35,50,.16)}
+#placesMenu[hidden]{display:none}
+#placesMenu button{display:flex;align-items:center;gap:10px;width:100%;padding:12px;border:0;border-radius:9px;background:transparent;color:#172b46;text-align:left;font:inherit;font-size:13px;font-weight:650;cursor:pointer}
+#placesMenu button:hover,#placesMenu button:focus-visible{background:#fff1e9;color:#d94a13;outline:none}
+#seasonalDrawerBackdrop{position:fixed;inset:0;z-index:2500;background:rgba(17,29,45,.48);opacity:1;transition:opacity .2s}
+#seasonalDrawerBackdrop[hidden]{display:none}
+#seasonalDrawer{position:fixed;z-index:2501;right:0;top:0;height:100dvh;width:min(650px,94vw);background:#fffaf5;box-shadow:-18px 0 50px rgba(18,30,45,.22);transform:translateX(0);display:flex;flex-direction:column;overflow:hidden}
+#seasonalDrawer[hidden]{display:none}
+.seasonal-drawer-head{display:flex;align-items:flex-start;gap:12px;padding:20px 22px 14px;border-bottom:1px solid #f0e5dc}
+.seasonal-head-icon{flex:0 0 46px;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:#fff0e9;color:#ef5725;font-size:23px}
+.seasonal-head-copy{flex:1;min-width:0}
+.seasonal-head-copy h2{margin:0 0 5px;color:#172b46;font-size:22px;line-height:1.2;letter-spacing:-.5px}
+.seasonal-head-copy p{margin:0;color:#64748b;font-size:13px;line-height:1.45}
+#closeSeasonalDrawer{border:0;background:transparent;color:#172b46;font-size:27px;line-height:1;cursor:pointer;padding:2px 4px}
+.seasonal-drawer-content{overflow:auto;padding:16px 22px 24px;overscroll-behavior:contain}
+.seasonal-search-wrap{display:flex;align-items:center;gap:9px;padding:0 12px;background:#fff;border:1px solid #e7e8eb;border-radius:12px;min-height:48px;box-shadow:0 2px 8px rgba(20,35,55,.03)}
+.seasonal-search-wrap span{font-size:18px;color:#ef5725}
+#seasonalDestinationSearch{width:100%;min-width:0;border:0;outline:0;background:transparent;color:#172b46;font:inherit;font-size:14px}
+.seasonal-search-hint{margin:7px 0 16px;color:#8993a2;font-size:11px}
+.seasonal-label{display:block;margin:14px 0 9px;color:#172b46;font-weight:800;font-size:14px}
+#seasonalMonthGrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}
+.seasonal-month-button{border:1px solid #e7e8eb;background:#fff;color:#334155;border-radius:9px;min-height:35px;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.seasonal-month-button[aria-pressed="true"]{background:#f4511e;border-color:#f4511e;color:#fff;box-shadow:0 3px 8px rgba(244,81,30,.2)}
+.seasonal-month-button:focus-visible,.seasonal-tab:focus-visible{outline:2px solid #172b46;outline-offset:2px}
+.seasonal-month-hero{margin:17px 0 13px;min-height:124px;position:relative;overflow:hidden;display:flex;align-items:flex-end;border-radius:13px;background:linear-gradient(90deg,rgba(16,44,77,.88),rgba(16,44,77,.12)),url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80') center 47%/cover}
+.seasonal-month-hero-copy{padding:17px;color:white;max-width:90%}
+.seasonal-month-hero h3{margin:0 0 5px;font-size:20px;line-height:1.2}
+.seasonal-month-hero p{margin:0;font-size:12px;line-height:1.45}
+#seasonalTabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:13px 0 20px}
+.seasonal-tab{min-height:39px;border:1px solid #eee3db;background:#fff;color:#334155;border-radius:10px;padding:7px 5px;font:inherit;font-size:11px;font-weight:750;cursor:pointer}
+.seasonal-tab[aria-pressed="true"]{background:#fff0e8;border-color:#ffc9b3;color:#d94a13}
+.seasonal-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:15px 0 10px}
+.seasonal-section-head h3{margin:0;color:#172b46;font-size:17px;letter-spacing:-.25px}
+.seasonal-section-head span{color:#788497;font-size:11px}
+#seasonalResults{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.seasonal-result-card{min-width:0;overflow:hidden;border:1px solid #eee4dc;border-radius:12px;background:#fff;box-shadow:0 4px 13px rgba(23,43,70,.045)}
+.seasonal-result-card img{display:block;width:100%;height:112px;object-fit:cover;background:#f5eee8}
+.seasonal-result-body{padding:11px}
+.seasonal-result-type{display:inline-block;margin-bottom:5px;padding:4px 7px;border-radius:99px;background:#fff0e8;color:#b84a25;font-size:10px;font-weight:800}
+.seasonal-result-body h4{margin:0 0 5px;color:#172b46;font-size:14px;line-height:1.3}
+.seasonal-result-body p{margin:0 0 8px;color:#64748b;font-size:12px;line-height:1.45}
+.seasonal-best-time{display:block;color:#b84a25;font-size:11px;font-weight:750;line-height:1.4}
+.seasonal-empty{grid-column:1/-1;padding:22px;border:1px dashed #e6d8ce;border-radius:12px;text-align:center;color:#64748b;background:#fff}
+#seasonalTipsBox{margin-top:17px;padding:14px;border:1px solid #f4dfc9;border-radius:12px;background:#fff8ed}
+#seasonalTipsBox h3{margin:0 0 7px;color:#172b46;font-size:14px}
+#seasonalTipsBox ul{margin:0;padding-left:18px;color:#64748b;font-size:12px;line-height:1.6}
+#seasonalDataNote{margin:12px 0 0;color:#8b929e;font-size:10px;line-height:1.5}
+body.seasonal-drawer-open{overflow:hidden}
+@media(max-width:520px){
+  #placesMenu{left:auto;right:-55px;width:220px}
+  .seasonal-drawer-head{padding:15px 15px 12px}
+  .seasonal-drawer-content{padding:13px 15px 20px}
+  .seasonal-head-copy h2{font-size:19px}
+  #seasonalMonthGrid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  #seasonalTabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #seasonalResults{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .seasonal-result-card img{height:90px}
+  .seasonal-result-body{padding:9px}
+  .seasonal-result-body h4{font-size:12px}
+  .seasonal-result-body p{font-size:11px}
+}
+
 </style>
 </head>
 
@@ -1420,7 +1485,13 @@ body:not(.community-active) .community-cta-gallery img:nth-child(5) { display: n
   <a class="logo" href="#top" id="brandHome" aria-label="TravelTaste home"><span class="brand-pin">●</span>TravelTaste</a>
   <div class="site-nav-links">
     <button type="button" class="site-nav-link active" data-site-nav="home" id="homeNavButton">Home</button>
-    <button type="button" class="site-nav-link" data-site-nav="places" id="placesNavButton">Places</button>
+    <div id="placesMenuWrap">
+      <button type="button" class="site-nav-link" data-site-nav="places" id="placesNavButton" aria-haspopup="true" aria-expanded="false">Places</button>
+      <div id="placesMenu" role="menu" hidden>
+        <button type="button" id="explorePlacesMenuItem" role="menuitem"><span aria-hidden="true">📍</span> Explore Places</button>
+        <button type="button" id="festivalSeasonalMenuItem" role="menuitem"><span aria-hidden="true">🗓️</span> Festival &amp; Seasonal</button>
+      </div>
+    </div>
     <button type="button" class="site-nav-link" data-site-nav="food" id="foodNavButton">Food</button>
     <button type="button" class="site-nav-link" data-site-nav="sports" id="sportsNavButton">Sports</button>
     <button type="button" class="site-nav-link" data-site-nav="community" id="communityNavButton">Community</button>
@@ -4488,6 +4559,206 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
     img.setAttribute('aria-hidden', 'true');
   }, { once: true });
 });
+</script>
+
+
+<div id="seasonalDrawerBackdrop" hidden></div>
+<aside id="seasonalDrawer" role="dialog" aria-modal="true" aria-labelledby="seasonalDrawerTitle" hidden>
+  <div class="seasonal-drawer-head">
+    <div class="seasonal-head-icon" aria-hidden="true">🗓️</div>
+    <div class="seasonal-head-copy">
+      <h2 id="seasonalDrawerTitle">Festival &amp; Seasonal Travel</h2>
+      <p>Find destinations, festivals and the best time to visit based on your chosen month.</p>
+    </div>
+    <button type="button" id="closeSeasonalDrawer" aria-label="Close Festival and Seasonal Travel">×</button>
+  </div>
+  <div class="seasonal-drawer-content">
+    <label class="seasonal-search-wrap" for="seasonalDestinationSearch">
+      <span aria-hidden="true">📍</span>
+      <input id="seasonalDestinationSearch" type="search" placeholder="Search destination, state or country" autocomplete="off">
+      <span aria-hidden="true">⌕</span>
+    </label>
+    <p class="seasonal-search-hint">Try Rajasthan, Shimla, Manali, Kerala, Japan or a festival name.</p>
+    <label class="seasonal-label" for="seasonalMonthGrid">Select travel month</label>
+    <div id="seasonalMonthGrid" aria-label="Select travel month"></div>
+    <section class="seasonal-month-hero" aria-live="polite">
+      <div class="seasonal-month-hero-copy">
+        <h3 id="seasonalHeroTitle">Best places to visit in January</h3>
+        <p id="seasonalHeroDescription">Discover seasonal destinations, festivals and helpful travel tips.</p>
+      </div>
+    </section>
+    <div id="seasonalTabs" role="group" aria-label="Recommendation type">
+      <button class="seasonal-tab" type="button" data-seasonal-tab="places" aria-pressed="true">📍 Recommended Places</button>
+      <button class="seasonal-tab" type="button" data-seasonal-tab="festivals" aria-pressed="false">🗓️ Festivals</button>
+      <button class="seasonal-tab" type="button" data-seasonal-tab="tips" aria-pressed="false">💡 Travel Tips</button>
+      <button class="seasonal-tab" type="button" data-seasonal-tab="weather" aria-pressed="false">☀️ Season Guide</button>
+    </div>
+    <div class="seasonal-section-head">
+      <h3 id="seasonalResultsTitle">Popular destinations in January</h3>
+      <span id="seasonalResultsCount"></span>
+    </div>
+    <div id="seasonalResults" aria-live="polite"></div>
+    <section id="seasonalTipsBox">
+      <h3 id="seasonalTipsTitle">Travel tips for January</h3>
+      <ul id="seasonalTipsList"></ul>
+    </section>
+    <p id="seasonalDataNote">Recommendations are seasonal guides. Festival dates and local conditions can change each year; confirm official dates before booking.</p>
+  </div>
+</aside>
+
+
+<script>
+(() => {
+  const $season = id => document.getElementById(id);
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const monthShort = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const monthProfiles = [
+    {season:'Winter',hero:'Enjoy cool weather, snow trips and cultural festivals.',tips:['Pack warm layers for northern hill stations.','Check festival dates and book popular stays early.','Fog or snow can affect road and flight schedules.']},
+    {season:'Winter',hero:'Explore winter sunshine, desert fairs and hill destinations.',tips:['Carry warm clothes for cold evenings.','Reserve accommodation early for popular fairs.','Confirm event dates with official tourism sources.']},
+    {season:'Spring',hero:'A good month for heritage walks, gardens and many hill trips.',tips:['Plan outdoor sightseeing in the morning.','Carry water and sun protection.','Check local festival calendars before travelling.']},
+    {season:'Summer',hero:'Consider cooler hill stations and high-altitude escapes.',tips:['Choose cooler destinations in the hills.','Carry water, sunscreen and light clothing.','Check heat alerts and local opening hours.']},
+    {season:'Summer',hero:'Explore mountain escapes before the busiest holiday period.',tips:['Book transport and hotels in advance.','Check road and trail conditions.','Keep flexible plans for changing mountain weather.']},
+    {season:'Monsoon',hero:'Green landscapes and seasonal waterfalls, with weather checks.',tips:['Check rainfall and road advisories before departure.','Avoid unsafe riverbanks and flooded trails.','Carry rain protection and suitable footwear.']},
+    {season:'Monsoon',hero:'Monsoon scenery is beautiful; plan around local conditions.',tips:['Check landslide and road advisories in hill areas.','Avoid trekking during heavy rain.','Allow extra time for travel disruptions.']},
+    {season:'Monsoon',hero:'A quieter season for some destinations, depending on rainfall.',tips:['Check local weather and attraction closures.','Pack waterproof bags and quick-drying clothes.','Avoid flood-prone routes during heavy rain.']},
+    {season:'Autumn',hero:'Festival season brings cultural events and lively city breaks.',tips:['Verify festival dates because they shift each year.','Book stays and transport early for major events.','Respect local customs and event guidance.']},
+    {season:'Autumn',hero:'A popular month for cultural travel and comfortable sightseeing.',tips:['Confirm festival schedules before booking.','Expect crowds around major events.','Reserve transport and stays ahead of time.']},
+    {season:'Winter',hero:'Cooler weather returns to many cities and desert regions.',tips:['Carry a light jacket for evenings.','Book desert and festival experiences early.','Check local opening hours on holidays.']},
+    {season:'Winter',hero:'Winter escapes, holiday events and mountain scenery.',tips:['Pack for cold weather in northern destinations.','Check snow and road conditions before driving.','Confirm holiday opening times.']}
+  ];
+  const seasonalItems = [
+    {type:'places',name:'Shimla & Manali',region:'Himachal Pradesh, India',months:[0,1,2,3,4,5,9,10,11],best:'March–June; Dec–Feb for snow',desc:'Mountain views, heritage streets and winter activities.',image:'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=700&q=80',tags:'shimla manali himachal snow mountains winter summer'},
+    {type:'places',name:'Rajasthan',region:'Rajasthan, India',months:[0,1,2,9,10,11],best:'October–March',desc:'Forts, desert landscapes, heritage cities and seasonal fairs.',image:'https://images.unsplash.com/photo-1599661046827-dacff0c0f09a?auto=format&fit=crop&w=700&q=80',tags:'rajasthan jaipur udaipur jodhpur desert palace heritage'},
+    {type:'places',name:'Rann of Kutch',region:'Gujarat, India',months:[0,1,2,10,11],best:'Usually Nov–Feb; check event dates',desc:'White salt desert, local crafts and the Rann Utsav season.',image:'https://images.unsplash.com/photo-1589308078059-be1415eab4c3?auto=format&fit=crop&w=700&q=80',tags:'rann kutch gujarat white desert rann utsav'},
+    {type:'places',name:'Kerala',region:'Kerala, India',months:[0,1,2,9,10,11],best:'October–March for many classic trips',desc:'Backwaters, coastal towns, tea country and lush scenery.',image:'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=700&q=80',tags:'kerala backwaters munnar alleppey beach'},
+    {type:'places',name:'Jaipur',region:'Rajasthan, India',months:[0,1,2,9,10,11],best:'October–March',desc:'Historic forts, palaces, markets and local food.',image:'https://images.unsplash.com/photo-1603262110263-fb0112e7cc33?auto=format&fit=crop&w=700&q=80',tags:'jaipur rajasthan pink city forts palace'},
+    {type:'places',name:'Sikkim & Darjeeling',region:'Northeast India',months:[2,3,4,9,10],best:'March–May; October–November',desc:'Mountain views, tea gardens and scenic routes.',image:'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=700&q=80',tags:'sikkim darjeeling mountains tea northeast'},
+    {type:'places',name:'Goa',region:'Goa, India',months:[0,1,2,10,11],best:'November–February',desc:'Beaches, Portuguese heritage and seasonal celebrations.',image:'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=700&q=80',tags:'goa beach coastal carnival'},
+    {type:'places',name:'Meghalaya',region:'Meghalaya, India',months:[2,3,9,10,11],best:'October–April for many outdoor trips',desc:'Waterfalls, living-root bridges and green hill scenery.',image:'https://images.unsplash.com/photo-1622308644420-b20142dc993c?auto=format&fit=crop&w=700&q=80',tags:'meghalaya shillong cherrapunji waterfalls'},
+    {type:'festivals',name:'Makar Sankranti',region:'Across India',months:[0],best:'Usually 14 January; confirm annually',desc:'Kite flying and regional harvest celebrations, especially vibrant in Gujarat.',image:'https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?auto=format&fit=crop&w=700&q=80',tags:'makar sankranti kite festival gujarat uttarayan'},
+    {type:'festivals',name:'Rann Utsav',region:'Kutch, Gujarat',months:[0,1,10,11],best:'Season varies; commonly Nov–Feb',desc:'A seasonal celebration of Kutch crafts, music, food and the white desert.',image:'https://images.unsplash.com/photo-1589308078059-be1415eab4c3?auto=format&fit=crop&w=700&q=80',tags:'rann utsav kutch gujarat festival desert'},
+    {type:'festivals',name:'Holi',region:'Across India',months:[1,2],best:'Usually February or March; lunar calendar',desc:'Colourful spring festival with local traditions that vary by region.',image:'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=700&q=80',tags:'holi colour festival spring india'},
+    {type:'festivals',name:'Baisakhi',region:'Punjab, India',months:[3],best:'Usually 13 or 14 April',desc:'Harvest festivities and cultural events in Punjab and nearby regions.',image:'https://images.unsplash.com/photo-1514222134-b57cbb8ce073?auto=format&fit=crop&w=700&q=80',tags:'baisakhi punjab harvest festival april'},
+    {type:'festivals',name:'Onam',region:'Kerala, India',months:[7],best:'Usually August or September; lunar calendar',desc:'Kerala’s harvest festival with cultural events and traditional feasts.',image:'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=700&q=80',tags:'onam kerala boat race harvest festival'},
+    {type:'festivals',name:'Navratri',region:'Gujarat and across India',months:[8,9],best:'Usually September or October; dates vary',desc:'Garba, devotional celebrations and cultural nights, especially in Gujarat.',image:'https://images.unsplash.com/photo-1606293926075-69a00db1454b?auto=format&fit=crop&w=700&q=80',tags:'navratri garba gujarat festival dance'},
+    {type:'festivals',name:'Durga Puja',region:'West Bengal, India',months:[9],best:'Usually September or October; dates vary',desc:'Major cultural and artistic celebrations, especially in Kolkata.',image:'https://images.unsplash.com/photo-1577083288073-40892c0860a4?auto=format&fit=crop&w=700&q=80',tags:'durga puja kolkata west bengal festival'},
+    {type:'festivals',name:'Diwali',region:'Across India',months:[9,10],best:'Usually October or November; lunar calendar',desc:'Festival lights, local markets and regional celebrations across India.',image:'https://images.unsplash.com/photo-1605640840605-14ac1855827b?auto=format&fit=crop&w=700&q=80',tags:'diwali deepavali lights india festival'},
+    {type:'festivals',name:'Jaipur Literature Festival',region:'Jaipur, Rajasthan',months:[0],best:'Often January; confirm current dates',desc:'A major literary gathering with authors, talks and cultural programming.',image:'https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=700&q=80',tags:'jaipur literature festival books rajasthan'},
+    {type:'tips',name:'Plan a winter hill trip',region:'Himachal Pradesh',months:[0,1,11],best:'Winter months; check local snow and road updates',desc:'Reserve stays early, carry layers and keep a flexible travel plan.',image:'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=700&q=80',tags:'winter shimla manali snow tips'},
+    {type:'tips',name:'Plan a festival visit',region:'India',months:[0,1,2,3,4,5,6,7,8,9,10,11],best:'Check official dates before booking',desc:'Check dates, venue details, crowd advice and transport before you go.',image:'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=700&q=80',tags:'festival planning events india tips'},
+    {type:'tips',name:'Travel during monsoon',region:'India',months:[5,6,7,8],best:'June–September, depending on region',desc:'Check weather warnings, avoid flooded routes and pack rain protection.',image:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=700&q=80',tags:'monsoon rain travel safety tips'},
+    {type:'weather',name:'Northern hill stations',region:'Himachal Pradesh and Uttarakhand',months:[0,1,11],best:'Snow conditions vary year to year',desc:'Expect cold weather; check snow, road and attraction updates.',image:'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=700&q=80',tags:'weather snow hill stations himachal uttarakhand'},
+    {type:'weather',name:'Desert and heritage cities',region:'Rajasthan and Gujarat',months:[0,1,2,9,10,11],best:'Cooler months are usually more comfortable',desc:'Plan outdoor sightseeing for cooler hours and stay hydrated.',image:'https://images.unsplash.com/photo-1599661046827-dacff0c0f09a?auto=format&fit=crop&w=700&q=80',tags:'weather desert rajasthan gujarat heritage'},
+    {type:'weather',name:'Western Ghats and Kerala',region:'Southwest India',months:[5,6,7,8,9,10,11],best:'Depends on rainfall and activity',desc:'Rain can affect trails, roads and boat trips; check local advisories.',image:'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=700&q=80',tags:'weather kerala monsoon western ghats rain'}
+  ];
+  let selectedMonth = new Date().getMonth();
+  let selectedTab = 'places';
+
+  function escSeasonal(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  }
+  function openSeasonalDrawer() {
+    $season('seasonalDrawer').hidden = false;
+    $season('seasonalDrawerBackdrop').hidden = false;
+    document.body.classList.add('seasonal-drawer-open');
+    $season('placesMenu').hidden = true;
+    $season('placesNavButton').setAttribute('aria-expanded','false');
+    renderSeasonal();
+    $season('seasonalDestinationSearch').focus({preventScroll:true});
+  }
+  function closeSeasonalDrawer() {
+    $season('seasonalDrawer').hidden = true;
+    $season('seasonalDrawerBackdrop').hidden = true;
+    document.body.classList.remove('seasonal-drawer-open');
+    $season('festivalSeasonalMenuItem').focus({preventScroll:true});
+  }
+  function itemMatchesSearch(item, query) {
+    if (!query) return true;
+    const haystack = [item.name,item.region,item.desc,item.best,item.tags].join(' ').toLocaleLowerCase();
+    return query.split(/\s+/).filter(Boolean).every(token => haystack.includes(token));
+  }
+  function getSeasonalItems() {
+    const query = $season('seasonalDestinationSearch').value.trim().toLocaleLowerCase();
+    return seasonalItems.filter(item => {
+      const inMonth = item.months.includes(selectedMonth);
+      const matches = itemMatchesSearch(item, query);
+      if (selectedTab === 'places' || selectedTab === 'festivals') return item.type === selectedTab && inMonth && matches;
+      return item.type === selectedTab && inMonth && matches;
+    });
+  }
+  function renderSeasonal() {
+    document.querySelectorAll('.seasonal-month-button').forEach(btn => btn.setAttribute('aria-pressed',String(Number(btn.dataset.month)===selectedMonth)));
+    document.querySelectorAll('.seasonal-tab').forEach(btn => btn.setAttribute('aria-pressed',String(btn.dataset.seasonalTab===selectedTab)));
+    const profile = monthProfiles[selectedMonth];
+    $season('seasonalHeroTitle').textContent = `Best places to visit in ${monthNames[selectedMonth]}`;
+    $season('seasonalHeroDescription').textContent = profile.hero;
+    const labels = {places:'Popular destinations',festivals:'Popular festivals',tips:'Travel tips',weather:'Season guide'};
+    $season('seasonalResultsTitle').textContent = `${labels[selectedTab]} in ${monthNames[selectedMonth]}`;
+    $season('seasonalTipsTitle').textContent = `Travel tips for ${monthNames[selectedMonth]}`;
+    $season('seasonalTipsList').innerHTML = profile.tips.map(t => `<li>${escSeasonal(t)}</li>`).join('');
+    const results = getSeasonalItems();
+    $season('seasonalResultsCount').textContent = `${results.length} ${results.length===1?'result':'results'}`;
+    if (!results.length) {
+      const q = $season('seasonalDestinationSearch').value.trim();
+      $season('seasonalResults').innerHTML = `<div class="seasonal-empty">No ${labels[selectedTab].toLocaleLowerCase()} found for ${escSeasonal(monthNames[selectedMonth])}${q?` matching “${escSeasonal(q)}”`:''}. Try another month or destination.</div>`;
+      return;
+    }
+    $season('seasonalResults').innerHTML = results.map(item => `
+      <article class="seasonal-result-card">
+        <img src="${escSeasonal(item.image)}" alt="${escSeasonal(item.name)}" loading="lazy" onerror="this.style.display='none'">
+        <div class="seasonal-result-body">
+          <span class="seasonal-result-type">${escSeasonal(item.region)}</span>
+          <h4>${escSeasonal(item.name)}</h4>
+          <p>${escSeasonal(item.desc)}</p>
+          <span class="seasonal-best-time">Best time: ${escSeasonal(item.best)}</span>
+        </div>
+      </article>`).join('');
+  }
+  const monthGrid = $season('seasonalMonthGrid');
+  monthGrid.innerHTML = monthNames.map((name,i) => `<button type="button" class="seasonal-month-button" data-month="${i}" aria-pressed="${i===selectedMonth}">${monthShort[i]}</button>`).join('');
+  monthGrid.addEventListener('click', event => {
+    const button = event.target.closest('[data-month]');
+    if (!button) return;
+    selectedMonth = Number(button.dataset.month);
+    renderSeasonal();
+  });
+  $season('placesNavButton').addEventListener('click', event => {
+    event.stopPropagation();
+    const menu = $season('placesMenu');
+    menu.hidden = !menu.hidden;
+    $season('placesNavButton').setAttribute('aria-expanded',String(!menu.hidden));
+  });
+  $season('explorePlacesMenuItem').addEventListener('click', () => {
+    $season('placesMenu').hidden = true;
+    $season('placesNavButton').setAttribute('aria-expanded','false');
+    if (typeof showHomeSection === 'function') showHomeSection('recommendations','places');
+  });
+  $season('festivalSeasonalMenuItem').addEventListener('click', openSeasonalDrawer);
+  $season('closeSeasonalDrawer').addEventListener('click', closeSeasonalDrawer);
+  $season('seasonalDrawerBackdrop').addEventListener('click', closeSeasonalDrawer);
+  $season('seasonalDestinationSearch').addEventListener('input', renderSeasonal);
+  $season('seasonalTabs').addEventListener('click', event => {
+    const button = event.target.closest('[data-seasonal-tab]');
+    if (!button) return;
+    selectedTab = button.dataset.seasonalTab;
+    renderSeasonal();
+  });
+  document.addEventListener('click', event => {
+    if (!$season('placesMenuWrap').contains(event.target)) {
+      $season('placesMenu').hidden = true;
+      $season('placesNavButton').setAttribute('aria-expanded','false');
+    }
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !$season('seasonalDrawer').hidden) closeSeasonalDrawer();
+    else if (event.key === 'Escape' && !$season('placesMenu').hidden) {
+      $season('placesMenu').hidden = true;
+      $season('placesNavButton').setAttribute('aria-expanded','false');
+      $season('placesNavButton').focus();
+    }
+  });
+  renderSeasonal();
+})();
 </script>
 
 </body>
