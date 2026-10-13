@@ -2671,7 +2671,7 @@ $('brandHome').addEventListener('click', event => {
   event.preventDefault();
   showHomeSection('top', 'home');
 });
-$('placesNavButton').addEventListener('click', () => showHomeSection('recommendations', 'places'));
+/* Places button is handled by the dropdown toggle below. */
 $('foodNavButton').addEventListener('click', () => {
   showHomeSection('recommendations', 'food');
   const foodCategory = document.querySelector('[data-category="food"]');
@@ -5834,27 +5834,30 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
 })();
 </script>
 
-</body>
-</html>
 
-/* TravelTaste mobile Places menu visibility fix:
-   the nav links use horizontal overflow on small screens, which can clip the
-   absolutely-positioned Places dropdown. Keep the menu above page content. */
+<style id="travelTastePlacesMobileFix">
+/* Mobile Places menu: render as a viewport-level panel so nav overflow cannot clip it. */
 @media (max-width: 820px) {
-  .site-nav-links { overflow: visible !important; }
-  #placesMenuWrap { position: relative; z-index: 5001; }
-  #placesMenu {
-    z-index: 5002 !important;
-    max-width: calc(100vw - 24px);
-  }
-}
-@media (max-width: 600px) {
+  #placesMenuWrap { position: static !important; }
   #placesMenu {
     position: fixed !important;
-    top: 204px !important;
-    left: 108px !important;
-    right: 12px !important;
+    top: 305px !important;
+    left: 16px !important;
+    right: 16px !important;
     width: auto !important;
-    max-width: 300px;
+    max-width: none !important;
+    z-index: 10000 !important;
+    max-height: min(55vh, 320px);
+    overflow-y: auto;
+    box-shadow: 0 14px 36px rgba(25,35,50,.22);
   }
+  #placesMenu[hidden] { display: none !important; }
+  #placesMenu button { min-height: 48px; font-size: 15px; }
 }
+@media (max-width: 520px) {
+  #placesMenu { top: 305px !important; left: 12px !important; right: 12px !important; }
+}
+</style>
+
+</body>
+</html>
