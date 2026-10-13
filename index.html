@@ -4363,6 +4363,8 @@ const allPhotos = combinedPhotos.length
       const caption = $('detailPhotoCaption');
 
       if (mainPhoto && caption && photo) {
+        // Restore the main image if an earlier image failed to load.
+        mainPhoto.style.display = 'block';
         mainPhoto.src = photo.image_url;
         mainPhoto.alt = photo.caption || item.name;
         caption.textContent = photo.caption || item.name;
@@ -4384,7 +4386,7 @@ if (mainPhoto) {
     mainPhoto.style.display = 'none';
     const caption = $('detailPhotoCaption');
     if (caption) caption.textContent = 'This photo could not be loaded. Try another thumbnail or check the image URL.';
-  }, { once: true });
+  });
 }
 
 detailContent.querySelectorAll('.detail-thumb img').forEach(image => {
