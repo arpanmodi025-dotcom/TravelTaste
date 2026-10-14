@@ -3963,15 +3963,28 @@ supabase.auth.onAuthStateChange((_event, session) => {
   });
 });
 
-await loadCommunityRatingScores();
-const { data: { session } } = await supabase.auth.getSession();
-showAccount(session?.user || null);
-if (session?.user) {
-  await loadSavedListingIds();
-  await ensureCommunityProfile(session.user);
-  await loadFeed();
-  await loadFriendArea();
-}
+// Do not block the first homepage render on community ratings or login checks.
+// Start these secondary tasks in the background so the homepage can appear first.
+void loadCommunityRatingScores().catch(error => {
+  console.warn('Community rating scores could not be loaded yet:', error);
+});
+
+void (async () => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    showAccount(session?.user || null);
+
+    // Community/profile data is only needed after the homepage starts rendering.
+    if (session?.user) {
+      await loadSavedListingIds();
+      await ensureCommunityProfile(session.user);
+      await loadFeed();
+      await loadFriendArea();
+    }
+  } catch (error) {
+    console.warn('Account and community data could not be loaded yet:', error);
+  }
+})();
 
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, char => ({
