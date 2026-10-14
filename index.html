@@ -4404,24 +4404,27 @@ const allPhotos = combinedPhotos.length
       </section>
       <section class="tt-detail-panel" data-detail-panel="budget" role="tabpanel" hidden>
         <section class="tt-detail-card tt-budget-panel">
-          <h2>Visit Budget</h2>
+          <h2><span class="tt-budget-title-icon" aria-hidden="true">💰</span> Visit Budget</h2>
           <p class="tt-visitor-tip">Estimates use real visitor submissions from the last 30 days. No sample amounts are shown as real data.</p>
-          <label class="tt-budget-people-label" for="ttBudgetPeople">Number of people</label>
+          <label class="tt-budget-people-label" for="ttBudgetPeople">👥 Number of people</label>
           <select id="ttBudgetPeople"><option value="1">1 person</option><option value="2" selected>2 people</option><option value="3">3 people</option><option value="4">4 people</option><option value="5">5 people</option><option value="6">6 people</option><option value="8">8 people</option><option value="10">10 people</option></select>
           <div id="ttBudgetSummary" class="tt-budget-summary" aria-live="polite">Loading recent visitor submissions…</div>
-          <h3>Share your actual visit costs</h3>
-          <p>Enter what you paid. Use 0 for a category that did not apply.</p>
-          <form id="ttBudgetForm" class="tt-budget-form">
-            <label>Entry ticket (₹ per person)<input name="entry_ticket_per_person" type="number" min="0" max="1000000" step="0.01" value="0" required></label>
-            <label>Food and beverages (₹ per person)<input name="food_per_person" type="number" min="0" max="1000000" step="0.01" value="0" required></label>
-            <label>Parking (₹ per vehicle)<input name="parking_per_vehicle" type="number" min="0" max="1000000" step="0.01" value="0" required></label>
-            <label>Fuel (₹ total for the trip)<input name="car_fuel_total" type="number" min="0" max="1000000" step="0.01" value="0" required></label>
-            <label>Toll (₹ total for the trip)<input name="car_toll_total" type="number" min="0" max="1000000" step="0.01" value="0" required></label>
-            <label>Number of vehicles<input name="vehicle_count" type="number" min="1" max="20" step="1" value="1" required></label>
-            <label>Notes (optional)<textarea name="notes" maxlength="1000" rows="3" placeholder="Anything visitors should know?"></textarea></label>
-            <button type="submit" class="btn primary">Submit visit costs</button>
-            <p id="ttBudgetMessage" role="status" aria-live="polite"></p>
-          </form>
+          <details class="tt-budget-entry-details">
+            <summary><span aria-hidden="true">✍️</span> Add or update your visit budget</summary>
+            <h3>Share your actual visit costs</h3>
+            <p>Enter what you paid. Your latest submission for this place replaces your previous one.</p>
+            <form id="ttBudgetForm" class="tt-budget-form">
+              <label><span>🎟️ Entry ticket (₹ per person)</span><input name="entry_ticket_per_person" type="number" min="0" max="1000000" step="0.01" value="0" required></label>
+              <label><span>🍽️ Food and beverages (₹ per person)</span><input name="food_per_person" type="number" min="0" max="1000000" step="0.01" value="0" required></label>
+              <label><span>🅿️ Parking (₹ per vehicle)</span><input name="parking_per_vehicle" type="number" min="0" max="1000000" step="0.01" value="0" required></label>
+              <label><span>⛽ Fuel (₹ total for the trip)</span><input name="car_fuel_total" type="number" min="0" max="1000000" step="0.01" value="0" required></label>
+              <label><span>🛣️ Toll (₹ total for the trip)</span><input name="car_toll_total" type="number" min="0" max="1000000" step="0.01" value="0" required></label>
+              <label><span>🚗 Number of vehicles</span><input name="vehicle_count" type="number" min="1" max="20" step="1" value="1" required></label>
+              <label><span>📝 Notes (optional)</span><textarea name="notes" maxlength="1000" rows="3" placeholder="Anything visitors should know?"></textarea></label>
+              <button type="submit" class="btn primary">Save visit budget</button>
+              <p id="ttBudgetMessage" role="status" aria-live="polite"></p>
+            </form>
+          </details>
         </section>
       </section>
       <section class="tt-detail-panel" data-detail-panel="visitor" role="tabpanel" hidden>
@@ -4618,10 +4621,10 @@ const allPhotos = combinedPhotos.length
       }
       button.disabled = true; status.textContent = 'Submitting your visit costs…';
       try {
-        const { error } = await supabase.from('place_budget_submissions').insert(payload);
+        const { error } = await supabase.from('place_budget_submissions').upsert(payload, { onConflict: 'listing_id,user_id' });
         if (error) throw error;
         budgetForm.reset();
-        status.textContent = 'Thank you! Your actual visit costs have been submitted.';
+        status.textContent = 'Your visit budget has been saved. If you had submitted one before for this place, it has been replaced with your latest details.';
         await loadRecentBudgets();
       } catch (error) {
         console.error('Budget submission failed:', error);
@@ -6614,6 +6617,14 @@ body.detail-view-active .tt-photo-caption { margin: 7px 0 14px !important; }
 .tt-detail-panel{min-width:0}
 .tt-detail-panel>.tt-detail-card,.tt-detail-panel .tt-detail-card{margin-bottom:16px}
 .tt-budget-panel h2,.tt-written-reviews h2,.tt-visitor-info-extra h2{margin-top:0}
+.tt-budget-title-icon{display:inline-flex;align-items:center;justify-content:center;margin-right:7px}
+.tt-budget-entry-details{margin-top:18px;border:1px solid #f0d8c9;border-radius:12px;padding:13px 15px;background:#fffaf6}
+.tt-budget-entry-details>summary{cursor:pointer;list-style:none;font-weight:750;color:#a8431d;display:flex;align-items:center;gap:8px}
+.tt-budget-entry-details>summary::-webkit-details-marker{display:none}
+.tt-budget-entry-details>summary::after{content:'＋';margin-left:auto;font-size:20px}
+.tt-budget-entry-details[open]>summary::after{content:'−'}
+.tt-budget-entry-details h3{margin-bottom:6px}
+.tt-budget-form label>span{display:block}
 .tt-budget-people-label{display:block;font-weight:750;margin:14px 0 6px}
 #ttBudgetPeople{max-width:240px;width:100%;padding:10px 12px;border:1px solid #ded6d0;border-radius:10px;background:#fff}
 .tt-budget-summary{margin:18px 0}
