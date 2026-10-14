@@ -1585,13 +1585,13 @@ body.detail-view-active #locationDetails { background:#F1F5F9; }
 .tt-detail-action{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:10px 16px;border:1px solid #e1e8f0;border-radius:11px;background:#fff;color:#183153;font-weight:750;cursor:pointer;text-decoration:none;box-shadow:0 3px 12px rgba(24,49,83,.06)}
 .tt-detail-action:hover{border-color:#ff5a1f;color:#ff5a1f}
 .tt-detail-action[aria-pressed="true"]{color:#ff5a1f;border-color:#ffb59b;background:#fff7f3}
-.tt-detail-highlights{align-items:stretch}
+.tt-quick-info-title{margin:0 0 12px;color:#172d4e;font-size:22px;font-weight:850;letter-spacing:-.25px}.tt-detail-highlights{align-items:stretch}
 .tt-detail-highlight{display:flex;flex-direction:column;justify-content:center;gap:5px}
 .tt-detail-highlight a.tt-directions-button{align-self:stretch;display:flex;align-items:center;justify-content:center;margin:0;padding:12px 14px;background:#ff5a1f;color:#fff;border-radius:10px;font-weight:800;white-space:nowrap}
 .tt-detail-highlight a.tt-directions-button:hover{background:#e94a12;color:#fff}
 .tt-info-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,1fr);gap:14px;align-items:stretch}
 .tt-info-grid .tt-detail-card{margin:0;min-width:0}
-.tt-map-frame{display:block;width:100%;height:260px;min-height:220px;border:0;border-radius:11px;background:#edf2f8;margin:10px 0}
+.tt-map-frame{display:block;width:100%;height:300px;min-height:260px;border:0;border-radius:11px;background:#edf2f8;margin:12px 0}
 .tt-more-places{background:#fff;border:1px solid #e5edf5;border-radius:16px;padding:16px;margin:16px 0 18px;box-shadow:0 4px 18px rgba(23,38,61,.025)}
 .tt-more-places-heading{align-items:center}
 .tt-view-all{border:0;background:transparent;color:#ff5a1f;font-weight:800;cursor:pointer;white-space:nowrap;padding:8px 2px}
@@ -4254,18 +4254,19 @@ const allPhotos = combinedPhotos.length
         <div id="detailPhotoCaption" class="tt-photo-caption">${escapeHtml(allPhotos[0].caption || item.name)}</div>
       ` : '<div class="photo-placeholder">📍 No photo available</div>'}
 
+      <h2 class="tt-quick-info-title">Quick Information</h2>
       <div class="tt-detail-highlights" aria-label="Place highlights">
         <div class="tt-detail-highlight"><small><span class="tt-highlight-icon" aria-hidden="true">🍴</span> Category</small><strong>${escapeHtml(categoryNames[item.type] || item.type || 'Place')}</strong></div>
         <div class="tt-detail-highlight"><small><span class="tt-highlight-icon" aria-hidden="true">💰</span> Estimated cost per person</small><strong>${escapeHtml(item.price_range || (getListingPrice(item) !== null ? '₹' + Math.round(getListingPrice(item)).toLocaleString('en-IN') + ' / person' : 'Not added yet'))}</strong></div>
         <div class="tt-detail-highlight"><small><span class="tt-highlight-icon" aria-hidden="true">⭐</span> Rating</small><strong><button type="button" class="tt-rating-jump" id="detailRatingJump" aria-label="Jump to rate this place">Loading ratings...</button></strong></div>
         <div class="tt-detail-highlight"><small><span class="tt-highlight-icon tt-pin-icon" aria-hidden="true">📍</span> Location</small><strong>${escapeHtml(selectedCity.name || 'Gujarat')}</strong></div>
-        <div class="tt-detail-highlight tt-directions-highlight"><a class="btn primary tt-directions-button" href="${escapeHtml(mapUrl)}" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">🗺️</span> Get Directions</a></div>
+        <div class="tt-detail-highlight tt-directions-highlight"><a class="btn primary tt-directions-button" href="${escapeHtml(mapUrl)}" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">🚗</span> Get Directions</a></div>
       </div>
 
       <div class="tt-info-grid">
         <section class="tt-detail-card tt-about-card">
           <h2><span class="tt-section-icon" aria-hidden="true">▤</span> About this place</h2>
-          <p class="tt-about-description">${escapeHtml(item.description || `${item.name} is listed on TravelTaste in ${selectedCity.name}. Check the Visitor Info tab for the location map and any practical details available for this place.`)}</p>
+          <p class="tt-about-description">${escapeHtml(item.description || `${item.name} is listed on TravelTaste in ${selectedCity.name}. Use the map and directions below to find this place.`)}</p>
           <div class="tt-location-grid" style="margin-top:14px">
             <p>🏷️ <strong>Category:</strong> ${escapeHtml(categoryNames[item.type] || item.type)}</p>
             ${item.phone ? `<p>📞 <strong>Phone:</strong> ${escapeHtml(item.phone)}</p>` : ''}
@@ -4439,12 +4440,12 @@ const allPhotos = combinedPhotos.length
     tabs.insertAdjacentElement('afterend', panels);
 
     const overviewInfo = panels.querySelector('[data-panel-info]');
-    // Quick Information belongs to Overview, not above the tabs where it is easy to miss.
-    const overviewPanel = panels.querySelector('[data-detail-panel="overview"]');
-    if (highlights && overviewPanel) overviewPanel.insertBefore(highlights, overviewInfo);
     if (aboutCard) overviewInfo.appendChild(aboutCard);
     const visitorLocation = panels.querySelector('[data-panel-location]');
-    if (locationCard) visitorLocation.appendChild(locationCard);
+    if (locationCard && overviewInfo) {
+      overviewInfo.appendChild(locationCard);
+      if (visitorLocation) visitorLocation.appendChild(locationCard.cloneNode(true));
+    }
     if (infoGrid) infoGrid.remove();
     if (nearbySection) panels.querySelector('[data-panel-nearby]').appendChild(nearbySection);
     if (ratingCard) panels.querySelector('[data-panel-rating]').appendChild(ratingCard);
