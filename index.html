@@ -4473,7 +4473,10 @@ const allPhotos = combinedPhotos.length
       if (visitorLocation) visitorLocation.appendChild(locationCard.cloneNode(true));
     }
     if (infoGrid) infoGrid.remove();
-    if (nearbySection) panels.querySelector('[data-panel-nearby]').appendChild(nearbySection);
+    // Keep Recommended Places visible in the default Overview tab, directly after
+    // About/Location and before the visitor photo upload section. It must NOT be
+    // placed inside the hidden Nearby Places tab.
+    if (nearbySection && overviewInfo) overviewInfo.appendChild(nearbySection);
     if (ratingCard) panels.querySelector('[data-panel-rating]').appendChild(ratingCard);
     // Keep the existing photo upload section and form exactly once, in Overview.
     const photoPanel = panels.querySelector('[data-panel-photos]');
