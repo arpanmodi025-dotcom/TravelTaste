@@ -4473,10 +4473,17 @@ const allPhotos = combinedPhotos.length
       if (visitorLocation) visitorLocation.appendChild(locationCard.cloneNode(true));
     }
     if (infoGrid) infoGrid.remove();
-    // Keep Recommended Places visible in the default Overview tab, directly after
-    // About/Location and before the visitor photo upload section. It must NOT be
-    // placed inside the hidden Nearby Places tab.
-    if (nearbySection && overviewInfo) overviewInfo.appendChild(nearbySection);
+
+    // Show the same published-place recommendations in BOTH Overview and Nearby Places.
+    // Keep the original section in Nearby Places and render a separate visual clone in Overview.
+    if (nearbySection) {
+      const overviewRecommendations = nearbySection.cloneNode(true);
+      overviewRecommendations.classList.add('tt-more-places-overview-copy');
+      const overviewViewAll = overviewRecommendations.querySelector('#viewAllCityPlaces');
+      if (overviewViewAll) overviewViewAll.id = 'viewAllCityPlacesOverview';
+      if (overviewInfo) overviewInfo.insertAdjacentElement('afterend', overviewRecommendations);
+      panels.querySelector('[data-panel-nearby]').appendChild(nearbySection);
+    }
     if (ratingCard) panels.querySelector('[data-panel-rating]').appendChild(ratingCard);
     // Keep the existing photo upload section and form exactly once, in Overview.
     const photoPanel = panels.querySelector('[data-panel-photos]');
@@ -4676,6 +4683,12 @@ const allPhotos = combinedPhotos.length
       event.stopPropagation();
       openListingDetails(button.dataset.morePlaceId);
     });
+  });
+  const overviewViewAllButton = detailContent.querySelector('#viewAllCityPlacesOverview');
+  if (overviewViewAllButton) overviewViewAllButton.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    detailContent.querySelector('#viewAllCityPlaces')?.click();
   });
 
   const homeCrumb = detailContent.querySelector('.tt-breadcrumbs a[aria-label="Go to TravelTaste home"]');
