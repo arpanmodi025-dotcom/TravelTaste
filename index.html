@@ -1498,34 +1498,56 @@ body.seasonal-drawer-open{overflow:hidden}
 }
 
 
-/* Additive Nearby Discoveries drawer — isolated from existing page styles */
+/* Additive Nearby Discoveries drawer — scoped only to the Nearby Discoveries popup */
 #nearbyDrawerBackdrop[hidden],#nearbyDrawer[hidden]{display:none!important}
 #nearbyDrawerBackdrop{position:fixed;inset:0;z-index:2600;background:rgba(17,29,45,.48)}
-#nearbyDrawer{position:fixed;z-index:2601;right:0;top:0;height:100dvh;width:min(650px,95vw);background:#fffaf5;box-shadow:-18px 0 50px rgba(18,30,45,.22);display:flex;flex-direction:column;overflow:hidden;color:#172d4e}
+#nearbyDrawer{position:fixed;z-index:2601;right:0;top:0;height:100dvh;width:min(980px,96vw);background:#fffaf5;box-shadow:-18px 0 50px rgba(18,30,45,.22);display:flex;flex-direction:column;overflow:hidden;color:#172d4e}
 .nearby-head{display:flex;align-items:center;gap:13px;padding:19px 22px;background:#fff;border-bottom:1px solid #f0e5dc;flex:0 0 auto}
 .nearby-head-icon{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:#fff0e7;color:#ed4b13;font-size:24px;flex:0 0 46px}
 .nearby-head-copy{flex:1;min-width:0}.nearby-head h2{margin:0;font-size:23px;letter-spacing:-.5px}.nearby-head p{margin:5px 0 0;color:#687a91;font-size:13px;line-height:1.45}
 #closeNearbyDrawer{border:0;background:transparent;color:#263b55;font-size:27px;line-height:1;padding:5px 8px}
-.nearby-content{padding:16px;overflow-y:auto;min-height:0;overscroll-behavior:contain}
-.nearby-location-prompt{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:13px;border:1px solid #ffe1ce;border-radius:13px;background:#fff3e8;margin-bottom:13px}
+.nearby-content{padding:16px 20px 22px;overflow-y:auto;min-height:0;overscroll-behavior:contain}
+.nearby-location-prompt{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:13px;border:1px solid #ffe1ce;border-radius:13px;background:#fff3e8;margin-bottom:9px}
 .nearby-location-prompt .nearby-prompt-copy{flex:1;min-width:190px}.nearby-location-prompt strong{display:block;font-size:14px}.nearby-location-prompt small{display:block;color:#718096;margin-top:4px;line-height:1.4}
 #useNearbyLocation{border:0;border-radius:10px;background:#f04408;color:#fff;font-weight:800;font-size:13px;padding:12px 15px;white-space:nowrap}
 #useNearbyLocation:disabled{opacity:.65;cursor:wait}
-.nearby-status{margin:10px 2px 14px;font-size:12px;color:#687a91;line-height:1.5;min-height:18px}
+.nearby-status{margin:8px 2px 12px;font-size:12px;color:#687a91;line-height:1.5;min-height:18px}
 .nearby-filters{display:flex;gap:8px;overflow-x:auto;padding:1px 1px 12px;scrollbar-width:thin}
 .nearby-filter{border:1px solid #e4e8ee;border-radius:10px;padding:10px 13px;background:#fff;color:#233b58;font-size:12px;font-weight:750;white-space:nowrap}
 .nearby-filter[aria-pressed="true"]{background:#f04408;border-color:#f04408;color:#fff}
-.nearby-map{height:210px;border:1px solid #e3e8ec;border-radius:14px;overflow:hidden;background:#edf3f5;margin-bottom:18px;position:relative}
+.nearby-controls-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,1.15fr);gap:12px;align-items:stretch;margin:0 0 14px}
+.nearby-control-label{display:block;margin:0 0 7px;color:#172d4e;font-size:12px;font-weight:800}
+.nearby-search-box{display:flex;align-items:center;gap:8px;min-height:43px;padding:0 12px;border:1px solid #dfe6ee;border-radius:10px;background:#fff;color:#64748b}
+.nearby-search-box input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:#172d4e;font:inherit;font-size:13px}
+.nearby-search-box input::placeholder{color:#94a3b8}
+.nearby-radius-panel{border:1px solid #e1e8ef;border-radius:12px;background:#fff;padding:11px 13px}
+.nearby-radius-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:7px}
+.nearby-radius-top label{font-size:12px;font-weight:800;color:#172d4e}
+#nearbyRadiusValue{min-width:69px;padding:6px 9px;border:1px solid #dbe4ee;border-radius:9px;text-align:center;font-size:16px;font-weight:850;color:#172d4e;background:#f9fbfd}
+#nearbyRadiusSlider{display:block;width:100%;height:20px;margin:0;accent-color:#f04408;cursor:pointer}
+.nearby-radius-scale{display:flex;justify-content:space-between;gap:10px;color:#526681;font-size:10px;font-weight:750}
+.nearby-radius-help{margin:5px 0 0;color:#718096;font-size:10px;line-height:1.35}
+.nearby-map{height:300px;border:1px solid #e3e8ec;border-radius:14px;overflow:hidden;background:#edf3f5;margin-bottom:17px;position:relative;isolation:isolate}
 .nearby-map iframe{width:100%;height:100%;border:0;display:block}.nearby-map-placeholder{height:100%;display:grid;place-items:center;text-align:center;padding:20px;color:#65758a;font-size:13px;line-height:1.5;background:linear-gradient(135deg,#eff5f5,#f8f2e9)}
-.nearby-results-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:5px 0 13px}.nearby-results-head h3{font-size:18px;margin:0;color:#172d4e}.nearby-results-head p{margin:4px 0 0;color:#687a91;font-size:12px}
+.nearby-map .leaflet-container{width:100%;height:100%;font-family:Arial,system-ui,sans-serif;z-index:1}
+.nearby-map-number-pin,.nearby-map-user-pin{background:transparent;border:0}
+.nearby-map-number-pin span{display:flex;align-items:center;justify-content:center;width:30px;height:36px;border:2px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#f04408;color:white;box-shadow:0 2px 7px #172d4e40;font-size:12px;font-weight:900}
+.nearby-map-number-pin span b{transform:rotate(45deg);font-weight:900}
+.nearby-map-user-pin span{display:block;width:20px;height:20px;border:4px solid white;border-radius:50%;background:#1d4ed8;box-shadow:0 1px 7px #172d4e70}
+.nearby-map-attribution{font-size:10px;color:#64748b;margin:-8px 0 13px;line-height:1.4}
+.nearby-results-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:5px 0 13px;flex-wrap:wrap}
+.nearby-results-head h3{font-size:18px;margin:0;color:#172d4e}.nearby-results-head p{margin:4px 0 0;color:#687a91;font-size:12px}
+.nearby-results-tools{display:flex;align-items:center;justify-content:flex-end;gap:9px;flex:0 0 auto}
 .nearby-results-count{font-size:12px;color:#758398;white-space:nowrap}
-#nearbyResults{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+#nearbySort{max-width:210px;min-height:38px;border:1px solid #dbe3ed;border-radius:9px;background:#fff;color:#26384e;padding:8px 10px;font:inherit;font-size:12px}
+#nearbyResults{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
 .nearby-card{min-width:0;background:#fff;border:1px solid #e7e8e9;border-radius:13px;overflow:hidden;box-shadow:0 4px 15px rgba(25,45,65,.045);display:flex;flex-direction:column}
 .nearby-card-photo{height:142px;position:relative;background:#e8edf1}.nearby-card-photo img{width:100%;height:100%;object-fit:cover;display:block}.nearby-distance{position:absolute;top:9px;left:9px;padding:5px 8px;border-radius:8px;background:#172d4eeb;color:#fff;font-size:11px;font-weight:800}
-.nearby-card-body{padding:12px;display:flex;flex-direction:column;flex:1}.nearby-card-type{align-self:flex-start;background:#fff0e7;color:#bd4e24;border-radius:999px;padding:4px 7px;font-size:10px;font-weight:800}.nearby-card h4{font-size:15px;line-height:1.3;margin:9px 0 6px;color:#172d4e}.nearby-card p{font-size:12px;line-height:1.5;color:#687a91;margin:0 0 10px}.nearby-card-meta{font-size:11px;color:#64758a;margin-top:auto;padding:6px 0 10px}.nearby-card-actions{display:flex;gap:7px}.nearby-card-actions a,.nearby-card-actions button{flex:1;text-align:center;text-decoration:none;border-radius:8px;padding:9px 7px;font-size:11px;font-weight:800;border:1px solid #f04408;color:#e94b12;background:#fff;cursor:pointer}.nearby-card-actions a:first-child,.nearby-card-actions button:first-child{background:#f04408;color:#fff}.nearby-empty{grid-column:1/-1;padding:28px 18px;text-align:center;border:1px dashed #e3d5cb;border-radius:13px;background:#fff;color:#687a91;font-size:13px;line-height:1.6}
+.nearby-card-body{padding:12px;display:flex;flex-direction:column;flex:1}.nearby-card-type{align-self:flex-start;background:#fff0e7;color:#bd4e24;border-radius:999px;padding:4px 7px;font-size:10px;font-weight:800}.nearby-card h4{font-size:15px;line-height:1.3;margin:9px 0 6px;color:#172d4e}.nearby-card p{font-size:12px;line-height:1.5;color:#687a91;margin:0 0 10px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.nearby-card-meta{font-size:11px;color:#64758a;margin-top:auto;padding:6px 0 10px;line-height:1.5}.nearby-card-rating{font-size:11px;color:#556a83;margin:0 0 7px}.nearby-card-rating .stars{color:#f59e0b;font-weight:900}.nearby-card-actions{display:flex;gap:7px}.nearby-card-actions a,.nearby-card-actions button{flex:1;text-align:center;text-decoration:none;border-radius:8px;padding:9px 7px;font-size:11px;font-weight:800;border:1px solid #f04408;color:#e94b12;background:#fff;cursor:pointer}.nearby-card-actions a:first-child,.nearby-card-actions button:first-child{background:#f04408;color:#fff}
+.nearby-empty{grid-column:1/-1;padding:28px 18px;text-align:center;border:1px dashed #e3d5cb;border-radius:13px;background:#fff;color:#687a91;font-size:13px;line-height:1.6}
 body.nearby-drawer-open{overflow:hidden}
-@media(max-width:520px){#nearbyDrawer{width:100vw}.nearby-head{padding:15px}.nearby-head h2{font-size:20px}.nearby-content{padding:12px}.nearby-location-prompt{align-items:flex-start}.nearby-location-prompt #useNearbyLocation{width:100%}#nearbyResults{grid-template-columns:1fr}.nearby-card{display:grid;grid-template-columns:112px minmax(0,1fr)}.nearby-card-photo{height:100%;min-height:155px}.nearby-card-body{padding:10px}.nearby-card h4{font-size:14px;margin:7px 0 5px}.nearby-card p{font-size:11px}.nearby-card-actions{flex-wrap:wrap}.nearby-card-actions a,.nearby-card-actions button{font-size:10px;padding:8px 5px}.nearby-map{height:180px}}
-
+@media(max-width:820px){#nearbyDrawer{width:min(760px,97vw)}.nearby-content{padding:14px}.nearby-controls-row{grid-template-columns:1fr}.nearby-map{height:260px}#nearbyResults{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){#nearbyDrawer{width:100vw}.nearby-head{padding:15px}.nearby-head h2{font-size:20px}.nearby-content{padding:12px}.nearby-location-prompt{align-items:flex-start}.nearby-location-prompt #useNearbyLocation{width:100%}.nearby-controls-row{grid-template-columns:1fr}.nearby-map{height:220px}#nearbyResults{grid-template-columns:1fr}.nearby-card{display:grid;grid-template-columns:112px minmax(0,1fr)}.nearby-card-photo{height:100%;min-height:155px}.nearby-card-body{padding:10px}.nearby-card h4{font-size:14px;margin:7px 0 5px}.nearby-card p{font-size:11px}.nearby-card-actions{flex-wrap:wrap}.nearby-card-actions a,.nearby-card-actions button{font-size:10px;padding:8px 5px}.nearby-results-tools{width:100%;justify-content:space-between}.nearby-results-count{white-space:normal}#nearbySort{flex:1;max-width:210px}}
 
 
 /* Destination detail gallery layout. Scoped to the detail page so existing site sections stay unchanged. */
@@ -6736,7 +6758,7 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
     <button type="button" id="closeNearbyDrawer" aria-label="Close Nearby Discoveries">×</button>
   </div>
   <div class="nearby-content">
-    <div class="nearby-location-prompt"><span aria-hidden="true" style="font-size:24px">📍</span><div class="nearby-prompt-copy"><strong>Find what's around you</strong><small>Use your current location for recommendations from places already listed on TravelTaste.</small></div><button type="button" id="useNearbyLocation">◎ Use My Current Location</button></div>
+    <div class="nearby-location-prompt"><span aria-hidden="true" style="font-size:24px">📍</span><div class="nearby-prompt-copy"><strong>Find what's around you</strong><small>Use your current location for recommendations from places already listed on TravelTaste. Location sharing is optional.</small></div><button type="button" id="useNearbyLocation">◎ Use My Current Location</button></div>
     <p class="nearby-status" id="nearbyStatus" aria-live="polite">Your location is not being accessed yet. Select “Use My Current Location” to begin.</p>
     <div class="nearby-filters" id="nearbyFilters" aria-label="Filter nearby recommendations">
       <button type="button" class="nearby-filter" data-nearby-filter="all" aria-pressed="true">✨ All</button>
@@ -6745,9 +6767,22 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
       <button type="button" class="nearby-filter" data-nearby-filter="activities" aria-pressed="false">🎯 Activities</button>
       <button type="button" class="nearby-filter" data-nearby-filter="hidden" aria-pressed="false">💎 Hidden Gems</button>
     </div>
-    <div class="nearby-map" id="nearbyMap"><div class="nearby-map-placeholder">📍 Your map will appear after you share your current location.<br>Recommendations are limited to places listed on TravelTaste.</div></div>
-    <div class="nearby-results-head"><div><h3 id="nearbyResultsTitle">Top recommendations near you</h3><p>Nearby options already listed on TravelTaste, sorted by distance.</p></div><span id="nearbyResultsCount" class="nearby-results-count">Waiting for location</span></div>
-    <div id="nearbyResults"><div class="nearby-empty">Choose “Use My Current Location” to find nearby recommendations from the existing TravelTaste listings.</div></div>
+    <div class="nearby-controls-row">
+      <div>
+        <label class="nearby-control-label" for="nearbySearch">Search nearby places</label>
+        <div class="nearby-search-box"><span aria-hidden="true">⌕</span><input id="nearbySearch" type="search" placeholder="Search by place name or category…" autocomplete="off"></div>
+      </div>
+      <div class="nearby-radius-panel">
+        <div class="nearby-radius-top"><label for="nearbyRadiusSlider">Search radius</label><output id="nearbyRadiusValue" for="nearbyRadiusSlider">25 km</output></div>
+        <input id="nearbyRadiusSlider" type="range" min="1" max="400" step="1" value="25" aria-label="Nearby search radius from 1 to 400 kilometres">
+        <div class="nearby-radius-scale"><span>1 km</span><span>Choose any radius from 1 to 400 km.</span><span>400 km</span></div>
+        <p class="nearby-radius-help">Distances are straight-line estimates from your current location, not driving distances or travel times.</p>
+      </div>
+    </div>
+    <div class="nearby-map" id="nearbyMap"><div class="nearby-map-placeholder">📍 Your map will appear after you choose “Use My Current Location”.<br>Recommendations come only from published places on TravelTaste.</div></div>
+    <p class="nearby-map-attribution">Distances shown are straight-line estimates, not driving distances. Use Directions to open a route in Google Maps.</p>
+    <div class="nearby-results-head"><div><h3 id="nearbyResultsTitle">Top recommendations near you</h3><p>Published places already listed on TravelTaste, sorted by distance.</p></div><div class="nearby-results-tools"><label class="nearby-results-count" id="nearbyResultsCount">Waiting for location</label><select id="nearbySort" aria-label="Sort nearby places"><option value="distance">Distance (nearest)</option><option value="cost">Lowest estimated cost</option><option value="newest">Recently added</option><option value="rating">Highest rated</option></select></div></div>
+    <div id="nearbyResults"><div class="nearby-empty">Choose “Use My Current Location” to find recommendations from published TravelTaste listings. You can set any search radius from 1 to 400 km.</div></div>
   </div>
 </aside>
 <script>
@@ -6755,23 +6790,38 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
   const $ = id => document.getElementById(id);
   const drawer=$('nearbyDrawer'), backdrop=$('nearbyDrawerBackdrop'), status=$('nearbyStatus'), results=$('nearbyResults');
   if(!drawer || !backdrop || !$('nearbyDiscoveriesMenuItem')) return;
-  const NEARBY_RADIUS_KM = 200; // Show published listings within 200 km (straight-line distance).
-  let userPosition=null, activeFilter='all';
+
+  // The radius is user-adjustable from 1 to 400 km. Location is only requested after an explicit click.
+  const DEFAULT_RADIUS_KM = 25;
+  let nearbyRadiusKm = DEFAULT_RADIUS_KM;
+  let userPosition = null;
+  let activeFilter = 'all';
+  let activeSort = 'distance';
+  let activeSearch = '';
+  let nearbyMapInstance = null;
+  let nearbyMapLayers = [];
+  let leafletLoadPromise = null;
+  let renderSequence = 0;
+  const ratingCache = new Map();
+
   const esc = value => String(value ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const number = value => value!==null && value!==undefined && value!=='' && Number.isFinite(Number(value)) && Number(value)>=-180 && Number(value)<=180;
+  const validLatLon = (lat,lon) => number(lat) && number(lon) && Number(lat)>=-90 && Number(lat)<=90 && Number(lon)>=-180 && Number(lon)<=180;
   const distanceKm=(a,b,c,d)=>{const rad=x=>x*Math.PI/180;const x=rad(c-a),y=rad(d-b);const h=Math.max(0,Math.min(1,Math.sin(x/2)**2+Math.cos(rad(a))*Math.cos(rad(c))*Math.sin(y/2)**2));return 6371*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));};
-  // Extract coordinates when the saved Google Maps URL visibly contains them.
-  // Short links and place-name URLs remain usable for directions, but cannot be distance-ranked until coordinates are available.
+
+  // Extract coordinates only when the saved Google Maps URL visibly contains coordinates.
+  // Short links and place-name URLs remain valid for directions but cannot be distance-ranked here.
   function coordinatesFromMapUrl(url){
-    if(!url)return null; const text=String(url);
+    if(!url)return null;
+    const text=String(url);
     const patterns=[/@(-?\d{1,2}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/, /!3d(-?\d{1,2}\.\d+)!4d(-?\d{1,3}\.\d+)/, /[?&](?:q|query|destination)=(-?\d{1,2}\.\d+)%2C(-?\d{1,3}\.\d+)/i, /[?&](?:q|query|destination)=(-?\d{1,2}\.\d+),(-?\d{1,3}\.\d+)/i];
-    for(const re of patterns){const m=text.match(re);if(m){const lat=Number(m[1]),lon=Number(m[2]);if(lat>=-90&&lat<=90&&lon>=-180&&lon<=180)return {latitude:lat,longitude:lon};}}
+    for(const re of patterns){const m=text.match(re);if(m){const lat=Number(m[1]),lon=Number(m[2]);if(validLatLon(lat,lon))return {latitude:lat,longitude:lon};}}
     return null;
   }
   function withCoordinates(item){
     const fromUrl=coordinatesFromMapUrl(item.google_maps_url);
-    const lat=number(item.latitude)&&Number(item.latitude)>=-90&&Number(item.latitude)<=90?Number(item.latitude):fromUrl?.latitude;
-    const lon=number(item.longitude)?Number(item.longitude):fromUrl?.longitude;
+    const lat=validLatLon(item.latitude,item.longitude)?Number(item.latitude):fromUrl?.latitude;
+    const lon=validLatLon(item.latitude,item.longitude)?Number(item.longitude):fromUrl?.longitude;
     return {...item,latitude:lat,longitude:lon};
   }
   function typeOf(item){
@@ -6785,50 +6835,159 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
   function categoryLabel(item){const t=String(item.type||'Place').trim();return ({place:'Place',food:'Food Spot',food_shop:'Food Shop',activity:'Activity',hidden_gem:'Hidden Gem'})[t.toLowerCase()]||t||'Place';}
   function publishedItems(){
     const source=Array.isArray(window.travelTasteNearbyListings)?window.travelTasteNearbyListings:[];
-    return source.filter(item=>item && item.is_published!==false).map(withCoordinates);
+    return source.filter(item=>item && (item.is_published===true || item.is_published==='true')).map(withCoordinates);
   }
   function getItems(){
-    return publishedItems().filter(item=>number(item.latitude)&&number(item.longitude)&&Number(item.latitude)>=-90&&Number(item.latitude)<=90)
+    const query=activeSearch.trim().toLowerCase();
+    return publishedItems()
+      .filter(item=>validLatLon(item.latitude,item.longitude))
       .map(item=>({...item,_nearbyDistance:distanceKm(userPosition.lat,userPosition.lon,Number(item.latitude),Number(item.longitude)),_nearbyCategory:typeOf(item)}))
-      .filter(item=>item._nearbyDistance <= NEARBY_RADIUS_KM)
+      .filter(item=>item._nearbyDistance <= nearbyRadiusKm)
       .filter(item=>activeFilter==='all'||item._nearbyCategory===activeFilter)
+      .filter(item=>!query||`${item.name||''} ${item.description||''} ${item.type||''} ${item.tags||''} ${item.address||''} ${item.city_name||''}`.toLowerCase().includes(query))
       .sort((a,b)=>a._nearbyDistance-b._nearbyDistance);
   }
   function directionsUrl(item){
-    const destination=number(item.latitude)&&number(item.longitude)?`${Number(item.latitude)},${Number(item.longitude)}`:[item.name,item.address,item.city_name].filter(Boolean).join(', ');
+    const destination=validLatLon(item.latitude,item.longitude)?`${Number(item.latitude)},${Number(item.longitude)}`:[item.name,item.address,item.city_name].filter(Boolean).join(', ');
     return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${userPosition.lat},${userPosition.lon}`)}&destination=${encodeURIComponent(destination)}&travelmode=driving`;
   }
-  function render(){
-    if(!userPosition)return;
-    const all=publishedItems();
-    const withCoords=all.filter(item=>number(item.latitude)&&number(item.longitude)&&Number(item.latitude)>=-90&&Number(item.latitude)<=90);
+  async function ensureRatingData(items){
+    const ids=[...new Set(items.map(item=>String(item.id||'')).filter(Boolean))].filter(id=>!ratingCache.has(id));
+    if(!ids.length)return;
+    // Do not let rating lookup failures interrupt Nearby Discoveries.
+    ids.forEach(id=>ratingCache.set(id,null));
+    if(typeof supabase==='undefined')return;
+    try{
+      const {data,error}=await supabase.from('place_ratings').select('listing_id,rating').in('listing_id',ids);
+      if(error||!Array.isArray(data))return;
+      const grouped=new Map();
+      data.forEach(row=>{
+        const rating=Number(row.rating), id=String(row.listing_id||'');
+        if(!id||!Number.isFinite(rating)||rating<1||rating>5)return;
+        const entry=grouped.get(id)||{sum:0,count:0};entry.sum+=rating;entry.count+=1;grouped.set(id,entry);
+      });
+      ids.forEach(id=>{const entry=grouped.get(id);ratingCache.set(id,entry?{average:entry.sum/entry.count,count:entry.count}:null);});
+    }catch(error){console.warn('Nearby rating summaries could not be loaded:',error);}
+  }
+  function sortedItems(items){
+    const output=[...items];
+    if(activeSort==='cost'){
+      output.sort((a,b)=>{
+        const ca=Number(a.estimated_cost_per_person),cb=Number(b.estimated_cost_per_person);
+        const va=a.estimated_cost_per_person!==null&&a.estimated_cost_per_person!==undefined&&a.estimated_cost_per_person!==''&&Number.isFinite(ca);
+        const vb=b.estimated_cost_per_person!==null&&b.estimated_cost_per_person!==undefined&&b.estimated_cost_per_person!==''&&Number.isFinite(cb);
+        if(va!==vb)return va?-1:1;
+        return va?ca-cb:a._nearbyDistance-b._nearbyDistance;
+      });
+    }else if(activeSort==='newest'){
+      output.sort((a,b)=>{
+        const da=Date.parse(a.created_at||'')||0,db=Date.parse(b.created_at||'')||0;
+        return db-da || a._nearbyDistance-b._nearbyDistance;
+      });
+    }else if(activeSort==='rating'){
+      output.sort((a,b)=>{
+        const ra=ratingCache.get(String(a.id||'')),rb=ratingCache.get(String(b.id||''));
+        if(Boolean(ra)!==Boolean(rb))return ra?-1:1;
+        if(ra&&rb)return rb.average-ra.average || b._nearbyDistance-a._nearbyDistance;
+        return a._nearbyDistance-b._nearbyDistance;
+      });
+    }else output.sort((a,b)=>a._nearbyDistance-b._nearbyDistance);
+    return output;
+  }
+  function setUnlocatedMessage(){
+    $('nearbyResultsCount').textContent='Waiting for location';
+    $('nearbyResultsTitle').textContent='Top recommendations near you';
+    results.innerHTML='<div class="nearby-empty">Choose “Use My Current Location” to find recommendations from published TravelTaste listings. You can set any search radius from 1 to 400 km.</div>';
+    $('nearbyMap').innerHTML='<div class="nearby-map-placeholder">📍 Your map will appear after you choose “Use My Current Location”.<br>Recommendations are limited to places published on TravelTaste.</div>';
+  }
+  async function render(){
+    if(!userPosition){setUnlocatedMessage();return;}
+    const token=++renderSequence;
     const items=getItems();
-    $('nearbyResultsCount').textContent=`${items.length} ${items.length===1?'place':'places'} · within ${NEARBY_RADIUS_KM} km`;
-    $('nearbyResultsTitle').textContent=(activeFilter==='all'?'Top recommendations near you':({places:'Places near you',food:'Food spots near you',activities:'Activities near you',hidden:'Hidden gems near you'}[activeFilter]))+' (within '+NEARBY_RADIUS_KM+' km)';
-    if(!items.length){results.innerHTML=`<div class="nearby-empty">${withCoords.length?'No matching listings in this category with coordinates. Try another category.':'Your published listings do not yet have usable latitude and longitude. Google Maps links can be used for directions, and links that contain coordinates can be used for distance sorting. Other links need coordinates added or resolved.'}</div>`;return;}
-    results.innerHTML=items.map(item=>{
-      const img=item.image_url||item.image||'';
-      const desc=item.description||'Explore this recommendation on TravelTaste.';
-      const price=item.estimated_cost_per_person!==null&&item.estimated_cost_per_person!==undefined&&item.estimated_cost_per_person!==''&&Number.isFinite(Number(item.estimated_cost_per_person))?`₹${Math.round(Number(item.estimated_cost_per_person)).toLocaleString('en-IN')} per person`:'';
-      const duration=item.duration_category||'';
-      return `<article class="nearby-card"><div class="nearby-card-photo">${img?`<img src="${esc(img)}" alt="${esc(item.name)}" loading="lazy" onerror="this.style.display='none'">`:''}<span class="nearby-distance">${item._nearbyDistance<10?item._nearbyDistance.toFixed(1):Math.round(item._nearbyDistance)} km</span></div><div class="nearby-card-body"><span class="nearby-card-type">${esc(categoryLabel(item))}</span><h4>${esc(item.name||'TravelTaste listing')}</h4><p>${esc(desc)}</p><div class="nearby-card-meta">${[price,duration].filter(Boolean).map(esc).join(' · ')||'Distance calculated from your location'}</div><div class="nearby-card-actions"><button type="button" data-nearby-detail="${esc(item.id||'')}" data-nearby-name="${esc(item.name||'')}">View details</button><a href="${esc(directionsUrl(item))}" target="_blank" rel="noopener noreferrer">Directions ↗</a></div></div></article>`;
-    }).join('');
-    results.querySelectorAll('[data-nearby-detail]').forEach(button=>button.addEventListener('click',event=>{
-      event.preventDefault();
-      const id=button.dataset.nearbyDetail;
-      const item=publishedItems().find(x=>String(x.id||'')===String(id));
-      if(!item){status.textContent='This listing could not be opened. Please refresh the page and try again.';return;}
-      closeDrawer();
-      if(typeof window.openListingDetails==='function') window.openListingDetails(id);
-      else {const card=Array.from(document.querySelectorAll('#list .card')).find(c=>c.dataset.listingId===String(id));if(card){card.scrollIntoView({behavior:'smooth',block:'center'});card.animate([{outline:'3px solid #f04408'},{outline:'none'}],{duration:1400});}else{document.querySelector('#recommendations')?.scrollIntoView({behavior:'smooth'});}}
-    }));
+    await ensureRatingData(items);
+    if(token!==renderSequence||!userPosition)return;
+    const shown=sortedItems(items);
+    $('nearbyResultsCount').textContent=`${shown.length} ${shown.length===1?'place':'places'} · within ${nearbyRadiusKm} km`;
+    const titles={all:'Top recommendations near you',places:'Places near you',food:'Food spots near you',activities:'Activities near you',hidden:'Hidden gems near you'};
+    $('nearbyResultsTitle').textContent=`${titles[activeFilter]||titles.all} (within ${nearbyRadiusKm} km)`;
+    if(!shown.length){
+      const hasPublished=publishedItems().some(item=>validLatLon(item.latitude,item.longitude));
+      results.innerHTML=`<div class="nearby-empty">${hasPublished?'No published TravelTaste places match your search within '+nearbyRadiusKm+' km. Try a wider radius or another category.':'Your published listings do not yet have usable latitude and longitude. Google Maps links that visibly contain coordinates can be used for distance sorting; other places need coordinates saved before they can appear here.'}</div>`;
+    }else{
+      results.innerHTML=shown.map(item=>{
+        const img=item.image_url||item.image||'';
+        const desc=item.description||'Explore this place on TravelTaste.';
+        const hasPrice=item.estimated_cost_per_person!==null&&item.estimated_cost_per_person!==undefined&&item.estimated_cost_per_person!==''&&Number.isFinite(Number(item.estimated_cost_per_person));
+        const price=hasPrice?`₹${Math.round(Number(item.estimated_cost_per_person)).toLocaleString('en-IN')} per person`:'';
+        const duration=item.duration_category||'';
+        const rating=ratingCache.get(String(item.id||''));
+        const ratingHtml=rating?`<div class="nearby-card-rating"><span class="stars">★ ${rating.average.toFixed(1)}</span> <span>(${rating.count.toLocaleString('en-IN')} ${rating.count===1?'rating':'ratings'})</span></div>`:'';
+        return `<article class="nearby-card" data-nearby-card-id="${esc(item.id||'')}"><div class="nearby-card-photo">${img?`<img src="${esc(img)}" alt="${esc(item.name)}" loading="lazy" onerror="this.style.display='none'">`:''}<span class="nearby-distance">${item._nearbyDistance<10?item._nearbyDistance.toFixed(1):item._nearbyDistance<100?item._nearbyDistance.toFixed(1):Math.round(item._nearbyDistance)} km straight-line</span></div><div class="nearby-card-body"><span class="nearby-card-type">${esc(categoryLabel(item))}</span><h4>${esc(item.name||'TravelTaste listing')}</h4>${ratingHtml}<p>${esc(desc)}</p><div class="nearby-card-meta">${[price,duration].filter(Boolean).map(esc).join(' · ')||'Straight-line distance from your location'}</div><div class="nearby-card-actions"><button type="button" data-nearby-detail="${esc(item.id||'')}">View details</button><a href="${esc(directionsUrl(item))}" target="_blank" rel="noopener noreferrer">Directions ↗</a></div></div></article>`;
+      }).join('');
+      results.querySelectorAll('[data-nearby-detail]').forEach(button=>button.addEventListener('click',event=>{
+        event.preventDefault();
+        const card=button.closest('[data-nearby-card-id]');
+        const id=card?.dataset.nearbyCardId;
+        const item=publishedItems().find(x=>String(x.id||'')===String(id));
+        if(!item){status.textContent='This listing could not be opened. Please refresh the page and try again.';return;}
+        closeDrawer();
+        if(typeof window.openListingDetails==='function')window.openListingDetails(id);
+        else{const existing=Array.from(document.querySelectorAll('#list .card')).find(c=>c.dataset.listingId===String(id));if(existing){existing.scrollIntoView({behavior:'smooth',block:'center'});existing.animate([{outline:'3px solid #f04408'},{outline:'none'}],{duration:1400});}else document.querySelector('#recommendations')?.scrollIntoView({behavior:'smooth'});}
+      }));
+    }
+    updateMap(shown);
   }
-  function updateMap(){
-    const map=$('nearbyMap'),lat=userPosition.lat,lon=userPosition.lon,delta=.035;
-    const bbox=[lon-delta,lat-delta,lon+delta,lat+delta].join('%2C');
-    map.innerHTML=`<iframe title="Map around your current location" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lon}"></iframe>`;
+
+  function loadLeaflet(){
+    if(window.L)return Promise.resolve(true);
+    if(leafletLoadPromise)return leafletLoadPromise;
+    leafletLoadPromise=new Promise(resolve=>{
+      let css=document.querySelector('link[data-nearby-leaflet]');
+      if(!css){css=document.createElement('link');css.rel='stylesheet';css.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';css.dataset.nearbyLeaflet='true';document.head.appendChild(css);}
+      const script=document.createElement('script');script.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';script.async=true;script.dataset.nearbyLeaflet='true';
+      script.onload=()=>resolve(Boolean(window.L));script.onerror=()=>resolve(false);document.head.appendChild(script);
+    });
+    return leafletLoadPromise;
   }
-  function openDrawer(){drawer.hidden=false;backdrop.hidden=false;document.body.classList.add('nearby-drawer-open');if($('placesMenu'))$('placesMenu').hidden=true;if($('placesNavButton'))$('placesNavButton').setAttribute('aria-expanded','false');}
+  function radiusZoom(radius){if(radius<=2)return 14;if(radius<=5)return 13;if(radius<=10)return 12;if(radius<=25)return 11;if(radius<=50)return 10;if(radius<=100)return 9;if(radius<=200)return 8;return 7;}
+  function clearMapLayers(){if(nearbyMapInstance){nearbyMapLayers.forEach(layer=>{try{nearbyMapInstance.removeLayer(layer);}catch(_){}});nearbyMapLayers=[];}}
+  function updateMap(items){
+    if(!userPosition)return;
+    loadLeaflet().then(loaded=>{
+      if(!userPosition||drawer.hidden)return;
+      const mapElement=$('nearbyMap');
+      if(loaded){
+        if(!nearbyMapInstance){
+          mapElement.innerHTML='';
+          nearbyMapInstance=window.L.map(mapElement,{scrollWheelZoom:false,preferCanvas:true}).setView([userPosition.lat,userPosition.lon],radiusZoom(nearbyRadiusKm));
+          window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'}).addTo(nearbyMapInstance);
+        }
+        clearMapLayers();
+        const origin=window.L.marker([userPosition.lat,userPosition.lon],{icon:window.L.divIcon({className:'nearby-map-user-pin',html:'<span></span>',iconSize:[22,22],iconAnchor:[11,11]})}).bindPopup('<strong>Your shared location</strong>');
+        origin.addTo(nearbyMapInstance);nearbyMapLayers.push(origin);
+        const circle=window.L.circle([userPosition.lat,userPosition.lon],{radius:nearbyRadiusKm*1000,color:'#f04408',weight:2,dashArray:'7 6',fillColor:'#f04408',fillOpacity:.10}).addTo(nearbyMapInstance);nearbyMapLayers.push(circle);
+        (items||[]).slice(0,60).forEach((item,index)=>{
+          if(!validLatLon(item.latitude,item.longitude))return;
+          const html=`<span><b>${index+1}</b></span>`;
+          const marker=window.L.marker([Number(item.latitude),Number(item.longitude)],{icon:window.L.divIcon({className:'nearby-map-number-pin',html,iconSize:[30,36],iconAnchor:[15,34]})});
+          const distance=item._nearbyDistance<100?item._nearbyDistance.toFixed(1):Math.round(item._nearbyDistance);
+          marker.bindPopup(`<strong>${esc(item.name||'TravelTaste place')}</strong><br>${distance} km straight-line`);
+          marker.addTo(nearbyMapInstance);nearbyMapLayers.push(marker);
+        });
+        nearbyMapInstance.fitBounds(circle.getBounds(),{padding:[16,16],maxZoom:radiusZoom(nearbyRadiusKm)});
+        requestAnimationFrame(()=>nearbyMapInstance&&nearbyMapInstance.invalidateSize());
+      }else{
+        if(nearbyMapInstance){nearbyMapInstance.remove();nearbyMapInstance=null;nearbyMapLayers=[];}
+        const lat=userPosition.lat,lon=userPosition.lon;
+        const latDelta=Math.max(.01,(nearbyRadiusKm/111)*1.25);
+        const cos=Math.max(.15,Math.cos(lat*Math.PI/180));
+        const lonDelta=Math.max(.01,(nearbyRadiusKm/(111*cos))*1.25);
+        const bbox=[lon-lonDelta,lat-latDelta,lon+lonDelta,lat+latDelta].join('%2C');
+        mapElement.innerHTML=`<iframe title="Map around your current location, ${nearbyRadiusKm} kilometre radius" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lon}"></iframe>`;
+      }
+    }).catch(error=>console.warn('Nearby map could not be loaded:',error));
+  }
+  function openDrawer(){drawer.hidden=false;backdrop.hidden=false;document.body.classList.add('nearby-drawer-open');if($('placesMenu'))$('placesMenu').hidden=true;if($('placesNavButton'))$('placesNavButton').setAttribute('aria-expanded','false');if(userPosition)render();}
   function closeDrawer(){drawer.hidden=true;backdrop.hidden=true;document.body.classList.remove('nearby-drawer-open');$('nearbyDiscoveriesMenuItem').focus({preventScroll:true});}
   $('nearbyDiscoveriesMenuItem').addEventListener('click',openDrawer);
   $('closeNearbyDrawer').addEventListener('click',closeDrawer);backdrop.addEventListener('click',closeDrawer);
@@ -6836,9 +6995,27 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
     if(!navigator.geolocation){status.textContent='Your browser does not support location sharing. Please try a modern browser.';return;}
     if(!window.isSecureContext){status.textContent='Location access requires a secure HTTPS website. Open TravelTaste using its HTTPS address.';return;}
     const btn=$('useNearbyLocation');btn.disabled=true;status.textContent='Requesting permission to access your current location…';
-    navigator.geolocation.getCurrentPosition(pos=>{userPosition={lat:pos.coords.latitude,lon:pos.coords.longitude};btn.disabled=false;status.textContent='Location found. Showing published TravelTaste listings within '+NEARBY_RADIUS_KM+' km, sorted by distance.';updateMap();render();},err=>{btn.disabled=false;const messages={1:'Location permission was denied. Allow location access in your browser settings and try again.',2:'Your location could not be determined. Check device location services and try again.',3:'Location request timed out. Please try again.'};status.textContent=messages[err.code]||'Could not access your location. Please try again.';},{enableHighAccuracy:true,timeout:15000,maximumAge:60000});
+    navigator.geolocation.getCurrentPosition(pos=>{
+      userPosition={lat:pos.coords.latitude,lon:pos.coords.longitude};btn.disabled=false;
+      status.textContent=`Location found. Showing published TravelTaste listings within ${nearbyRadiusKm} km. Distances are straight-line estimates.`;
+      render();
+    },err=>{btn.disabled=false;const messages={1:'Location permission was denied. Allow location access in your browser settings and try again.',2:'Your location could not be determined. Check device location services and try again.',3:'Location request timed out. Please try again.'};status.textContent=messages[err.code]||'Could not access your location. Please try again.';},{enableHighAccuracy:true,timeout:15000,maximumAge:60000});
   });
   $('nearbyFilters').addEventListener('click',event=>{const button=event.target.closest('[data-nearby-filter]');if(!button)return;activeFilter=button.dataset.nearbyFilter;$('nearbyFilters').querySelectorAll('[data-nearby-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));if(userPosition)render();});
+  const radiusSlider=$('nearbyRadiusSlider');
+  radiusSlider.addEventListener('input',()=>{$('nearbyRadiusValue').textContent=`${radiusSlider.value} km`;});
+  radiusSlider.addEventListener('change',()=>{
+    nearbyRadiusKm=Math.max(1,Math.min(400,Number(radiusSlider.value)||DEFAULT_RADIUS_KM));
+    $('nearbyRadiusValue').textContent=`${nearbyRadiusKm} km`;
+    if(userPosition){status.textContent=`Updating recommendations within ${nearbyRadiusKm} km… Distances are straight-line estimates.`;render();}
+  });
+  let searchTimer=null;
+  $('nearbySearch').addEventListener('input',()=>{
+    activeSearch=$('nearbySearch').value;
+    if(searchTimer)clearTimeout(searchTimer);
+    searchTimer=setTimeout(()=>{if(userPosition)render();},180);
+  });
+  $('nearbySort').addEventListener('change',()=>{activeSort=$('nearbySort').value;if(userPosition)render();});
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!drawer.hidden)closeDrawer();});
 })();
 </script>
