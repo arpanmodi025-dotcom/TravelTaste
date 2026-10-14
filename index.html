@@ -2312,24 +2312,24 @@ body.detail-view-active .tt-photo-caption { color: #64748b; font-size: 13px; mar
   <form id="placeSubmissionForm"
     style="background:white;padding:24px;border-radius:18px;border:1px solid #e0e5eb;display:grid;gap:16px;max-width:760px">
 
-    <label>
+    <label for="submissionPlaceName">
       Place name *
-      <input name="name" required maxlength="150"
+      <input id="submissionPlaceName" name="name" required maxlength="150"
         placeholder="e.g. Sabarmati Riverfront"
         style="display:block;width:100%;padding:12px;margin-top:6px">
     </label>
 
-    <label>
+    <label for="submissionCity">
       City *
-      <select name="city_id" id="submissionCity" required
+      <select id="submissionCity" name="city_id" id="submissionCity" required
         style="display:block;width:100%;padding:12px;margin-top:6px">
         <option value="">Choose a city</option>
       </select>
     </label>
 
-    <label>
+    <label for="submissionType">
       Category *
-      <select name="type" required
+      <select id="submissionType" name="type" required
         style="display:block;width:100%;padding:12px;margin-top:6px">
         <option value="place">Place</option>
         <option value="food">Food</option>
@@ -2344,14 +2344,14 @@ body.detail-view-active .tt-photo-caption { color: #64748b; font-size: 13px; mar
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
       <label>
         Estimated cost per person (₹) *
-        <input name="estimated_cost_per_person" type="number" min="0" max="10000000" step="1" required
+        <input id="submissionEstimatedCost" name="estimated_cost_per_person" type="number" min="0" max="10000000" step="1" required
           placeholder="e.g. 350"
           style="display:block;width:100%;padding:12px;margin-top:6px;box-sizing:border-box">
         <small>Include typical entry, food or activity cost for one person.</small>
       </label>
       <label>
         Typical visit duration *
-        <select name="duration_category" required
+        <select id="submissionDuration" name="duration_category" required
           style="display:block;width:100%;padding:12px;margin-top:6px;box-sizing:border-box">
           <option value="">Choose duration</option>
           <option value="short">Quick visit — under 2 hours</option>
@@ -2362,16 +2362,16 @@ body.detail-view-active .tt-photo-caption { color: #64748b; font-size: 13px; mar
       </label>
     </div>
 
-    <label>
+    <label for="submissionMapsUrl">
       Google Maps link
-      <input name="google_maps_url" type="url"
+      <input id="submissionMapsUrl" name="google_maps_url" type="url"
         placeholder="https://maps.google.com/..."
         style="display:block;width:100%;padding:12px;margin-top:6px">
     </label>
 
-    <label>
+    <label for="submissionDescription">
       Description (optional)
-      <textarea name="description"  maxlength="3000"
+      <textarea id="submissionDescription" name="description"  maxlength="3000"
         placeholder="Tell travellers what makes this place special"
         style="display:block;width:100%;padding:12px;margin-top:6px;min-height:110px"></textarea>
     </label>
@@ -2386,9 +2386,9 @@ body.detail-view-active .tt-photo-caption { color: #64748b; font-size: 13px; mar
       <div id="submissionPhotoPreview" class="submission-photo-preview" aria-live="polite" aria-label="Selected photo previews"></div>
     </label>
 
-<label>
+<label for="submissionTravelerType">
   Traveler type *
-  <select name="traveler_type" required
+  <select id="submissionTravelerType" name="traveler_type" required
     style="display:block;width:100%;padding:12px;margin-top:6px">
     <option value="">Choose traveler type</option>
     <option value="all">All</option>
@@ -2398,9 +2398,9 @@ body.detail-view-active .tt-photo-caption { color: #64748b; font-size: 13px; mar
     <option value="couple">Couple</option>
   </select>
 </label>
-<label>
+<label for="submissionRating">
   Rating (1 to 5) *
-  <select name="rating" required
+  <select id="submissionRating" name="rating" required
     style="display:block;width:100%;padding:12px;margin-top:6px">
     <option value="">Choose a rating</option>
     <option value="1">⭐ 1 - Poor</option>
@@ -2414,9 +2414,9 @@ body.detail-view-active .tt-photo-caption { color: #64748b; font-size: 13px; mar
 
   
  
-    <label>
+    <label for="submissionTravelTips">
       Travel tips
-      <textarea name="travel_tips"
+      <textarea id="submissionTravelTips" name="travel_tips"
         placeholder="Helpful tips for visitors"
         style="display:block;width:100%;padding:12px;margin-top:6px"></textarea>
     </label>
@@ -2468,7 +2468,7 @@ body.detail-view-active .tt-photo-caption { color: #64748b; font-size: 13px; mar
         <label for="loginId">Login ID (for new accounts)</label>
         <input id="loginId" type="text" maxlength="20" placeholder="3–20 letters, numbers, or underscores" autocomplete="username" autocapitalize="none">
         <label for="displayName">Display name (for new accounts)</label>
-        <input id="displayName" type="text" maxlength="40" placeholder="Your display name" autocomplete="nickname">
+        <input id="displayName" type="text" maxlength="40" placeholder="Your display name" autocomplete="name">
         <label for="email">Email address (required for registration)</label>
         <input id="email" type="email" placeholder="you@example.com" autocomplete="email">
         <label for="password">Password</label>
@@ -5534,8 +5534,8 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
     </div>
     <p class="seasonal-search-hint">Type a destination or festival and choose a suggestion to search.</p>
     <p id="seasonalSearchStatus" class="seasonal-search-status" aria-live="polite">Start typing for destination suggestions.</p>
-    <label class="seasonal-label" for="seasonalMonthGrid">Select travel month</label>
-    <div id="seasonalMonthGrid" aria-label="Select travel month"></div>
+    <div class="seasonal-label" id="seasonalMonthLabel">Select travel month</div>
+    <div id="seasonalMonthGrid" role="group" aria-labelledby="seasonalMonthLabel"></div>
     <section class="seasonal-month-hero" aria-live="polite">
       <div class="seasonal-month-hero-copy">
         <h3 id="seasonalHeroTitle">Best places to visit in January</h3>
