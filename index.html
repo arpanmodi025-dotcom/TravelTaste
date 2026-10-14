@@ -4142,32 +4142,6 @@ async function openListingDetails(listingId) {
 
   if (!item || !selectedCity) return;
 
-  // Fetch published places for the selected city specifically, so this section
-  // is not dependent on whichever subset of listings happens to be in memory.
-  let cityRecommendations = listings.filter(place =>
-    (place.is_published === true || place.is_published === 'true') &&
-    String(place.city_id) === String(selectedCity.id) &&
-    String(place.id) !== String(item.id)
-  );
-  try {
-    // Fetch only records marked published, then compare city IDs as strings.
-    // This avoids mismatches when the city ID is represented as a string/number.
-    const { data: publishedPlaces, error: publishedPlacesError } = await supabase
-      .from('listings')
-      .select('*')
-      .eq('is_published', true);
-    if (!publishedPlacesError && Array.isArray(publishedPlaces)) {
-      cityRecommendations = publishedPlaces.filter(place =>
-        String(place.city_id) === String(selectedCity.id) &&
-        String(place.id) !== String(item.id)
-      );
-    } else if (publishedPlacesError) {
-      console.warn('Could not load published places for recommendations:', publishedPlacesError.message);
-    }
-  } catch (recommendationLoadError) {
-    console.warn('Could not load published places for recommendations:', recommendationLoadError);
-  }
-
   const detailSection = $('locationDetails');
   const detailContent = $('detailContent');
 
@@ -4308,13 +4282,13 @@ const allPhotos = combinedPhotos.length
         </section>
       </div>
 
-      <section class="tt-more-places" style="display:block!important;visibility:visible!important;opacity:1!important;position:relative;z-index:1" aria-label="Recommended places in ${escapeHtml(selectedCity.name)}">
+      <section class="tt-more-places" aria-label="Recommended places in ${escapeHtml(selectedCity.name)}">
         <div class="tt-more-places-heading">
           <div><h2><span class="tt-section-icon tt-section-pin" aria-hidden="true">📍</span> Recommended places in ${escapeHtml(selectedCity.name)}</h2><p>Popular places, food and activities selected by TravelTaste travellers.</p></div>
           <button type="button" class="tt-view-all" id="viewAllCityPlaces">View all →</button>
         </div>
         <div class="tt-more-places-grid">
-          ${cityRecommendations
+          ${listings.filter(place => String(place.id) !== String(item.id) && (!place.city_id || !selectedCity.id || String(place.city_id) === String(selectedCity.id)))
             .slice().sort((a,b) => {
               const aId=String(a.id), bId=String(b.id);
               const aTop=communityTopFiveIds.has(aId)?1:0, bTop=communityTopFiveIds.has(bId)?1:0;
@@ -4352,29 +4326,6 @@ const allPhotos = combinedPhotos.length
         <p id="ratingMessage" class="tt-detail-status" role="status" aria-live="polite"></p>
       </section>
 
-      <section id="visitorPhotoSection" class="tt-detail-card tt-visitor-photo-card tt-combined-review-card">
-        <h2><span class="tt-section-icon" aria-hidden="true">✎</span> Write a review and add photos (optional)</h2>
-        <p>Share your experience to help other travellers. You can write a review, add photos, or do both.</p>
-        <form id="visitorPhotoForm" class="tt-visitor-photo-form tt-combined-review-form">
-          <label class="tt-combined-review-text-label">
-            Your review (optional)
-            <textarea id="ttCombinedReviewText" name="review_text" rows="4" maxlength="3000" placeholder="What did you like? What should other visitors know?"></textarea>
-          </label>
-          <div class="tt-photo-picker-area">
-            <span class="tt-form-label">Add photos (optional, up to 4 photos; JPG, PNG or WebP, maximum 5 MB each)</span>
-            <input id="visitorPhotoFile" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden>
-            <div id="ttSelectedPhotoPreview" class="tt-selected-photo-preview" aria-live="polite"></div>
-            <button type="button" id="ttAddMorePhotos" class="tt-add-more-photos">＋ Add photos</button>
-            <small id="ttPhotoSelectionHint">You can add up to 4 photos. Use “Add photos” again to select more.</small>
-          </div>
-          <label class="tt-combined-caption-label">
-            Photo caption (optional)
-            <input id="visitorPhotoCaption" type="text" maxlength="300" placeholder="Describe your photos">
-          </label>
-          <button type="submit" class="btn primary" id="ttSubmitReviewPhotos">Submit review</button>
-          <p id="visitorPhotoMessage" role="status" aria-live="polite"></p>
-        </form>
-      </section>
       </div><!-- /.tt-feedback-grid -->
 
     </div>
@@ -4390,7 +4341,6 @@ const allPhotos = combinedPhotos.length
     const nearbySection = detailRoot.querySelector('.tt-more-places');
     const feedbackGrid = detailRoot.querySelector('.tt-feedback-grid');
     const ratingCard = feedbackGrid?.querySelector('#placeRatingSection');
-    const visitorPhotoCard = feedbackGrid?.querySelector('#visitorPhotoSection');
 
     const tabs = document.createElement('div');
     tabs.className = 'tt-detail-tabs';
@@ -4450,9 +4400,39 @@ const allPhotos = combinedPhotos.length
         <div data-panel-rating></div>
         <section class="tt-detail-card tt-written-reviews">
           <h2>Visitor Reviews</h2>
-          <p>Read what other travellers have shared about their experience at this place.</p>
-          <p id="ttWrittenReviewMessage" role="status" aria-live="polite"></p>
+          <p>Read what other travellers have shared about this place.</p>
+          <div class="tt-review-controls">
+            <label>Sort by
+              <select id="ttReviewSort" aria-label="Sort reviews">
+                <option value="newest">Newest first</option>
+                <option value="oldest">Oldest first</option>
+              </select>
+            </label>
+            <label>Filter rating
+              <select id="ttReviewRatingFilter" aria-label="Filter reviews by rating">
+                <option value="all">All ratings</option>
+                <option value="5">5 stars</option><option value="4">4 stars</option>
+                <option value="3">3 stars</option><option value="2">2 stars</option><option value="1">1 star</option>
+                <option value="none">No rating submitted</option>
+              </select>
+            </label>
+            <span id="ttReviewCount" class="tt-review-count" aria-live="polite"></span>
+          </div>
           <div id="ttWrittenReviewList" aria-live="polite">Loading reviews…</div>
+          <form id="ttWrittenReviewForm" class="tt-combined-review-form">
+            <h3>✏️ Write a review and add photos (optional)</h3>
+            <p>Share your experience to help other travellers. You can write a review, add photos, or both.</p>
+            <label for="ttWrittenReviewText">Your review (optional)</label>
+            <textarea id="ttWrittenReviewText" name="review_text" rows="4" maxlength="3000" placeholder="What did you like? What should other visitors know?"></textarea>
+            <div class="tt-review-photo-picker">
+              <label for="ttReviewPhotos">Add photos (optional; JPG, PNG or WebP; maximum 4 photos, 5 MB each)</label>
+              <input id="ttReviewPhotos" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+              <button type="button" id="ttReviewAddMore" class="btn secondary">＋ Add more photos</button>
+              <div id="ttReviewPhotoPreviews" class="tt-review-photo-previews" aria-live="polite"></div>
+            </div>
+            <button type="submit" class="btn primary">Submit review</button>
+            <p id="ttWrittenReviewMessage" role="status" aria-live="polite"></p>
+          </form>
         </section>
         <div data-panel-photos></div>
       </section>
@@ -4477,11 +4457,6 @@ const allPhotos = combinedPhotos.length
     if (infoGrid) infoGrid.remove();
     if (nearbySection) panels.querySelector('[data-panel-nearby]').appendChild(nearbySection);
     if (ratingCard) panels.querySelector('[data-panel-rating]').appendChild(ratingCard);
-    // Keep review writing and optional multi-photo upload together in the Reviews tab.
-    const reviewsPanel = panels.querySelector('[data-detail-panel="reviews"] .tt-written-reviews');
-    if (visitorPhotoCard && reviewsPanel) reviewsPanel.appendChild(visitorPhotoCard);
-    const photoPanel = panels.querySelector('[data-panel-photos]');
-    if (photoPanel) photoPanel.remove();
     if (feedbackGrid) feedbackGrid.remove();
 
     // Populate visitor information only from fields already present on the listing record.
@@ -4623,7 +4598,95 @@ const allPhotos = combinedPhotos.length
       } finally { button.disabled = false; }
     });
 
+    const reviewForm = panels.querySelector('#ttWrittenReviewForm');
     const reviewList = panels.querySelector('#ttWrittenReviewList');
+    const reviewSort = panels.querySelector('#ttReviewSort');
+    const reviewRatingFilter = panels.querySelector('#ttReviewRatingFilter');
+    const reviewCount = panels.querySelector('#ttReviewCount');
+    const reviewPhotoInput = panels.querySelector('#ttReviewPhotos');
+    const addMorePhotosButton = panels.querySelector('#ttReviewAddMore');
+    const photoPreviews = panels.querySelector('#ttReviewPhotoPreviews');
+    let selectedReviewPhotos = [];
+    let writtenReviewRows = [];
+    let reviewRatingsByUser = {};
+    let reviewProfilesByUser = {};
+
+    function renderReviewPhotoPreviews() {
+      if (!photoPreviews) return;
+      photoPreviews.innerHTML = '';
+      selectedReviewPhotos.forEach((file, index) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'tt-review-photo-preview';
+        const img = document.createElement('img');
+        img.alt = file.name;
+        img.src = URL.createObjectURL(file);
+        const remove = document.createElement('button');
+        remove.type = 'button'; remove.textContent = '×';
+        remove.setAttribute('aria-label', `Remove ${file.name}`);
+        remove.addEventListener('click', () => {
+          selectedReviewPhotos.splice(index, 1);
+          syncReviewPhotoInput(); renderReviewPhotoPreviews();
+        });
+        wrap.append(img, remove); photoPreviews.appendChild(wrap);
+      });
+      if (selectedReviewPhotos.length) {
+        const note = document.createElement('p');
+        note.textContent = `${selectedReviewPhotos.length} of 4 photos selected`;
+        photoPreviews.appendChild(note);
+      }
+    }
+    function syncReviewPhotoInput() {
+      if (!reviewPhotoInput || typeof DataTransfer === 'undefined') return;
+      const transfer = new DataTransfer();
+      selectedReviewPhotos.forEach(file => transfer.items.add(file));
+      reviewPhotoInput.files = transfer.files;
+    }
+    reviewPhotoInput?.addEventListener('change', () => {
+      const incoming = Array.from(reviewPhotoInput.files || []);
+      for (const file of incoming) {
+        if (selectedReviewPhotos.length >= 4) break;
+        if (!['image/jpeg','image/png','image/webp'].includes(file.type)) continue;
+        if (file.size > 5 * 1024 * 1024) continue;
+        if (!selectedReviewPhotos.some(existing => existing.name === file.name && existing.size === file.size && existing.lastModified === file.lastModified)) selectedReviewPhotos.push(file);
+      }
+      syncReviewPhotoInput(); renderReviewPhotoPreviews();
+      const status = panels.querySelector('#ttWrittenReviewMessage');
+      if (incoming.length && selectedReviewPhotos.length < incoming.length) status.textContent = 'Maximum 4 photos; JPG, PNG or WebP only, 5 MB per photo.';
+      else if (incoming.length) status.textContent = '';
+    });
+    addMorePhotosButton?.addEventListener('click', () => {
+      if (selectedReviewPhotos.length >= 4) {
+        const status = panels.querySelector('#ttWrittenReviewMessage');
+        status.textContent = 'You can add up to 4 photos.'; return;
+      }
+      reviewPhotoInput?.click();
+    });
+
+    function renderWrittenReviews() {
+      if (!reviewList) return;
+      const sortMode = reviewSort?.value || 'newest';
+      const filter = reviewRatingFilter?.value || 'all';
+      let rows = [...writtenReviewRows];
+      rows.sort((a,b) => sortMode === 'oldest'
+        ? new Date(a.created_at) - new Date(b.created_at)
+        : new Date(b.created_at) - new Date(a.created_at));
+      rows = rows.filter(row => {
+        const rating = reviewRatingsByUser[row.user_id];
+        if (filter === 'all') return true;
+        if (filter === 'none') return !rating;
+        return Number(rating) === Number(filter);
+      });
+      if (reviewCount) reviewCount.textContent = `${rows.length} review${rows.length === 1 ? '' : 's'}`;
+      if (!rows.length) {
+        reviewList.innerHTML = '<p>No reviews match this filter yet.</p>'; return;
+      }
+      reviewList.innerHTML = rows.map(row => {
+        const profileName = reviewProfilesByUser[row.user_id] || (currentUser && currentUser.id === row.user_id ? displayNameFor(currentUser) : 'TravelTaste member');
+        const rating = reviewRatingsByUser[row.user_id];
+        const stars = rating ? `<span class="tt-review-stars" aria-label="${Number(rating)} out of 5 stars">${'★'.repeat(Number(rating))}${'☆'.repeat(5-Number(rating))}</span>` : '<span class="tt-review-no-rating">No star rating submitted</span>';
+        return `<article class="tt-written-review"><div class="tt-written-review-author"><strong>${escapeHtml(profileName)}</strong><small>User ID: ${escapeHtml(row.user_id || 'Unavailable')}</small></div><div class="tt-written-review-meta">${stars}<time datetime="${escapeHtml(row.created_at)}">${escapeHtml(new Date(row.created_at).toLocaleDateString())}</time></div><p>${escapeHtml(row.review_text)}</p></article>`;
+      }).join('');
+    }
     async function loadWrittenReviews() {
       if (!reviewList) return;
       reviewList.textContent = 'Loading reviews…';
@@ -4632,18 +4695,57 @@ const allPhotos = combinedPhotos.length
         .eq('listing_id', item.id).order('created_at', { ascending: false });
       if (error) {
         reviewList.textContent = 'Could not load reviews. Please check the Supabase table permissions.';
-        console.error('Review load failed:', error);
-        return;
+        console.error('Review load failed:', error); return;
       }
-      if (!data?.length) {
-        reviewList.innerHTML = '<p>No written reviews yet. Be the first to share your experience.</p>';
-        return;
+      writtenReviewRows = data || [];
+      const ids = [...new Set(writtenReviewRows.map(row => row.user_id).filter(Boolean))];
+      reviewProfilesByUser = {}; reviewRatingsByUser = {};
+      if (ids.length) {
+        const { data: profiles } = await supabase.from('community_profiles').select('user_id,display_name').in('user_id', ids);
+        for (const profile of profiles || []) reviewProfilesByUser[profile.user_id] = profile.display_name;
+        // Individual ratings are shown for context only; written reviews never change ratings.
+        const { data: ratings } = await supabase.from('place_ratings').select('user_id,rating').eq('listing_id', item.id).in('user_id', ids);
+        for (const rating of ratings || []) reviewRatingsByUser[rating.user_id] = rating.rating;
       }
-      reviewList.innerHTML = data.map(row => `<article class="tt-written-review"><p>${escapeHtml(row.review_text)}</p><small>${escapeHtml(new Date(row.created_at).toLocaleDateString())}${currentUser && currentUser.id === row.user_id ? ' · Your review' : ''}</small></article>`).join('');
+      renderWrittenReviews();
     }
-    const combinedFormForReload = panels.querySelector('#visitorPhotoForm');
-    if (combinedFormForReload) combinedFormForReload._reloadWrittenReviews = loadWrittenReviews;
-
+    reviewSort?.addEventListener('change', renderWrittenReviews);
+    reviewRatingFilter?.addEventListener('change', renderWrittenReviews);
+    reviewForm?.addEventListener('submit', async event => {
+      event.preventDefault();
+      const status = panels.querySelector('#ttWrittenReviewMessage');
+      const button = reviewForm.querySelector('button[type="submit"]');
+      const text = panels.querySelector('#ttWrittenReviewText').value.trim();
+      if (!text && !selectedReviewPhotos.length) { status.textContent = 'Write a review, add at least one photo, or do both.'; return; }
+      if (text && (text.length < 5 || text.length > 3000)) { status.textContent = 'A written review must be between 5 and 3,000 characters.'; return; }
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) { status.textContent = 'Please sign in before submitting a review or photos.'; return; }
+      button.disabled = true; if (addMorePhotosButton) addMorePhotosButton.disabled = true;
+      status.textContent = 'Submitting…';
+      try {
+        if (text) {
+          const { error } = await supabase.from('place_written_reviews').insert({ listing_id: item.id, user_id: user.id, review_text: text });
+          if (error) throw error;
+        }
+        for (const file of selectedReviewPhotos) {
+          const path = `${user.id}/${crypto.randomUUID()}`;
+          const { error: uploadError } = await supabase.storage.from('traveltaste-images').upload(path, file, { contentType: file.type, upsert: false });
+          if (uploadError) throw uploadError;
+          const { data: publicFile } = supabase.storage.from('traveltaste-images').getPublicUrl(path);
+          const { error: insertError } = await supabase.from('place_photo_submissions').insert({ listing_id: item.id, user_id: user.id, image_url: publicFile.publicUrl, caption: text ? text.slice(0,300) : null, status: 'pending' });
+          if (insertError) throw insertError;
+        }
+        reviewForm.reset(); selectedReviewPhotos = []; renderReviewPhotoPreviews();
+        status.textContent = 'Thank you! Your review and/or photos were submitted. Photos will appear after admin approval.';
+        currentUser = currentUser || user;
+        await loadWrittenReviews();
+      } catch (error) {
+        console.error('Review/photo submission failed:', error);
+        status.textContent = error?.code === '23505'
+          ? 'You have already reviewed this place. Each account can submit one written review per place; photos can still be submitted.'
+          : 'Could not complete submission: ' + (error?.message || 'Please try again.');
+      } finally { button.disabled = false; if (addMorePhotosButton) addMorePhotosButton.disabled = false; }
+    });
     // Overview is selected by default. All five panels are navigable.
     setActiveDetailTab('overview');
     loadWrittenReviews();
@@ -4759,167 +4861,7 @@ const allPhotos = combinedPhotos.length
     });
   }
   
-  const visitorPhotoForm = $('visitorPhotoForm');
-
-  if (visitorPhotoForm) {
-    const photoInput = $('visitorPhotoFile');
-    const addPhotosButton = $('ttAddMorePhotos');
-    const preview = $('ttSelectedPhotoPreview');
-    const hint = $('ttPhotoSelectionHint');
-    const reviewTextInput = $('ttCombinedReviewText');
-    const selectedFiles = [];
-    const maxPhotos = 4;
-
-    function renderSelectedPhotoPreviews() {
-      if (!preview) return;
-      preview.innerHTML = '';
-      selectedFiles.forEach((file, index) => {
-        const tile = document.createElement('div');
-        tile.className = 'tt-selected-photo-tile';
-        const image = document.createElement('img');
-        image.alt = file.name;
-        image.src = URL.createObjectURL(file);
-        image.onload = () => URL.revokeObjectURL(image.src);
-        const remove = document.createElement('button');
-        remove.type = 'button';
-        remove.className = 'tt-remove-selected-photo';
-        remove.setAttribute('aria-label', `Remove ${file.name}`);
-        remove.textContent = '×';
-        remove.addEventListener('click', () => {
-          selectedFiles.splice(index, 1);
-          renderSelectedPhotoPreviews();
-        });
-        tile.append(image, remove);
-        preview.appendChild(tile);
-      });
-      if (hint) hint.textContent = `${selectedFiles.length} of ${maxPhotos} photos selected. You can add more until you reach 4.`;
-      if (addPhotosButton) {
-        addPhotosButton.disabled = selectedFiles.length >= maxPhotos;
-        addPhotosButton.textContent = selectedFiles.length >= maxPhotos ? '✓ 4 photos selected' : '＋ Add more';
-      }
-    }
-
-    if (addPhotosButton && photoInput) {
-      addPhotosButton.addEventListener('click', () => {
-        if (selectedFiles.length < maxPhotos) photoInput.click();
-      });
-      photoInput.addEventListener('change', () => {
-        const incoming = Array.from(photoInput.files || []);
-        let message = '';
-        for (const file of incoming) {
-          if (selectedFiles.length >= maxPhotos) {
-            message = 'You can upload a maximum of 4 photos.';
-            break;
-          }
-          if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-            message = `${file.name}: choose a JPG, PNG or WebP image.`;
-            continue;
-          }
-          if (file.size > 5 * 1024 * 1024) {
-            message = `${file.name}: each photo must be 5 MB or smaller.`;
-            continue;
-          }
-          if (!selectedFiles.some(existing => existing.name === file.name && existing.size === file.size && existing.lastModified === file.lastModified)) {
-            selectedFiles.push(file);
-          }
-        }
-        photoInput.value = '';
-        renderSelectedPhotoPreviews();
-        if (message && $('visitorPhotoMessage')) $('visitorPhotoMessage').textContent = message;
-      });
-    }
-
-    visitorPhotoForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const message = $('visitorPhotoMessage');
-      const reviewText = reviewTextInput ? reviewTextInput.value.trim() : '';
-      const caption = $('visitorPhotoCaption')?.value.trim() || '';
-      const submitButton = visitorPhotoForm.querySelector('button[type="submit"]');
-      const hasReview = reviewText.length > 0;
-      const hasPhotos = selectedFiles.length > 0;
-
-      if (!hasReview && !hasPhotos) {
-        message.textContent = 'Write a review, add at least one photo, or do both.';
-        return;
-      }
-      if (hasReview && (reviewText.length < 5 || reviewText.length > 3000)) {
-        message.textContent = 'A review must contain between 5 and 3,000 characters.';
-        return;
-      }
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) {
-        message.textContent = 'Please sign in before submitting a review or photos.';
-        return;
-      }
-
-      submitButton.disabled = true;
-      if (addPhotosButton) addPhotosButton.disabled = true;
-      message.textContent = 'Submitting your contribution…';
-      let reviewSaved = false;
-      let photosSaved = 0;
-      try {
-        if (hasReview) {
-          const { error: reviewError } = await supabase.from('place_written_reviews').insert({
-            listing_id: item.id,
-            user_id: user.id,
-            review_text: reviewText
-          });
-          if (reviewError) {
-            if (reviewError.code === '23505') {
-              throw new Error('You have already reviewed this place. You can still submit photos separately.');
-            }
-            throw reviewError;
-          }
-          reviewSaved = true;
-        }
-
-        for (const file of selectedFiles) {
-          const path = `${user.id}/${crypto.randomUUID()}`;
-          const { error: uploadError } = await supabase.storage
-            .from('traveltaste-images')
-            .upload(path, file, { contentType: file.type, upsert: false });
-          if (uploadError) throw uploadError;
-
-          const { data: publicFile } = supabase.storage
-            .from('traveltaste-images')
-            .getPublicUrl(path);
-          const { error: insertError } = await supabase
-            .from('place_photo_submissions')
-            .insert({
-              listing_id: item.id,
-              user_id: user.id,
-              image_url: publicFile.publicUrl,
-              caption: caption || null,
-              status: 'pending'
-            });
-          if (insertError) throw insertError;
-          photosSaved += 1;
-        }
-
-        if (reviewTextInput) reviewTextInput.value = '';
-        const captionInput = $('visitorPhotoCaption');
-        if (captionInput) captionInput.value = '';
-        selectedFiles.splice(0, selectedFiles.length);
-        renderSelectedPhotoPreviews();
-        currentUser = currentUser || user;
-        const reviewMessage = $('ttWrittenReviewMessage');
-        if (reviewMessage && reviewSaved) reviewMessage.textContent = 'Your written review has been published.';
-        message.textContent = [reviewSaved ? 'Review submitted.' : '', photosSaved ? `${photosSaved} photo${photosSaved === 1 ? '' : 's'} submitted for admin approval.` : '']
-          .filter(Boolean).join(' ') || 'Your contribution has been submitted.';
-        if (reviewSaved && typeof visitorPhotoForm._reloadWrittenReviews === 'function') await visitorPhotoForm._reloadWrittenReviews();
-      } catch (error) {
-        console.error('Combined review/photo submission failed:', error);
-        message.textContent = 'Could not submit everything: ' + (error?.message || 'Please try again.');
-      } finally {
-        submitButton.disabled = false;
-        renderSelectedPhotoPreviews();
-      }
-    });
-  }
-
-  
- 
-  // Track the currently selected photo.
+// Track the currently selected photo.
   let currentPhotoIndex = 0;
 
   detailContent.querySelectorAll('.detail-thumb').forEach(button => {
@@ -6684,24 +6626,30 @@ body.detail-view-active .tt-photo-caption { margin: 7px 0 14px !important; }
 @media(max-width:700px){.tt-budget-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.tt-budget-form,.tt-visitor-info-grid{grid-template-columns:minmax(0,1fr)}.tt-budget-form label:last-of-type{grid-column:auto}.tt-detail-tab{padding:10px 14px;font-size:13px}}
 
 
-/* Unified review + optional multi-photo submission */
-.tt-combined-review-card { margin-top:16px; background:#fffaf7; border-color:#ffd7c5; }
-.tt-combined-review-card h2 { color:#f4511e; }
-.tt-combined-review-form { display:grid; grid-template-columns:minmax(0,1fr); gap:14px; align-items:start; }
-.tt-combined-review-form label { display:grid; gap:7px; min-width:0; font-weight:650; color:#263b57; }
-.tt-combined-review-form textarea { width:100%; min-height:100px; resize:vertical; padding:12px 14px; border:1px solid #d8e1ed; border-radius:10px; font:inherit; box-sizing:border-box; }
-.tt-combined-review-form input[type="text"] { width:100%; padding:11px 12px; border:1px solid #d8e1ed; border-radius:9px; box-sizing:border-box; }
-.tt-photo-picker-area { display:grid; gap:10px; }
-.tt-form-label { color:#263b57; font-weight:700; }
-.tt-selected-photo-preview { display:flex; flex-wrap:wrap; gap:10px; }
-.tt-selected-photo-tile { width:96px; height:82px; position:relative; border:1px solid #d8e1ed; border-radius:10px; overflow:hidden; background:#eef3f8; }
-.tt-selected-photo-tile img { width:100%; height:100%; object-fit:cover; display:block; }
-.tt-remove-selected-photo { position:absolute; top:4px; right:4px; width:24px; height:24px; border:0; border-radius:50%; background:#fff; color:#d83a16; font-size:20px; line-height:1; cursor:pointer; box-shadow:0 1px 5px #0002; }
-.tt-add-more-photos { justify-self:start; border:1px dashed #ff8d64; background:#fff; color:#ed4b19; border-radius:10px; padding:10px 16px; font-weight:750; cursor:pointer; }
-.tt-add-more-photos:disabled { opacity:.6; cursor:not-allowed; }
-.tt-photo-picker-area small { color:#64748b; }
-.tt-combined-review-form > button[type="submit"] { justify-self:start; min-width:160px; }
-@media(max-width:760px) { .tt-combined-review-form { grid-template-columns:1fr; } .tt-selected-photo-tile { width:82px; height:72px; } }
+/* Review-tab refinements: isolated to the place detail review panel. */
+body.detail-view-active .tt-review-controls { display:flex; flex-wrap:wrap; gap:12px; align-items:end; margin:16px 0; }
+body.detail-view-active .tt-review-controls label { display:grid; gap:5px; color:#183153; font-weight:600; }
+body.detail-view-active .tt-review-controls select { min-width:170px; padding:10px 12px; border:1px solid #D9E3ED; border-radius:9px; background:#fff; color:#183153; }
+body.detail-view-active .tt-review-count { margin-left:auto; color:#647B96; }
+body.detail-view-active .tt-written-review { padding:16px 0; border-bottom:1px solid #E4EAF1; }
+body.detail-view-active .tt-written-review-author { display:flex; flex-wrap:wrap; gap:8px 14px; align-items:baseline; }
+body.detail-view-active .tt-written-review-author small { color:#647B96; overflow-wrap:anywhere; }
+body.detail-view-active .tt-written-review-meta { display:flex; gap:12px; align-items:center; margin:7px 0; }
+body.detail-view-active .tt-review-stars { color:#F4A51C; letter-spacing:1px; }
+body.detail-view-active .tt-review-no-rating { color:#647B96; font-size:13px; }
+body.detail-view-active .tt-combined-review-form { margin-top:22px; padding:18px; border-radius:12px; background:#FFF3E9; }
+body.detail-view-active .tt-combined-review-form h3 { margin:0 0 6px; color:#E94A12; }
+body.detail-view-active .tt-combined-review-form > p { margin:0 0 14px; }
+body.detail-view-active .tt-combined-review-form textarea { display:block; width:100%; box-sizing:border-box; margin:6px 0 14px; padding:12px; border:1px solid #D9E3ED; border-radius:9px; font:inherit; }
+body.detail-view-active .tt-review-photo-picker { margin:12px 0 16px; }
+body.detail-view-active .tt-review-photo-picker > label { display:block; font-weight:600; margin-bottom:8px; }
+body.detail-view-active #ttReviewPhotos { max-width:100%; }
+body.detail-view-active .tt-review-photo-previews { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+body.detail-view-active .tt-review-photo-preview { position:relative; width:86px; height:76px; }
+body.detail-view-active .tt-review-photo-preview img { width:100%; height:100%; object-fit:cover; border-radius:8px; border:1px solid #D9E3ED; }
+body.detail-view-active .tt-review-photo-preview button { position:absolute; top:-7px; right:-7px; width:24px; height:24px; border:0; border-radius:50%; background:#183153; color:white; cursor:pointer; }
+body.detail-view-active #ttReviewAddMore { margin-top:8px; border:1px solid #F5B18D; background:#fff; color:#C94D20; border-radius:9px; padding:9px 12px; }
+
 </style>
 
 </body>
