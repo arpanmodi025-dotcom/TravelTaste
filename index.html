@@ -6326,6 +6326,29 @@ $('placeSubmissionForm').addEventListener('submit', async (event) => {
 
 
 
+// Expose narrowly-scoped helpers for the separate Nearby Discoveries drawer.
+// The main site keeps the Supabase client private inside this module.
+window.travelTasteFetchPublishedNearbyListings = async function () {
+  const pageSize = 500;
+  const allRows = [];
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await supabase
+      .from('listings')
+      .select('*')
+      .eq('is_published', true)
+      .order('created_at', { ascending: false })
+      .range(from, from + pageSize - 1);
+    if (error) throw error;
+    const batch = Array.isArray(data) ? data : [];
+    allRows.push(...batch);
+    if (batch.length < pageSize) break;
+  }
+  window.travelTasteNearbyListings = allRows;
+  return allRows;
+};
+window.travelTasteResolveNearbyCoordinates = async function (mapUrl) {
+  return resolveNewSubmissionCoordinates(mapUrl);
+};
 
   start();
 </script>
@@ -6809,20 +6832,38 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
   const validLatLon = (lat,lon) => number(lat) && number(lon) && Number(lat)>=-90 && Number(lat)<=90 && Number(lon)>=-180 && Number(lon)<=180;
   const distanceKm=(a,b,c,d)=>{const rad=x=>x*Math.PI/180;const x=rad(c-a),y=rad(d-b);const h=Math.max(0,Math.min(1,Math.sin(x/2)**2+Math.cos(rad(a))*Math.cos(rad(c))*Math.sin(y/2)**2));return 6371*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));};
 
-  // Extract coordinates only when the saved Google Maps URL visibly contains coordinates.
-  // Short links and place-name URLs remain valid for directions but cannot be distance-ranked here.
+  // Accept coordinates saved directly on a listing and common Google Maps URL formats.
+  // Older links can be place-name/short URLs, so those are resolved on demand below.
+  function mapUrlFor(item){
+    return String(item.google_maps_url||item.google_maps_link||item.maps_url||item.map_url||item.location_url||'').trim();
+  }
   function coordinatesFromMapUrl(url){
     if(!url)return null;
-    const text=String(url);
-    const patterns=[/@(-?\d{1,2}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/, /!3d(-?\d{1,2}\.\d+)!4d(-?\d{1,3}\.\d+)/, /[?&](?:q|query|destination)=(-?\d{1,2}\.\d+)%2C(-?\d{1,3}\.\d+)/i, /[?&](?:q|query|destination)=(-?\d{1,2}\.\d+),(-?\d{1,3}\.\d+)/i];
-    for(const re of patterns){const m=text.match(re);if(m){const lat=Number(m[1]),lon=Number(m[2]);if(validLatLon(lat,lon))return {latitude:lat,longitude:lon};}}
+    let text=String(url);
+    try{text += ' ' + decodeURIComponent(text.replace(/\+/g,' '));}catch(_){}
+    const patterns=[
+      /@(-?\d{1,2}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/,
+      /!3d(-?\d{1,2}\.\d+)!4d(-?\d{1,3}\.\d+)/,
+      /!2d(-?\d{1,3}\.\d+)!3d(-?\d{1,2}\.\d+)/,
+      /(?:geo:|[?&](?:q|query|destination|ll|center)=)(-?\d{1,2}\.\d+)\s*(?:%2C|,|\s)\s*(-?\d{1,3}\.\d+)/i,
+      /(-?\d{1,2}\.\d{3,})\s*,\s*(-?\d{1,3}\.\d{3,})/
+    ];
+    for(const re of patterns){
+      const m=text.match(re);if(!m)continue;
+      let lat=Number(m[1]),lon=Number(m[2]);
+      if(re.source.startsWith('!2d')){lat=Number(m[2]);lon=Number(m[1]);}
+      if(validLatLon(lat,lon))return {latitude:lat,longitude:lon};
+    }
     return null;
   }
   function withCoordinates(item){
-    const fromUrl=coordinatesFromMapUrl(item.google_maps_url);
-    const lat=validLatLon(item.latitude,item.longitude)?Number(item.latitude):fromUrl?.latitude;
-    const lon=validLatLon(item.latitude,item.longitude)?Number(item.longitude):fromUrl?.longitude;
-    return {...item,latitude:lat,longitude:lon};
+    const mapUrl=mapUrlFor(item);
+    const fromUrl=coordinatesFromMapUrl(mapUrl);
+    const pairs=[[item.latitude,item.longitude],[item.lat,item.lng],[item.lat,item.lon],[item.lat,item.long]];
+    let saved=null;
+    for(const pair of pairs){if(validLatLon(pair[0],pair[1])){saved={latitude:Number(pair[0]),longitude:Number(pair[1])};break;}}
+    const coords=saved||fromUrl;
+    return {...item,google_maps_url:mapUrl||item.google_maps_url||null,latitude:coords?.latitude??null,longitude:coords?.longitude??null};
   }
   function typeOf(item){
     const t=String(item.type||'').toLowerCase();
@@ -6835,7 +6876,57 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
   function categoryLabel(item){const t=String(item.type||'Place').trim();return ({place:'Place',food:'Food Spot',food_shop:'Food Shop',activity:'Activity',hidden_gem:'Hidden Gem'})[t.toLowerCase()]||t||'Place';}
   function publishedItems(){
     const source=Array.isArray(window.travelTasteNearbyListings)?window.travelTasteNearbyListings:[];
-    return source.filter(item=>item && (item.is_published===true || item.is_published==='true')).map(withCoordinates);
+    return source.filter(item=>item && (item.is_published===true || item.is_published==='true' || item.is_published===1 || item.is_published==='1')).map(withCoordinates);
+  }
+  const resolvedCoordinateCacheKey='traveltaste-nearby-coordinate-cache-v1';
+  function readResolvedCoordinateCache(){
+    try{return JSON.parse(localStorage.getItem(resolvedCoordinateCacheKey)||'{}')||{};}catch(_){return {};}
+  }
+  function writeResolvedCoordinateCache(cache){
+    try{localStorage.setItem(resolvedCoordinateCacheKey,JSON.stringify(cache));}catch(_){}
+  }
+  function coordinateCacheId(item){return `${String(item.id||item.name||'unknown')}|${mapUrlFor(item)}`;}
+  async function refreshAndResolvePublishedListings(){
+    let source=[];
+    if(typeof window.travelTasteFetchPublishedNearbyListings==='function'){
+      source=await window.travelTasteFetchPublishedNearbyListings();
+    }else if(Array.isArray(window.travelTasteNearbyListings)){
+      source=window.travelTasteNearbyListings;
+    }
+    source=(Array.isArray(source)?source:[]).filter(item=>item&&(item.is_published===true||item.is_published==='true'||item.is_published===1||item.is_published==='1')).map(withCoordinates);
+    window.travelTasteNearbyListings=source;
+
+    const cache=readResolvedCoordinateCache();
+    source=source.map(item=>{
+      if(validLatLon(item.latitude,item.longitude))return item;
+      const cached=cache[coordinateCacheId(item)];
+      return cached&&validLatLon(cached.latitude,cached.longitude)?{...item,latitude:Number(cached.latitude),longitude:Number(cached.longitude)}:item;
+    });
+    window.travelTasteNearbyListings=source;
+
+    const unresolved=source.filter(item=>!validLatLon(item.latitude,item.longitude)&&mapUrlFor(item));
+    if(unresolved.length&&typeof window.travelTasteResolveNearbyCoordinates==='function'){
+      let nextIndex=0, resolvedCount=0;
+      const worker=async()=>{
+        while(nextIndex<unresolved.length){
+          const index=nextIndex++;const item=unresolved[index];
+          try{
+            const result=await window.travelTasteResolveNearbyCoordinates(mapUrlFor(item));
+            if(result&&result.resolved&&validLatLon(result.latitude,result.longitude)){
+              const coords={latitude:Number(result.latitude),longitude:Number(result.longitude)};
+              cache[coordinateCacheId(item)]=coords;
+              source=source.map(row=>String(row.id)===String(item.id)?{...row,...coords}:row);
+              window.travelTasteNearbyListings=source;resolvedCount++;
+              writeResolvedCoordinateCache(cache);
+            }
+          }catch(error){console.warn('Could not resolve existing listing coordinates:',item.name,error);}
+          status.textContent=`Checking saved map links for existing places… ${Math.min(index+1,unresolved.length)} of ${unresolved.length} checked${resolvedCount?`; ${resolvedCount} coordinates recovered`:''}.`;
+        }
+      };
+      await Promise.all(Array.from({length:Math.min(3,unresolved.length)},()=>worker()));
+    }
+    window.travelTasteNearbyListings=source;
+    return source;
   }
   function getItems(){
     const query=activeSearch.trim().toLowerCase();
@@ -6911,8 +7002,10 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
     const titles={all:'Top recommendations near you',places:'Places near you',food:'Food spots near you',activities:'Activities near you',hidden:'Hidden gems near you'};
     $('nearbyResultsTitle').textContent=`${titles[activeFilter]||titles.all} (within ${nearbyRadiusKm} km)`;
     if(!shown.length){
-      const hasPublished=publishedItems().some(item=>validLatLon(item.latitude,item.longitude));
-      results.innerHTML=`<div class="nearby-empty">${hasPublished?'No published TravelTaste places match your search within '+nearbyRadiusKm+' km. Try a wider radius or another category.':'Your published listings do not yet have usable latitude and longitude. Google Maps links that visibly contain coordinates can be used for distance sorting; other places need coordinates saved before they can appear here.'}</div>`;
+      const allPublished=publishedItems();
+      const hasPublished=allPublished.some(item=>validLatLon(item.latitude,item.longitude));
+      const missingCoords=allPublished.filter(item=>!validLatLon(item.latitude,item.longitude)).length;
+      results.innerHTML=`<div class="nearby-empty">${hasPublished?'No published TravelTaste places match your search within '+nearbyRadiusKm+' km. Try a wider radius or another category.':`We loaded ${allPublished.length} published TravelTaste place${allPublished.length===1?'':'s'}, but none has usable coordinates yet. ${missingCoords} place${missingCoords===1?' needs':'s need'} latitude and longitude saved, or a resolvable Google Maps link, before accurate distance filtering can work.`}</div>`;
     }else{
       results.innerHTML=shown.map(item=>{
         const img=item.image_url||item.image||'';
@@ -6995,10 +7088,24 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
     if(!navigator.geolocation){status.textContent='Your browser does not support location sharing. Please try a modern browser.';return;}
     if(!window.isSecureContext){status.textContent='Location access requires a secure HTTPS website. Open TravelTaste using its HTTPS address.';return;}
     const btn=$('useNearbyLocation');btn.disabled=true;status.textContent='Requesting permission to access your current location…';
-    navigator.geolocation.getCurrentPosition(pos=>{
-      userPosition={lat:pos.coords.latitude,lon:pos.coords.longitude};btn.disabled=false;
-      status.textContent=`Location found. Showing published TravelTaste listings within ${nearbyRadiusKm} km. Distances are straight-line estimates.`;
-      render();
+    navigator.geolocation.getCurrentPosition(async pos=>{
+      userPosition={lat:pos.coords.latitude,lon:pos.coords.longitude};btn.disabled=true;
+      status.textContent='Location found. Loading all published TravelTaste places…';
+      try{
+        await refreshAndResolvePublishedListings();
+        const coordCount=publishedItems().filter(item=>validLatLon(item.latitude,item.longitude)).length;
+        const totalCount=publishedItems().length;
+        render();
+        if(coordCount){
+          status.textContent=`Location found. ${coordCount} of ${totalCount} published places have usable coordinates. Showing results within ${nearbyRadiusKm} km; distances are straight-line estimates.`;
+        }else{
+          status.textContent=`Location found and ${totalCount} published places loaded, but their saved map links did not provide usable coordinates. Add coordinates to those listings or ensure the Supabase “resolve-map-coordinates” function is deployed.`;
+        }
+      }catch(error){
+        console.error('Nearby published listings could not be refreshed:',error);
+        render();
+        status.textContent='Your location was found, but TravelTaste could not refresh published places from Supabase. Please check the database connection and try again.';
+      }finally{btn.disabled=false;}
     },err=>{btn.disabled=false;const messages={1:'Location permission was denied. Allow location access in your browser settings and try again.',2:'Your location could not be determined. Check device location services and try again.',3:'Location request timed out. Please try again.'};status.textContent=messages[err.code]||'Could not access your location. Please try again.';},{enableHighAccuracy:true,timeout:15000,maximumAge:60000});
   });
   $('nearbyFilters').addEventListener('click',event=>{const button=event.target.closest('[data-nearby-filter]');if(!button)return;activeFilter=button.dataset.nearbyFilter;$('nearbyFilters').querySelectorAll('[data-nearby-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));if(userPosition)render();});
