@@ -4353,20 +4353,22 @@ const allPhotos = combinedPhotos.length
       </section>
 
       <section id="visitorPhotoSection" class="tt-detail-card tt-visitor-photo-card">
-        <h2><span class="tt-section-icon" aria-hidden="true">▣</span> Share your photos of this place</h2>
-        <p>Help other travellers discover this place through your photos.</p>
-        <form id="visitorPhotoForm" class="tt-visitor-photo-form">
-          <label>
-            Choose a photo (JPG, PNG or WebP; maximum 5 MB)
-            <input id="visitorPhotoFile" type="file" accept="image/jpeg,image/png,image/webp" required>
-          </label>
-          <label>
-            Caption (optional)
-            <input id="visitorPhotoCaption" type="text" maxlength="300" placeholder="Describe your photo">
-          </label>
-          <button type="submit" class="btn primary">Submit photo for approval</button>
-          <p id="visitorPhotoMessage" role="status"></p>
-        </form>
+        <details class="tt-budget-entry-details tt-photo-entry-details">
+          <summary><span aria-hidden="true">📷</span> Share your photos of this place</summary>
+          <p class="tt-photo-entry-help">Help other travellers discover this place through your photos.</p>
+          <form id="visitorPhotoForm" class="tt-visitor-photo-form">
+            <label>
+              <span>🖼️ Choose a photo (JPG, PNG or WebP; maximum 5 MB)</span>
+              <input id="visitorPhotoFile" type="file" accept="image/jpeg,image/png,image/webp" required>
+            </label>
+            <label>
+              <span>✍️ Caption (optional)</span>
+              <input id="visitorPhotoCaption" type="text" maxlength="300" placeholder="Describe your photo">
+            </label>
+            <button type="submit" class="btn primary">Submit photo for approval</button>
+            <p id="visitorPhotoMessage" role="status" aria-live="polite"></p>
+          </form>
+        </details>
       </section>
       </div><!-- /.tt-feedback-grid -->
 
@@ -6649,6 +6651,15 @@ body.detail-view-active .tt-photo-caption { margin: 7px 0 14px !important; }
 .tt-written-review p{margin:0 0 8px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}
 .tt-written-review small{color:#84766d}
 @media(max-width:700px){.tt-budget-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.tt-budget-form,.tt-visitor-info-grid{grid-template-columns:minmax(0,1fr)}.tt-budget-form label:last-of-type{grid-column:auto}.tt-detail-tab{padding:10px 14px;font-size:13px}}
+.tt-photo-entry-details{margin-top:0}
+.tt-photo-entry-help{margin:12px 0;color:#334155}
+.tt-visitor-photo-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin-top:16px}
+.tt-visitor-photo-form label{display:grid;gap:7px;font-weight:700;font-size:13px;color:#55473e}
+.tt-visitor-photo-form input{width:100%;min-width:0;border:1px solid #ddd4cd;border-radius:10px;padding:11px 12px;background:#fff;font:inherit}
+.tt-visitor-photo-form button,.tt-visitor-photo-form #visitorPhotoMessage{grid-column:1/-1}
+.tt-visitor-photo-form #visitorPhotoMessage{margin:0;color:#87502f;font-size:13px}
+@media(max-width:700px){.tt-visitor-photo-form{grid-template-columns:minmax(0,1fr)}}
+
 
 </style>
 
