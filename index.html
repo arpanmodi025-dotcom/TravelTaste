@@ -2561,6 +2561,23 @@ body.detail-view-active .tt-photo-caption { color: #64748b; font-size: 13px; mar
 </section>
 
 <script type="module">
+
+const categoryNames = {
+  place:'Place',
+  food:'Food',
+  food_shop:'Food Shop',
+  activity:'Activity',
+  hidden_gem:'Hidden Gem'
+};
+
+const styleNames = {
+  all:'All Travellers',
+  solo:'Solo Travel',
+  family:'Family Travel',
+  friends:'Friends Travel',
+  couple:'Couple Travel'
+};
+
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
 const SUPABASE_URL = 'https://xhmztvfcosvqkeqnhzer.supabase.co';
@@ -3962,21 +3979,7 @@ function escapeHtml(value) {
   })[char]);
 }
 
-const categoryNames = {
-  place:'Place',
-  food:'Food',
-  food_shop:'Food Shop',
-  activity:'Activity',
-  hidden_gem:'Hidden Gem'
-};
 
-const styleNames = {
-  all:'All Travellers',
-  solo:'Solo Travel',
-  family:'Family Travel',
-  friends:'Friends Travel',
-  couple:'Couple Travel'
-};
 
 function scrollToTop() {
   $('top').scrollIntoView({behavior:'smooth'});
