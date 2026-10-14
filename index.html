@@ -4288,7 +4288,7 @@ const allPhotos = combinedPhotos.length
           <button type="button" class="tt-view-all" id="viewAllCityPlaces">View all →</button>
         </div>
         <div class="tt-more-places-grid">
-          ${listings.filter(place => String(place.id) !== String(item.id) && (!place.city_id || !selectedCity.id || String(place.city_id) === String(selectedCity.id)))
+          ${listings.filter(place => (place.is_published === true || place.is_published === 'true') && String(place.city_id) === String(selectedCity.id) && String(place.id) !== String(item.id))
             .slice().sort((a,b) => {
               const aId=String(a.id), bId=String(b.id);
               const aTop=communityTopFiveIds.has(aId)?1:0, bTop=communityTopFiveIds.has(bId)?1:0;
