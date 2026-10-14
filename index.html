@@ -4343,7 +4343,6 @@ const allPhotos = combinedPhotos.length
       <section id="placeRatingSection" class="tt-detail-card tt-rating-card">
         <h2><span class="tt-section-icon tt-section-star" aria-hidden="true">★</span> Rate this place</h2>
         <p id="ratingSummary">Loading ratings...</p>
-        <div id="ttRatingDistribution" class="tt-rating-distribution" aria-label="Rating distribution"></div>
         <p>How was your experience?</p>
         <div id="ratingButtons" class="tt-rating-buttons">
           ${[1,2,3,4,5].map(n => `
@@ -4445,18 +4444,32 @@ const allPhotos = combinedPhotos.length
           <p class="tt-visitor-tip">Information is shown only when available in the place record. Confirm details with the venue before travelling.</p>
         </section>
       </section>
-      <section class="tt-detail-panel" data-detail-panel="reviews" role="tabpanel" hidden>
-        <div data-panel-rating></div>
-        <section class="tt-detail-card tt-written-reviews tt-review-hub">
-          <div class="tt-reviews-heading">
-            <div>
-              <h2>Visitor Reviews</h2>
-              <p>Read what other travellers have shared about their experience at this place.</p>
-            </div>
-            <button type="button" class="btn primary tt-open-review-modal" id="ttOpenReviewModal">✎ Write a Review</button>
+      <section class="tt-detail-panel tt-reviews-panel" data-detail-panel="reviews" role="tabpanel" hidden>
+        <div class="tt-reviews-title-row">
+          <div>
+            <h2 class="tt-reviews-main-title">⭐ Reviews &amp; Ratings</h2>
+            <p class="tt-reviews-intro">Read real visitor experiences and share your own.</p>
           </div>
-          <div class="tt-review-toolbar">
-            <label class="tt-review-control">Sort by
+          <div class="tt-reviews-main-actions">
+            <button type="button" class="tt-review-outline-button" id="ttSeeMyReviews">♙ See My Reviews</button>
+            <button type="button" class="btn primary" id="ttOpenReviewModal">✎ Write a Review</button>
+          </div>
+        </div>
+        <div class="tt-reviews-summary-layout">
+          <section class="tt-review-summary-card" aria-label="Overall place rating">
+            <div id="ttReviewOverallSummary" class="tt-review-overall-summary">Loading overall rating…</div>
+            <div id="ttReviewRatingDistribution" class="tt-review-rating-distribution"></div>
+          </section>
+          <div class="tt-review-rate-card" data-panel-rating></div>
+        </div>
+        <p id="ttReviewPageMessage" class="tt-review-page-message" role="status" aria-live="polite"></p>
+        <section class="tt-detail-card tt-written-reviews">
+          <div class="tt-review-list-heading">
+            <div><h2>Visitor Reviews</h2><p>Reviews and visitor photos shared for this place.</p></div>
+            <span id="ttReviewsCount" class="tt-reviews-count">Loading…</span>
+          </div>
+          <div class="tt-review-controls">
+            <label>Sort by
               <select id="ttReviewSort">
                 <option value="newest">Newest first</option>
                 <option value="oldest">Oldest first</option>
@@ -4464,69 +4477,81 @@ const allPhotos = combinedPhotos.length
                 <option value="lowest">Lowest rating</option>
               </select>
             </label>
-            <label class="tt-review-control">Filter rating
+            <label>Filter rating
               <select id="ttReviewFilter">
-                <option value="all">★ All ratings</option>
+                <option value="all">⭐ All ratings</option>
                 <option value="5">★★★★★ 5 stars</option>
                 <option value="4">★★★★☆ 4 stars</option>
                 <option value="3">★★★☆☆ 3 stars</option>
                 <option value="2">★★☆☆☆ 2 stars</option>
                 <option value="1">★☆☆☆☆ 1 star</option>
-                <option value="unrated">No rating</option>
+                <option value="unrated">No rating submitted</option>
               </select>
             </label>
-            <span id="ttReviewCount" class="tt-review-count" aria-live="polite">Loading reviews…</span>
           </div>
-          <div id="ttWrittenReviewList" class="tt-review-list" aria-live="polite">Loading reviews…</div>
-          <nav class="tt-review-pagination" id="ttReviewPagination" aria-label="Review pages">
-            <button type="button" id="ttReviewPrevious" disabled>‹ Previous</button>
+          <div id="ttWrittenReviewList" class="tt-written-review-list" aria-live="polite">Loading reviews…</div>
+          <div id="ttReviewPagination" class="tt-review-pagination" hidden>
+            <button type="button" id="ttReviewPreviousPage" class="tt-review-outline-button" disabled>‹ Previous</button>
             <span id="ttReviewPageLabel">Page 1</span>
-            <button type="button" id="ttReviewNext" disabled>Next ›</button>
-          </nav>
+            <button type="button" id="ttReviewNextPage" class="tt-review-outline-button" disabled>Next ›</button>
+          </div>
         </section>
+        <div data-panel-photos></div>
 
-        <div class="tt-review-modal" id="ttReviewModal" hidden>
-          <button type="button" class="tt-review-modal-backdrop" data-close-review-modal aria-label="Close review dialog"></button>
-          <section class="tt-review-dialog" role="dialog" aria-modal="true" aria-labelledby="ttReviewModalTitle">
-            <header class="tt-review-dialog-header">
-              <div>
-                <h2 id="ttReviewModalTitle">Write a Review</h2>
-                <p>Share your experience to help other travellers. You can write a review, add photos, or both.</p>
-              </div>
-              <button type="button" class="tt-review-close" data-close-review-modal aria-label="Close">×</button>
-            </header>
-            <form id="ttWrittenReviewForm" class="tt-review-modal-form">
-              <fieldset class="tt-review-rating-field">
-                <legend>Your rating <span>(optional)</span></legend>
-                <div class="tt-modal-rating-buttons" role="group" aria-label="Your review rating">
-                  ${[1,2,3,4,5].map(n => `<button type="button" data-modal-rating="${n}" aria-pressed="false" aria-label="${n} star${n===1?'':'s'}">${'★'.repeat(n)}<small>${n} star${n===1?'':'s'}</small></button>`).join('')}
+        <section id="ttReviewEditorModal" class="tt-review-modal" hidden aria-hidden="true">
+          <div class="tt-review-modal-backdrop" data-close-review-editor></div>
+          <div class="tt-review-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="ttReviewEditorTitle">
+            <div class="tt-review-modal-heading">
+              <div><h2 id="ttReviewEditorTitle">Write a Review</h2><p id="ttReviewEditorPlaceName">Share your experience to help other travellers.</p></div>
+              <button type="button" class="tt-review-modal-close" data-close-review-editor aria-label="Close review form">×</button>
+            </div>
+            <form id="ttReviewEditorForm">
+              <input type="hidden" id="ttReviewEditId">
+              <input type="hidden" id="ttReviewEditListingId">
+              <div class="tt-review-modal-rating">
+                <div class="tt-review-field-title">Your rating <span>(optional)</span></div>
+                <div class="tt-review-star-picker" role="group" aria-label="Optional review rating">
+                  <button type="button" data-review-rating="1" aria-pressed="false">★<small>1 star</small></button>
+                  <button type="button" data-review-rating="2" aria-pressed="false">★★<small>2 stars</small></button>
+                  <button type="button" data-review-rating="3" aria-pressed="false">★★★<small>3 stars</small></button>
+                  <button type="button" data-review-rating="4" aria-pressed="false">★★★★<small>4 stars</small></button>
+                  <button type="button" data-review-rating="5" aria-pressed="false">★★★★★<small>5 stars</small></button>
+                  <button type="button" id="ttReviewClearRating" class="tt-review-clear-rating">Clear</button>
                 </div>
-              </fieldset>
-              <label class="tt-review-write-label" for="ttWrittenReviewText">Your review <span>(optional when adding photos)</span></label>
-              <textarea id="ttWrittenReviewText" name="review_text" rows="4" maxlength="3000" placeholder="What did you like? What should other visitors know?"></textarea>
-              <div class="tt-review-char-count"><span id="ttReviewTextCount">0</span>/3000</div>
-
-              <div class="tt-review-photo-area">
-                <div class="tt-review-photo-label">Add photos <span>(optional, JPG, PNG or WebP; maximum 4 photos, 5 MB each)</span></div>
-                <p>You can choose multiple photos at once or click “Add more” to select more later.</p>
-                <input id="ttReviewPhotoInput" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden>
-                <button type="button" class="tt-review-photo-picker" id="ttChooseReviewPhotos">
-                  <span aria-hidden="true">▧</span>
-                  <strong>Choose photos from your device</strong>
-                  <small>Select multiple photos at once</small>
-                </button>
-                <div id="ttReviewPhotoPreview" class="tt-review-photo-preview"></div>
-                <button type="button" class="tt-review-add-more" id="ttAddMoreReviewPhotos">＋ Add more</button>
+                <input type="hidden" id="ttReviewChosenRating" value="">
               </div>
-              <p id="ttWrittenReviewMessage" class="tt-review-status" role="status" aria-live="polite"></p>
-              <div class="tt-review-dialog-actions">
-                <button type="button" class="tt-review-cancel" data-close-review-modal>Cancel</button>
-                <button type="submit" class="btn primary" id="ttSubmitReview">Submit Review</button>
+              <label class="tt-review-text-label" for="ttReviewEditorText">Your review <span>(optional if you add photos)</span></label>
+              <textarea id="ttReviewEditorText" rows="5" maxlength="3000" placeholder="What did you like? What should other visitors know?"></textarea>
+              <div class="tt-review-photo-upload-area">
+                <div class="tt-review-field-title">Add photos <span>(optional, up to 4 photos, 5 MB each)</span></div>
+                <p class="tt-review-existing-photo-note" id="ttReviewExistingPhotoNote" hidden>Previously submitted photos remain in the place gallery. New photos will be sent for approval.</p>
+                <div id="ttReviewExistingPhotos" class="tt-review-existing-photos"></div>
+                <input type="file" id="ttReviewPhotoInput" accept="image/jpeg,image/png,image/webp" multiple hidden>
+                <button type="button" id="ttReviewAddPhotos" class="tt-review-photo-picker">▧ Choose photos from your device</button>
+                <div id="ttReviewNewPhotoPreviews" class="tt-review-photo-previews"></div>
+                <button type="button" id="ttReviewAddMorePhotos" class="tt-review-add-more">＋ Add more</button>
+                <p class="tt-review-photo-hint">Select multiple photos at once, or use Add more. You can remove any selection before submitting.</p>
+              </div>
+              <p id="ttReviewEditorMessage" class="tt-review-editor-message" role="status" aria-live="polite"></p>
+              <div class="tt-review-modal-actions">
+                <button type="button" class="tt-review-outline-button" data-close-review-editor>Cancel</button>
+                <button type="submit" class="btn primary" id="ttReviewSaveButton">Submit Review</button>
               </div>
             </form>
-          </section>
-        </div>
-        <div data-panel-photos></div>
+          </div>
+        </section>
+
+        <section id="ttMyReviewsModal" class="tt-my-reviews-modal" hidden aria-hidden="true">
+          <div class="tt-my-reviews-backdrop" data-close-my-reviews></div>
+          <div class="tt-my-reviews-dialog" role="dialog" aria-modal="true" aria-labelledby="ttMyReviewsTitle">
+            <header class="tt-my-reviews-header">
+              <div><h2 id="ttMyReviewsTitle">My Reviews</h2><p>All the reviews you have shared on TravelTaste, across every place.</p></div>
+              <button type="button" class="tt-review-modal-close" data-close-my-reviews aria-label="Close My Reviews">×</button>
+            </header>
+            <p id="ttMyReviewsMessage" class="tt-review-page-message" role="status" aria-live="polite"></p>
+            <div id="ttMyReviewsList" class="tt-my-reviews-list">Loading your reviews…</div>
+          </div>
+        </section>
       </section>
       <section class="tt-detail-panel" data-detail-panel="nearby" role="tabpanel" hidden>
         <div data-panel-nearby></div>
@@ -4599,7 +4624,6 @@ const allPhotos = combinedPhotos.length
         panel.classList.toggle('active', active);
       });
       if (key === 'budget') loadRecentBudgets();
-      if (key !== 'reviews' && typeof closeReviewModal === 'function' && reviewModal && !reviewModal.hidden) closeReviewModal();
       if (key === 'reviews') loadWrittenReviews();
     };
     tabs.querySelectorAll('[data-detail-tab]').forEach(button => button.addEventListener('click', () => setActiveDetailTab(button.dataset.detailTab)));
@@ -4704,105 +4728,85 @@ const allPhotos = combinedPhotos.length
       } finally { button.disabled = false; }
     });
 
-    const reviewForm = panels.querySelector('#ttWrittenReviewForm');
     const reviewList = panels.querySelector('#ttWrittenReviewList');
     const reviewSort = panels.querySelector('#ttReviewSort');
     const reviewFilter = panels.querySelector('#ttReviewFilter');
-    const reviewCount = panels.querySelector('#ttReviewCount');
+    const reviewCount = panels.querySelector('#ttReviewsCount');
+    const reviewPageMessage = panels.querySelector('#ttReviewPageMessage');
     const reviewPagination = panels.querySelector('#ttReviewPagination');
     const reviewPageLabel = panels.querySelector('#ttReviewPageLabel');
-    const reviewPrevious = panels.querySelector('#ttReviewPrevious');
-    const reviewNext = panels.querySelector('#ttReviewNext');
-    const reviewModal = panels.querySelector('#ttReviewModal');
-    const openReviewModalButton = panels.querySelector('#ttOpenReviewModal');
+    const reviewPrevious = panels.querySelector('#ttReviewPreviousPage');
+    const reviewNext = panels.querySelector('#ttReviewNextPage');
+    const reviewEditorModal = panels.querySelector('#ttReviewEditorModal');
+    const reviewEditorForm = panels.querySelector('#ttReviewEditorForm');
+    const reviewEditorMessage = panels.querySelector('#ttReviewEditorMessage');
+    const reviewMyModal = panels.querySelector('#ttMyReviewsModal');
+    const myReviewsList = panels.querySelector('#ttMyReviewsList');
+    const myReviewsMessage = panels.querySelector('#ttMyReviewsMessage');
     const reviewPhotoInput = panels.querySelector('#ttReviewPhotoInput');
-    const reviewPhotoPreview = panels.querySelector('#ttReviewPhotoPreview');
-    const reviewChoosePhotos = panels.querySelector('#ttChooseReviewPhotos');
-    const reviewAddMorePhotos = panels.querySelector('#ttAddMoreReviewPhotos');
-    const reviewTextInput = panels.querySelector('#ttWrittenReviewText');
-    const reviewTextCount = panels.querySelector('#ttReviewTextCount');
-    const reviewSubmitButton = panels.querySelector('#ttSubmitReview');
-    let allWrittenReviewRows = [];
-    let reviewProfileMap = {};
-    let reviewPhotosByUser = {};
-    let reviewPage = 1;
-    const reviewPageSize = 5;
-    let selectedReviewRating = null;
-    let selectedReviewPhotos = [];
-    let reviewPreviewUrls = [];
-    let previousBodyOverflow = '';
+    const reviewPhotoPreviews = panels.querySelector('#ttReviewNewPhotoPreviews');
+    const reviewExistingPhotos = panels.querySelector('#ttReviewExistingPhotos');
+    const reviewAddPhotos = panels.querySelector('#ttReviewAddPhotos');
+    const reviewAddMorePhotos = panels.querySelector('#ttReviewAddMorePhotos');
+    const reviewSaveButton = panels.querySelector('#ttReviewSaveButton');
+    const reviewChosenRating = panels.querySelector('#ttReviewChosenRating');
+    let reviewRowsCache = [];
+    let cachedReviewNameMap = {};
+    let cachedReviewPhotosByUser = {};
+    let currentReviewPage = 1;
+    const reviewsPerPage = 4;
+    let selectedReviewFiles = [];
+    let editingReviewRow = null;
+    let editorListing = { id: item.id, name: item.name || 'this place' };
+    let existingEditorPhotos = [];
 
-    function reviewInitials(name) {
-      return String(name || 'TravelTaste member').trim().split(/\s+/).filter(Boolean)
-        .slice(0, 2).map(part => part[0]).join('').toUpperCase() || 'TT';
-    }
-    function reviewStars(rating) {
-      const n = Number(rating);
-      if (!Number.isInteger(n) || n < 1 || n > 5) return '<span class="tt-review-unrated">No star rating submitted</span>';
-      return `<span class="tt-review-stars" aria-label="${n} out of 5 stars">${'★'.repeat(n)}<span class="tt-review-empty-stars">${'☆'.repeat(5-n)}</span></span>`;
-    }
-    function renderReviewPage() {
-      if (!reviewList) return;
-      const wanted = reviewFilter?.value || 'all';
-      let rows = allWrittenReviewRows.filter(row => {
-        const n = Number(row.rating);
-        if (wanted === 'unrated') return !Number.isInteger(n) || n < 1 || n > 5;
-        if (wanted === 'all') return true;
-        return n === Number(wanted);
-      });
-      const sort = reviewSort?.value || 'newest';
-      rows.sort((a, b) => {
-        const da = new Date(a.created_at || 0).getTime() || 0;
-        const db = new Date(b.created_at || 0).getTime() || 0;
-        if (sort === 'oldest') return da - db;
-        if (sort === 'highest') {
-          const ra = Number(a.rating) || 0, rb = Number(b.rating) || 0;
-          return rb - ra || db - da;
-        }
-        if (sort === 'lowest') {
-          const ra = Number(a.rating) || 0, rb = Number(b.rating) || 0;
-          if (!ra && rb) return 1;
-          if (!rb && ra) return -1;
-          return ra - rb || db - da;
-        }
-        return db - da;
-      });
+    const reviewDate = value => value ? new Date(value).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' }) : '';
+    const reviewStars = value => {
+      const rating = Number(value || 0);
+      return `<span class="tt-review-stars" aria-label="${rating ? `${rating} out of 5 stars` : 'No star rating submitted'}">${[1,2,3,4,5].map(n => `<span class="${n <= rating ? 'is-filled' : 'is-empty'}">★</span>`).join('')}</span>`;
+    };
+    const reviewInitials = name => String(name || 'T').trim().split(/\s+/).slice(0, 2).map(part => part[0] || '').join('').toUpperCase() || 'T';
+    const reviewIdentityMap = async userIds => {
+      const ids = [...new Set((userIds || []).filter(Boolean))];
+      if (!ids.length) return {};
+      try {
+        const { data, error } = await supabase.from('community_profiles').select('user_id,display_name').in('user_id', ids);
+        if (error) throw error;
+        return Object.fromEntries((data || []).map(profile => [profile.user_id, profile.display_name || 'TravelTaste member']));
+      } catch (error) {
+        console.warn('Review author names could not be loaded:', error);
+        return {};
+      }
+    };
+    const reviewAuthorLabel = (row, nameMap) => {
+      if (currentUser?.id === row.user_id) return nameMap[row.user_id] || displayNameFor(currentUser) || 'You';
+      return nameMap[row.user_id] || 'TravelTaste member';
+    };
 
-      const pageCount = Math.max(1, Math.ceil(rows.length / reviewPageSize));
-      reviewPage = Math.min(Math.max(1, reviewPage), pageCount);
-      const visibleRows = rows.slice((reviewPage - 1) * reviewPageSize, reviewPage * reviewPageSize);
-      if (reviewCount) reviewCount.textContent = `${rows.length} review${rows.length === 1 ? '' : 's'}`;
-      if (reviewPagination) reviewPagination.hidden = rows.length <= reviewPageSize;
-      if (reviewPageLabel) reviewPageLabel.textContent = `Page ${reviewPage} of ${pageCount}`;
-      if (reviewPrevious) reviewPrevious.disabled = reviewPage <= 1;
-      if (reviewNext) reviewNext.disabled = reviewPage >= pageCount;
-
-      if (!visibleRows.length) {
-        reviewList.innerHTML = '<div class="tt-review-empty"><span aria-hidden="true">✎</span><strong>No reviews match this filter yet.</strong><p>Choose another rating or be the first to share your experience.</p></div>';
+    async function loadReviewRatingDistribution() {
+      const overall = panels.querySelector('#ttReviewOverallSummary');
+      const distribution = panels.querySelector('#ttReviewRatingDistribution');
+      if (!overall || !distribution) return;
+      overall.textContent = 'Loading overall rating…';
+      const { data, error } = await supabase.from('place_ratings').select('rating').eq('listing_id', item.id);
+      if (error) {
+        overall.textContent = 'Overall rating could not be loaded.';
+        distribution.innerHTML = '';
+        console.error('Review-page rating distribution load failed:', error);
         return;
       }
-
-      reviewList.innerHTML = visibleRows.map(row => {
-        const displayName = reviewProfileMap[row.user_id] || 'TravelTaste member';
-        const userId = String(row.user_id || '');
-        const dateLabel = row.created_at
-          ? new Date(row.created_at).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })
-          : '';
-        const photos = (reviewPhotosByUser[userId] || []).slice(0, 4);
-        const photosMarkup = photos.length
-          ? `<div class="tt-review-card-photos" aria-label="Photos shared by ${escapeHtml(displayName)}">${photos.map(photo => `<a class="tt-review-photo-thumb" href="${escapeHtml(photo.image_url)}" target="_blank" rel="noopener noreferrer" aria-label="Open visitor photo"><img src="${escapeHtml(photo.image_url)}" alt="${escapeHtml(photo.caption || 'Visitor photo')}" loading="lazy"><span class="tt-review-photo-zoom" aria-hidden="true">↗</span></a>`).join('')}</div>`
-          : '';
-        return `<article class="tt-review-card">
-          <div class="tt-review-author">
-            <div class="tt-review-avatar" aria-hidden="true">${escapeHtml(reviewInitials(displayName))}</div>
-            <div class="tt-review-author-details"><strong>${escapeHtml(displayName)}</strong><small class="tt-review-userid">User ID: ${escapeHtml(userId || 'Not available')}</small></div>
-          </div>
-          <div class="tt-review-card-content">
-            <div class="tt-review-card-meta">${reviewStars(row.rating)}<time datetime="${escapeHtml(row.created_at || '')}">${escapeHtml(dateLabel)}</time></div>
-            ${row.review_text ? `<p class="tt-review-card-text">${escapeHtml(row.review_text)}</p>` : '<p class="tt-review-card-text tt-review-photo-only">Shared visitor photos</p>'}
-            ${photosMarkup}
-          </div>
-        </article>`;
+      const ratings = data || [];
+      if (!ratings.length) {
+        overall.innerHTML = '<strong>—</strong><span>No ratings yet</span>';
+        distribution.innerHTML = '<p>Be the first to rate this place.</p>';
+        return;
+      }
+      const average = ratings.reduce((sum, row) => sum + Number(row.rating || 0), 0) / ratings.length;
+      overall.innerHTML = `<strong>${average.toFixed(1)}</strong><div><span class="tt-review-overall-stars">★★★★★</span><small>(${ratings.length} rating${ratings.length === 1 ? '' : 's'})</small></div>`;
+      distribution.innerHTML = [5,4,3,2,1].map(star => {
+        const count = ratings.filter(row => Number(row.rating) === star).length;
+        const percent = Math.round(count * 100 / ratings.length);
+        return `<div class="tt-review-rating-row"><span>${star} ★</span><span class="tt-review-rating-track"><span style="width:${percent}%"></span></span><small>${percent}%</small></div>`;
       }).join('');
     }
 
@@ -4811,240 +4815,421 @@ const allPhotos = combinedPhotos.length
       reviewList.textContent = 'Loading reviews…';
       if (reviewCount) reviewCount.textContent = 'Loading…';
       const { data, error } = await supabase.from('place_written_reviews')
-        .select('id,user_id,review_text,created_at,rating')
+        .select('id,listing_id,user_id,review_text,rating,created_at')
         .eq('listing_id', item.id).order('created_at', { ascending: false });
       if (error) {
-        reviewList.innerHTML = '<p class="tt-review-load-error">Could not load reviews. Please check the review table and Supabase permissions.</p>';
-        if (reviewCount) reviewCount.textContent = 'Reviews unavailable';
+        reviewList.innerHTML = '<p class="tt-review-empty">Could not load reviews. Please check the Supabase table permissions and review rating migration.</p>';
+        if (reviewCount) reviewCount.textContent = 'Unavailable';
         console.error('Review load failed:', error);
         return;
       }
-      allWrittenReviewRows = data || [];
-      reviewProfileMap = {};
-      reviewPhotosByUser = {};
-      const authorIds = [...new Set(allWrittenReviewRows.map(row => row.user_id).filter(Boolean))];
-
-      if (authorIds.length) {
-        const { data: profiles, error: profileError } = await supabase.from('community_profiles')
-          .select('user_id,display_name').in('user_id', authorIds);
-        if (!profileError) {
-          (profiles || []).forEach(profile => { reviewProfileMap[profile.user_id] = profile.display_name || 'TravelTaste member'; });
-        } else {
-          console.warn('Could not read reviewer display names:', profileError.message);
+      reviewRowsCache = data || [];
+      const ids = reviewRowsCache.map(row => row.user_id);
+      const nameMap = await reviewIdentityMap(ids);
+      cachedReviewNameMap = nameMap;
+      let photosByUser = {};
+      try {
+        const { data: photoRows, error: photoError } = await supabase.from('place_photo_submissions')
+          .select('review_id,user_id,image_url,caption,created_at,status')
+          .eq('listing_id', item.id).eq('status', 'approved').order('created_at', { ascending: false });
+        if (photoError) throw photoError;
+        var ignoredPhotoCompatibility = null;
+        for (const photo of photoRows || []) {
+          const photoKey = photo.review_id ? `review:${photo.review_id}` : `legacy:${photo.user_id}`;
+          if (!photosByUser[photoKey]) photosByUser[photoKey] = [];
+          if (photosByUser[photoKey].length < 4) photosByUser[photoKey].push(photo);
         }
-        const { data: approvedPhotos, error: photoError } = await supabase.from('place_photo_submissions')
-          .select('user_id,image_url,caption,created_at')
-          .eq('listing_id', item.id).eq('status', 'approved')
-          .in('user_id', authorIds).order('created_at', { ascending: false });
-        if (!photoError) {
-          (approvedPhotos || []).forEach(photo => {
-            const userKey = String(photo.user_id || '');
-            if (!reviewPhotosByUser[userKey]) reviewPhotosByUser[userKey] = [];
-            reviewPhotosByUser[userKey].push(photo);
-          });
-        } else {
-          console.warn('Could not load approved review photos:', photoError.message);
-        }
+      } catch (error) {
+        console.warn('Approved review photos could not be loaded:', error);
       }
-      renderReviewPage();
+      cachedReviewPhotosByUser = photosByUser;
+      renderWrittenReviews(nameMap, photosByUser);
+      await loadReviewRatingDistribution();
     }
 
-    reviewSort?.addEventListener('change', () => { reviewPage = 1; renderReviewPage(); });
-    reviewFilter?.addEventListener('change', () => { reviewPage = 1; renderReviewPage(); });
-    reviewPrevious?.addEventListener('click', () => { reviewPage = Math.max(1, reviewPage - 1); renderReviewPage(); });
-    reviewNext?.addEventListener('click', () => {
-      const filteredCount = allWrittenReviewRows.filter(row => {
-        const wanted = reviewFilter?.value || 'all';
-        const n = Number(row.rating);
-        return wanted === 'all' || (wanted === 'unrated' ? !Number.isInteger(n) || n < 1 || n > 5 : n === Number(wanted));
-      }).length;
-      reviewPage = Math.min(Math.ceil(filteredCount / reviewPageSize) || 1, reviewPage + 1);
-      renderReviewPage();
+    function renderWrittenReviews(nameMap = {}, photosByUser = {}) {
+      const sortMode = reviewSort?.value || 'newest';
+      const filterMode = reviewFilter?.value || 'all';
+      let rows = reviewRowsCache.slice();
+      if (filterMode === 'unrated') rows = rows.filter(row => row.rating == null);
+      else if (filterMode !== 'all') rows = rows.filter(row => Number(row.rating) === Number(filterMode));
+      rows.sort((a, b) => {
+        if (sortMode === 'oldest') return new Date(a.created_at || 0) - new Date(b.created_at || 0);
+        if (sortMode === 'highest') return (Number(b.rating || 0) - Number(a.rating || 0)) || (new Date(b.created_at || 0) - new Date(a.created_at || 0));
+        if (sortMode === 'lowest') return (Number(a.rating || 0) - Number(b.rating || 0)) || (new Date(b.created_at || 0) - new Date(a.created_at || 0));
+        return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+      });
+      if (reviewCount) reviewCount.textContent = `${rows.length} review${rows.length === 1 ? '' : 's'}`;
+      if (!rows.length) {
+        reviewList.innerHTML = `<p class="tt-review-empty">${reviewRowsCache.length ? 'No reviews match this filter.' : 'No written reviews yet. Be the first to share your experience.'}</p>`;
+        if (reviewPagination) reviewPagination.hidden = true;
+        return;
+      }
+      const totalPages = Math.max(1, Math.ceil(rows.length / reviewsPerPage));
+      currentReviewPage = Math.min(Math.max(1, currentReviewPage), totalPages);
+      const pageRows = rows.slice((currentReviewPage - 1) * reviewsPerPage, currentReviewPage * reviewsPerPage);
+      reviewList.innerHTML = pageRows.map(row => {
+        const author = reviewAuthorLabel(row, nameMap);
+        const initials = reviewInitials(author);
+        const isOwner = !!currentUser && currentUser.id === row.user_id;
+        const photos = (photosByUser[`review:${row.id}`] || photosByUser[`legacy:${row.user_id}`] || []).map(photo => `<a class="tt-review-photo-thumb" href="${escapeHtml(photo.image_url)}" target="_blank" rel="noopener noreferrer" aria-label="Open visitor photo"><img src="${escapeHtml(photo.image_url)}" alt="${escapeHtml(photo.caption || 'Visitor photo')}" loading="lazy"></a>`).join('');
+        const text = String(row.review_text || '').trim();
+        const content = text ? `<p class="tt-review-card-text">${escapeHtml(text)}</p>` : '<p class="tt-review-card-text tt-review-photo-only">Shared photos from this place.</p>';
+        return `<article class="tt-written-review tt-review-card" data-review-card-id="${escapeHtml(row.id)}">
+          <div class="tt-review-avatar" aria-hidden="true">${escapeHtml(initials)}</div>
+          <div class="tt-review-card-main">
+            <div class="tt-review-author-line"><strong>${escapeHtml(author)}</strong><span>ID: ${escapeHtml(String(row.user_id || ''))}</span></div>
+            <div class="tt-review-rating-date">${reviewStars(row.rating)}<time>${escapeHtml(reviewDate(row.created_at))}</time></div>
+            ${content}
+            ${photos ? `<div class="tt-review-card-photos">${photos}</div>` : ''}
+          </div>
+          ${isOwner ? `<div class="tt-review-card-owner-actions"><button type="button" data-review-edit="${escapeHtml(row.id)}">Edit</button><button type="button" class="is-danger" data-review-delete="${escapeHtml(row.id)}">Delete</button></div>` : ''}
+        </article>`;
+      }).join('');
+      if (reviewPagination) {
+        reviewPagination.hidden = totalPages <= 1;
+        reviewPageLabel.textContent = `Page ${currentReviewPage} of ${totalPages}`;
+        reviewPrevious.disabled = currentReviewPage <= 1;
+        reviewNext.disabled = currentReviewPage >= totalPages;
+      }
+      reviewList.querySelectorAll('[data-review-edit]').forEach(button => button.addEventListener('click', () => {
+        const row = reviewRowsCache.find(review => String(review.id) === button.dataset.reviewEdit);
+        if (row) openReviewEditor(row, { id: item.id, name: item.name || 'this place' });
+      }));
+      reviewList.querySelectorAll('[data-review-delete]').forEach(button => button.addEventListener('click', () => {
+        const row = reviewRowsCache.find(review => String(review.id) === button.dataset.reviewDelete);
+        if (row) deleteOwnReview(row, false);
+      }));
+    }
+
+    async function loadMyReviews() {
+      if (!myReviewsList) return;
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+        myReviewsList.innerHTML = '<p class="tt-review-empty">Please sign in to see your reviews.</p>';
+        return;
+      }
+      currentUser = currentUser || user;
+      myReviewsList.textContent = 'Loading your reviews…';
+      const { data, error } = await supabase.from('place_written_reviews')
+        .select('id,listing_id,user_id,review_text,rating,created_at')
+        .eq('user_id', user.id).order('created_at', { ascending: false });
+      if (error) {
+        myReviewsList.innerHTML = '<p class="tt-review-empty">Could not load your reviews. Check your Supabase read permissions.</p>';
+        console.error('My Reviews load failed:', error);
+        return;
+      }
+      const rows = data || [];
+      if (!rows.length) {
+        myReviewsList.innerHTML = '<p class="tt-review-empty">You have not submitted any reviews yet.</p>';
+        return;
+      }
+      const listingIds = [...new Set(rows.map(row => row.listing_id).filter(Boolean))];
+      let listingMap = {};
+      if (listingIds.length) {
+        const { data: places, error: placesError } = await supabase.from('listings').select('id,name,address').in('id', listingIds);
+        if (!placesError) listingMap = Object.fromEntries((places || []).map(place => [String(place.id), place]));
+        else console.warn('Some destination names could not be loaded for My Reviews:', placesError);
+      }
+      let userPhotosByListing = {};
+      try {
+        if (listingIds.length) {
+          const reviewIds = rows.map(row => row.id).filter(Boolean);
+          const { data: photos, error: photosError } = await supabase.from('place_photo_submissions')
+            .select('review_id,listing_id,image_url,caption,status,created_at').eq('user_id', user.id).in('review_id', reviewIds).order('created_at', { ascending: false });
+          if (photosError) throw photosError;
+          for (const photo of photos || []) {
+            const reviewKey = String(photo.review_id);
+            if (!userPhotosByListing[reviewKey]) userPhotosByListing[reviewKey] = [];
+            if (userPhotosByListing[reviewKey].length < 4) userPhotosByListing[reviewKey].push(photo);
+          }
+        }
+      } catch (error) { console.warn('Your submitted photos could not be loaded in My Reviews:', error); }
+      const myName = await reviewIdentityMap([user.id]);
+      const author = myName[user.id] || displayNameFor(user) || 'You';
+      myReviewsList.innerHTML = rows.map(row => {
+        const place = listingMap[String(row.listing_id)] || { id: row.listing_id, name: 'TravelTaste place', address: '' };
+        const photos = (userPhotosByListing[String(row.id)] || []).map(photo => `<a class="tt-review-photo-thumb" href="${escapeHtml(photo.image_url)}" target="_blank" rel="noopener noreferrer"><img src="${escapeHtml(photo.image_url)}" alt="${escapeHtml(photo.caption || 'Your submitted photo')}" loading="lazy"></a>`).join('');
+        return `<article class="tt-my-review-row" data-my-review-id="${escapeHtml(row.id)}">
+          <div class="tt-my-review-place-icon" aria-hidden="true">📍</div>
+          <div class="tt-my-review-main"><strong class="tt-my-review-place-name">${escapeHtml(place.name)}</strong><small>${escapeHtml(place.address || '')}</small><div class="tt-review-rating-date">${reviewStars(row.rating)}<time>${escapeHtml(reviewDate(row.created_at))}</time></div><p>${escapeHtml(String(row.review_text || '').trim() || 'Shared photos from this place.')}</p>${photos ? `<div class="tt-review-card-photos">${photos}</div>` : ''}<small class="tt-my-review-author">By ${escapeHtml(author)} · ID: ${escapeHtml(String(row.user_id || ''))}</small></div>
+          <div class="tt-my-review-actions"><button type="button" data-my-edit="${escapeHtml(row.id)}">✎ Edit</button><button type="button" class="is-danger" data-my-delete="${escapeHtml(row.id)}">▤ Delete</button></div>
+        </article>`;
+      }).join('');
+      myReviewsList.querySelectorAll('[data-my-edit]').forEach(button => button.addEventListener('click', () => {
+        const row = rows.find(review => String(review.id) === button.dataset.myEdit);
+        if (row) openReviewEditor(row, listingMap[String(row.listing_id)] || { id: row.listing_id, name: 'TravelTaste place' });
+      }));
+      myReviewsList.querySelectorAll('[data-my-delete]').forEach(button => button.addEventListener('click', () => {
+        const row = rows.find(review => String(review.id) === button.dataset.myDelete);
+        if (row) deleteOwnReview(row, true);
+      }));
+    }
+
+    async function deleteOwnReview(row, fromMyReviews) {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user || user.id !== row.user_id) {
+        const target = fromMyReviews ? myReviewsMessage : reviewPageMessage;
+        if (target) target.textContent = 'You can delete only your own review. Please sign in again.';
+        return;
+      }
+      if (!window.confirm('Delete your written review for this place? This cannot be undone. Separately submitted photos will remain subject to the photo approval/gallery rules.')) return;
+      const target = fromMyReviews ? myReviewsMessage : reviewPageMessage;
+      if (target) target.textContent = 'Deleting your review…';
+      const { data: deletedRows, error } = await supabase.from('place_written_reviews').delete().eq('id', row.id).eq('user_id', user.id).select('id');
+      if (error || !deletedRows?.length) {
+        if (target) target.textContent = 'The review could not be deleted. Please check the Supabase update/delete policies.';
+        console.error('Review delete failed:', error);
+        return;
+      }
+      if (target) target.textContent = 'Your review was deleted.';
+      await loadWrittenReviews();
+      if (reviewMyModal && !reviewMyModal.hidden) await loadMyReviews();
+    }
+
+    function renderSelectedReviewPhotos() {
+      if (!reviewPhotoPreviews) return;
+      reviewPhotoPreviews.innerHTML = selectedReviewFiles.map((entry, index) => `<div class="tt-review-selected-photo"><img src="${escapeHtml(entry.previewUrl)}" alt="Selected photo ${index + 1}"><button type="button" data-remove-review-photo="${index}" aria-label="Remove selected photo">×</button></div>`).join('');
+      if (reviewAddMorePhotos) reviewAddMorePhotos.disabled = existingEditorPhotos.length + selectedReviewFiles.length >= 4;
+      if (reviewAddPhotos) reviewAddPhotos.disabled = existingEditorPhotos.length + selectedReviewFiles.length >= 4;
+      reviewPhotoPreviews.querySelectorAll('[data-remove-review-photo]').forEach(button => button.addEventListener('click', () => {
+        const index = Number(button.dataset.removeReviewPhoto);
+        const [removed] = selectedReviewFiles.splice(index, 1);
+        if (removed?.previewUrl) URL.revokeObjectURL(removed.previewUrl);
+        renderSelectedReviewPhotos();
+      }));
+    }
+
+    function clearSelectedReviewPhotos() {
+      selectedReviewFiles.forEach(entry => { if (entry.previewUrl) URL.revokeObjectURL(entry.previewUrl); });
+      selectedReviewFiles = [];
+      renderSelectedReviewPhotos();
+      if (reviewPhotoInput) reviewPhotoInput.value = '';
+    }
+
+    async function openReviewEditor(row = null, listing = { id: item.id, name: item.name || 'this place' }) {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+        if (reviewPageMessage) reviewPageMessage.textContent = 'Please sign in before writing or editing a review.';
+        return;
+      }
+      currentUser = currentUser || user;
+      // If the user already reviewed this place, open that row for editing instead of creating a duplicate.
+      if (!row) {
+        const { data: existing, error: existingError } = await supabase.from('place_written_reviews')
+          .select('id,listing_id,user_id,review_text,rating,created_at').eq('listing_id', listing.id).eq('user_id', user.id).maybeSingle();
+        if (!existingError && existing) row = existing;
+      }
+      editingReviewRow = row;
+      editorListing = { id: listing.id, name: listing.name || 'TravelTaste place' };
+      reviewEditorForm.reset();
+      clearSelectedReviewPhotos();
+      reviewExistingPhotos.innerHTML = '';
+      existingEditorPhotos = [];
+      panels.querySelector('#ttReviewEditId').value = row?.id || '';
+      panels.querySelector('#ttReviewEditListingId').value = String(editorListing.id);
+      panels.querySelector('#ttReviewEditorTitle').textContent = row ? 'Edit your review' : 'Write a Review';
+      panels.querySelector('#ttReviewEditorPlaceName').textContent = `For ${editorListing.name}. You can write a review, add photos, or do both.`;
+      panels.querySelector('#ttReviewEditorText').value = row?.review_text || '';
+      const chosen = row?.rating == null ? '' : String(row.rating);
+      reviewChosenRating.value = chosen;
+      panels.querySelectorAll('[data-review-rating]').forEach(button => {
+        const active = button.dataset.reviewRating === chosen;
+        button.classList.toggle('is-selected', active);
+        button.setAttribute('aria-pressed', String(active));
+      });
+      reviewEditorMessage.textContent = '';
+      try {
+        const { data: photoRows, error: photoError } = row?.id
+          ? await supabase.from('place_photo_submissions').select('image_url,caption,status,created_at')
+              .eq('review_id', row.id).eq('user_id', user.id).order('created_at', { ascending: false })
+          : { data: [], error: null };
+        if (photoError) throw photoError;
+        existingEditorPhotos = photoRows || [];
+        reviewExistingPhotos.innerHTML = existingEditorPhotos.slice(0, 4).map(photo => `<div class="tt-review-existing-photo"><img src="${escapeHtml(photo.image_url)}" alt="Previously submitted photo"><small>${escapeHtml(photo.status || 'submitted')}</small></div>`).join('');
+        panels.querySelector('#ttReviewExistingPhotoNote').hidden = existingEditorPhotos.length === 0;
+        renderSelectedReviewPhotos();
+      } catch (error) {
+        console.warn('Existing visitor photos could not be loaded into the editor:', error);
+        panels.querySelector('#ttReviewExistingPhotoNote').hidden = true;
+      }
+      reviewEditorModal.hidden = false;
+      reviewEditorModal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('tt-review-modal-open');
+      reviewEditorModal.querySelector('[data-close-review-editor]')?.focus();
+    }
+
+    function closeReviewEditor() {
+      if (!reviewEditorModal) return;
+      reviewEditorModal.hidden = true;
+      reviewEditorModal.setAttribute('aria-hidden', 'true');
+      clearSelectedReviewPhotos();
+      document.body.classList.remove('tt-review-modal-open');
+    }
+    function closeMyReviews() {
+      if (!reviewMyModal) return;
+      reviewMyModal.hidden = true;
+      reviewMyModal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('tt-my-reviews-open');
+    }
+
+    panels.querySelector('#ttOpenReviewModal')?.addEventListener('click', () => openReviewEditor());
+    panels.querySelector('#ttSeeMyReviews')?.addEventListener('click', async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error || !user) {
+        if (reviewPageMessage) reviewPageMessage.textContent = 'Please sign in to see your reviews across TravelTaste.';
+        return;
+      }
+      reviewMyModal.hidden = false;
+      reviewMyModal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('tt-my-reviews-open');
+      await loadMyReviews();
+      reviewMyModal.querySelector('[data-close-my-reviews]')?.focus();
+    });
+    panels.querySelectorAll('[data-close-review-editor]').forEach(button => button.addEventListener('click', closeReviewEditor));
+    panels.querySelectorAll('[data-close-my-reviews]').forEach(button => button.addEventListener('click', event => {
+      if (event.currentTarget === event.target || event.currentTarget.hasAttribute('data-close-my-reviews')) closeMyReviews();
+    }));
+    reviewMyModal?.addEventListener('click', event => { if (event.target === reviewMyModal) closeMyReviews(); });
+    reviewEditorModal?.addEventListener('click', event => { if (event.target === reviewEditorModal.querySelector('.tt-review-modal-backdrop')) closeReviewEditor(); });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        if (reviewEditorModal && !reviewEditorModal.hidden) closeReviewEditor();
+        else if (reviewMyModal && !reviewMyModal.hidden) closeMyReviews();
+      }
     });
 
-    function openReviewModal() {
-      if (!reviewModal) return;
-      reviewModal.hidden = false;
-      previousBodyOverflow = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
-      panels.querySelector('.tt-review-close')?.focus();
-    }
-    function closeReviewModal() {
-      if (!reviewModal) return;
-      reviewModal.hidden = true;
-      document.body.style.overflow = previousBodyOverflow;
-      openReviewModalButton?.focus();
-    }
-    openReviewModalButton?.addEventListener('click', openReviewModal);
-    reviewModal?.querySelectorAll('[data-close-review-modal]').forEach(button => button.addEventListener('click', closeReviewModal));
-    reviewModal?.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && reviewModal && !reviewModal.hidden) closeReviewModal();
-    });
-    reviewModal?.querySelector('.tt-review-dialog')?.addEventListener('click', event => event.stopPropagation());
-
-    panels.querySelectorAll('[data-modal-rating]').forEach(button => button.addEventListener('click', () => {
-      selectedReviewRating = Number(button.dataset.modalRating);
-      panels.querySelectorAll('[data-modal-rating]').forEach(other => {
-        const selected = Number(other.dataset.modalRating) === selectedReviewRating;
-        other.classList.toggle('is-selected', selected);
-        other.setAttribute('aria-pressed', String(selected));
+    panels.querySelectorAll('[data-review-rating]').forEach(button => button.addEventListener('click', () => {
+      const selected = button.dataset.reviewRating;
+      reviewChosenRating.value = selected;
+      panels.querySelectorAll('[data-review-rating]').forEach(starButton => {
+        const active = starButton.dataset.reviewRating === selected;
+        starButton.classList.toggle('is-selected', active);
+        starButton.setAttribute('aria-pressed', String(active));
       });
     }));
-
-    reviewTextInput?.addEventListener('input', () => {
-      if (reviewTextCount) reviewTextCount.textContent = String(reviewTextInput.value.length);
+    panels.querySelector('#ttReviewClearRating')?.addEventListener('click', () => {
+      reviewChosenRating.value = '';
+      panels.querySelectorAll('[data-review-rating]').forEach(starButton => {
+        starButton.classList.remove('is-selected');
+        starButton.setAttribute('aria-pressed', 'false');
+      });
     });
 
-    function clearReviewPreviewUrls() {
-      reviewPreviewUrls.forEach(url => URL.revokeObjectURL(url));
-      reviewPreviewUrls = [];
-    }
-    function renderSelectedReviewPhotos() {
-      if (!reviewPhotoPreview) return;
-      clearReviewPreviewUrls();
-      reviewPhotoPreview.innerHTML = selectedReviewPhotos.map((file, index) => {
-        const url = URL.createObjectURL(file);
-        reviewPreviewUrls.push(url);
-        return `<div class="tt-review-selected-photo">
-          <img src="${url}" alt="${escapeHtml(file.name)}">
-          <button type="button" data-remove-review-photo="${index}" aria-label="Remove ${escapeHtml(file.name)}">×</button>
-          <small>${escapeHtml(file.name)}</small>
-        </div>`;
-      }).join('');
-      if (reviewAddMorePhotos) {
-        reviewAddMorePhotos.hidden = selectedReviewPhotos.length >= 4;
-        reviewAddMorePhotos.textContent = selectedReviewPhotos.length ? '＋ Add more' : '＋ Add photos';
-      }
-    }
-    function chooseReviewPhotos() { reviewPhotoInput?.click(); }
-    reviewChoosePhotos?.addEventListener('click', chooseReviewPhotos);
-    reviewAddMorePhotos?.addEventListener('click', chooseReviewPhotos);
-
-    reviewPhotoInput?.addEventListener('change', () => {
-      const files = Array.from(reviewPhotoInput.files || []);
-      const status = panels.querySelector('#ttWrittenReviewMessage');
-      let rejected = [];
-      for (const file of files) {
-        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-          rejected.push(`${file.name}: use JPG, PNG, or WebP`);
-          continue;
-        }
-        if (file.size > 5 * 1024 * 1024) {
-          rejected.push(`${file.name}: exceeds 5 MB`);
-          continue;
-        }
-        const duplicate = selectedReviewPhotos.some(existing =>
-          existing.name === file.name && existing.size === file.size && existing.lastModified === file.lastModified
-        );
+    function receiveReviewFiles(fileList) {
+      const incoming = Array.from(fileList || []);
+      if (!incoming.length) return;
+      let added = 0;
+      const errors = [];
+      for (const file of incoming) {
+        if (selectedReviewFiles.length >= Math.max(0, 4 - existingEditorPhotos.length)) { errors.push('Maximum 4 photos per review, including previously submitted photos.'); break; }
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) { errors.push(`${file.name}: choose JPG, PNG or WebP.`); continue; }
+        if (file.size > 5 * 1024 * 1024) { errors.push(`${file.name}: photo must be 5 MB or smaller.`); continue; }
+        const duplicate = selectedReviewFiles.some(entry => entry.file.name === file.name && entry.file.size === file.size && entry.file.lastModified === file.lastModified);
         if (duplicate) continue;
-        if (selectedReviewPhotos.length >= 4) {
-          rejected.push(`${file.name}: maximum 4 photos`);
-          continue;
-        }
-        selectedReviewPhotos.push(file);
+        selectedReviewFiles.push({ file, previewUrl: URL.createObjectURL(file) });
+        added++;
       }
-      reviewPhotoInput.value = '';
       renderSelectedReviewPhotos();
-      if (status) status.textContent = rejected.length
-        ? rejected.join(' · ')
-        : selectedReviewPhotos.length ? `${selectedReviewPhotos.length} photo${selectedReviewPhotos.length === 1 ? '' : 's'} selected.` : '';
+      reviewEditorMessage.textContent = errors.join(' ');
+      if (!errors.length && added) reviewEditorMessage.textContent = `${existingEditorPhotos.length + selectedReviewFiles.length} of 4 review photos selected.`;
+      if (!errors.length && !added) reviewEditorMessage.textContent = 'Those photos are already selected.';
+    }
+    reviewPhotoInput?.addEventListener('change', () => {
+      receiveReviewFiles(reviewPhotoInput.files);
+      reviewPhotoInput.value = '';
     });
+    reviewAddPhotos?.addEventListener('click', () => reviewPhotoInput?.click());
+    reviewAddMorePhotos?.addEventListener('click', () => reviewPhotoInput?.click());
 
-    reviewPhotoPreview?.addEventListener('click', event => {
-      const removeButton = event.target.closest('[data-remove-review-photo]');
-      if (!removeButton) return;
-      const index = Number(removeButton.dataset.removeReviewPhoto);
-      if (Number.isInteger(index) && index >= 0 && index < selectedReviewPhotos.length) {
-        selectedReviewPhotos.splice(index, 1);
-        renderSelectedReviewPhotos();
+    async function uploadReviewPhotos(user, listingId, reviewId, reviewText) {
+      const failures = [];
+      let successes = 0;
+      for (const entry of selectedReviewFiles) {
+        const file = entry.file;
+        try {
+          const path = `${user.id}/${crypto.randomUUID()}`;
+          const { error: uploadError } = await supabase.storage.from('traveltaste-images').upload(path, file, { contentType: file.type, upsert: false });
+          if (uploadError) throw uploadError;
+          const { data: publicFile } = supabase.storage.from('traveltaste-images').getPublicUrl(path);
+          const { error: insertError } = await supabase.from('place_photo_submissions').insert({
+            listing_id: listingId, review_id: reviewId, user_id: user.id, image_url: publicFile.publicUrl,
+            caption: String(reviewText || '').trim().slice(0, 300) || null, status: 'pending'
+          });
+          if (insertError) throw insertError;
+          successes++;
+        } catch (error) {
+          console.error('Review photo upload failed:', error);
+          failures.push(`${file.name}: ${error?.message || 'upload failed'}`);
+        }
       }
-    });
+      return { successes, failures };
+    }
 
-    reviewForm?.addEventListener('submit', async event => {
+    reviewEditorForm?.addEventListener('submit', async event => {
       event.preventDefault();
-      const status = panels.querySelector('#ttWrittenReviewMessage');
-      const text = String(reviewTextInput?.value || '').trim();
-      const button = reviewSubmitButton || reviewForm.querySelector('button[type="submit"]');
+      const text = panels.querySelector('#ttReviewEditorText').value.trim();
+      const ratingValue = reviewChosenRating.value ? Number(reviewChosenRating.value) : null;
       if (text && (text.length < 5 || text.length > 3000)) {
-        status.textContent = 'Write between 5 and 3,000 characters, or clear the review to submit photos only.';
+        reviewEditorMessage.textContent = 'Write at least 5 characters and no more than 3,000.';
         return;
       }
-      if (!text && selectedReviewPhotos.length === 0) {
-        status.textContent = 'Write a review or add at least one photo.';
-        return;
-      }
-      if (selectedReviewRating && !text) {
-        status.textContent = 'To save the optional star rating, include a written review. For a photo-only submission, clear the selected stars.';
+      if (!text && !selectedReviewFiles.length) {
+        reviewEditorMessage.textContent = 'Add a written review or select at least one photo. A star rating is optional.';
         return;
       }
       const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) {
-        status.textContent = 'Please sign in before submitting a review or photos.';
-        return;
-      }
-
-      button.disabled = true;
-      status.textContent = 'Submitting your review and photos…';
-      let reviewSaved = false;
-      let uploadedCount = 0;
+      if (authError || !user) { reviewEditorMessage.textContent = 'Please sign in before submitting a review or photos.'; return; }
+      const listingId = panels.querySelector('#ttReviewEditListingId').value;
+      const requestedId = panels.querySelector('#ttReviewEditId').value;
+      reviewSaveButton.disabled = true;
+      reviewEditorMessage.textContent = 'Saving your review…';
       try {
-        if (text) {
-          const { error: reviewError } = await supabase.from('place_written_reviews').insert({
-            listing_id: item.id,
-            user_id: user.id,
-            review_text: text,
-            rating: selectedReviewRating
-          });
-          if (reviewError) {
-            if (reviewError.code === '23505') {
-              throw new Error('You have already reviewed this place with this account. You can still share photos by clearing the review text and submitting photos only.');
-            }
-            throw reviewError;
+        let savedRow = null;
+        if (requestedId) {
+          const { data, error } = await supabase.from('place_written_reviews').update({ review_text: text || null, rating: ratingValue })
+            .eq('id', requestedId).eq('user_id', user.id).select('id,listing_id,user_id,review_text,rating,created_at').maybeSingle();
+          if (error) throw error;
+          if (!data) throw new Error('The review was not updated. Please confirm you are signed in as its owner and that the update policy is installed.');
+          savedRow = data;
+        } else {
+          const { data: existing, error: lookupError } = await supabase.from('place_written_reviews')
+            .select('id').eq('listing_id', listingId).eq('user_id', user.id).maybeSingle();
+          if (lookupError) throw lookupError;
+          if (existing?.id) {
+            const { data, error } = await supabase.from('place_written_reviews').update({ review_text: text || null, rating: ratingValue })
+              .eq('id', existing.id).eq('user_id', user.id).select('id,listing_id,user_id,review_text,rating,created_at').maybeSingle();
+            if (error) throw error;
+            if (!data) throw new Error('Your existing review could not be updated. Check the Supabase update policy.');
+            savedRow = data;
+          } else {
+            const { data, error } = await supabase.from('place_written_reviews').insert({ listing_id: listingId, user_id: user.id, review_text: text || null, rating: ratingValue })
+              .select('id,listing_id,user_id,review_text,rating,created_at').single();
+            if (error) throw error;
+            savedRow = data;
           }
-          reviewSaved = true;
         }
-
-        for (const file of selectedReviewPhotos) {
-          const path = `${user.id}/${crypto.randomUUID()}`;
-          const { error: uploadError } = await supabase.storage
-            .from('traveltaste-images')
-            .upload(path, file, { contentType: file.type, upsert: false });
-          if (uploadError) throw uploadError;
-
-          const { data: publicFile } = supabase.storage.from('traveltaste-images').getPublicUrl(path);
-          const { error: insertPhotoError } = await supabase.from('place_photo_submissions').insert({
-            listing_id: item.id,
-            user_id: user.id,
-            image_url: publicFile.publicUrl,
-            caption: text || null,
-            status: 'pending'
-          });
-          if (insertPhotoError) throw insertPhotoError;
-          uploadedCount += 1;
-        }
-
-        reviewForm.reset();
-        selectedReviewRating = null;
-        selectedReviewPhotos = [];
-        panels.querySelectorAll('[data-modal-rating]').forEach(star => {
-          star.classList.remove('is-selected');
-          star.setAttribute('aria-pressed', 'false');
-        });
-        if (reviewTextCount) reviewTextCount.textContent = '0';
-        renderSelectedReviewPhotos();
-
-        let successMessage = reviewSaved ? 'Your review has been submitted.' : '';
-        if (uploadedCount) successMessage += `${successMessage ? ' ' : ''}${uploadedCount} photo${uploadedCount === 1 ? '' : 's'} submitted for admin approval.`;
-        status.textContent = `${successMessage} Thank you for sharing your experience!`;
+        const uploadResult = await uploadReviewPhotos(user, listingId, savedRow.id, text);
+        const successMessage = editingReviewRow || requestedId ? 'Your review was updated.' : (savedRow && !text && uploadResult.successes ? 'Your photos were submitted for approval.' : 'Your review was submitted.');
+        closeReviewEditor();
+        if (reviewPageMessage) reviewPageMessage.textContent = uploadResult.failures.length
+          ? `${successMessage} ${uploadResult.successes} photo(s) sent for approval; ${uploadResult.failures.length} photo(s) could not be uploaded.`
+          : (uploadResult.successes ? `${successMessage} ${uploadResult.successes} photo(s) are pending admin approval.` : successMessage);
+        currentUser = currentUser || user;
         await loadWrittenReviews();
+        if (reviewMyModal && !reviewMyModal.hidden) await loadMyReviews();
       } catch (error) {
-        console.error('Review/photo submission failed:', error);
-        status.textContent = 'Could not complete submission: ' + (error?.message || 'Please try again.');
-        if (reviewSaved) await loadWrittenReviews();
-      } finally {
-        button.disabled = false;
-      }
+        console.error('Review save failed:', error);
+        reviewEditorMessage.textContent = 'Could not save review: ' + (error?.message || 'Please try again.');
+      } finally { reviewSaveButton.disabled = false; }
     });
+
+    reviewSort?.addEventListener('change', () => { currentReviewPage = 1; renderWrittenReviewsFromCache(); });
+    reviewFilter?.addEventListener('change', () => { currentReviewPage = 1; renderWrittenReviewsFromCache(); });
+    reviewPrevious?.addEventListener('click', () => { currentReviewPage = Math.max(1, currentReviewPage - 1); renderWrittenReviewsFromCache(); });
+    reviewNext?.addEventListener('click', () => { currentReviewPage++; renderWrittenReviewsFromCache(); });
+    // Cached rendering reuses current-place public photos and profile labels without changing ratings.
+    function renderWrittenReviewsFromCache() { renderWrittenReviews(cachedReviewNameMap, cachedReviewPhotosByUser); }
     // Overview is selected by default. All five panels are navigable.
     setActiveDetailTab('overview');
     loadWrittenReviews();
@@ -5318,19 +5503,6 @@ detailContent.querySelectorAll('.detail-thumb img').forEach(image => {
     }
 
     const ratings = data || [];
-    const ratingDistribution = $('ttRatingDistribution');
-    const distributionCounts = [5, 4, 3, 2, 1].map(star => ({
-      star,
-      count: ratings.filter(row => Number(row.rating) === star).length
-    }));
-    if (ratingDistribution) {
-      const total = ratings.length;
-      ratingDistribution.innerHTML = distributionCounts.map(item => {
-        const percent = total ? Math.round(item.count * 100 / total) : 0;
-        return `<div class="tt-rating-distribution-row"><span class="tt-rating-distribution-label">${item.star} ★</span><span class="tt-rating-distribution-track"><span style="width:${percent}%"></span></span><small>${percent}%</small></div>`;
-      }).join('');
-      ratingDistribution.hidden = total === 0;
-    }
 
     if (ratings.length === 0) {
       ratingSummary.textContent = 'No ratings yet. Be the first!';
@@ -5338,8 +5510,6 @@ detailContent.querySelectorAll('.detail-thumb img').forEach(image => {
       return;
     }
 
-    // The overall score still comes exclusively from place_ratings. Ratings
-    // attached to written reviews are stored in place_written_reviews.rating.
     const average = ratings.reduce((sum, row) => sum + Number(row.rating), 0) / ratings.length;
     const summaryText = `${average.toFixed(1)} / 5 (${ratings.length} rating${ratings.length === 1 ? '' : 's'})`;
     ratingSummary.textContent = `⭐ ${summaryText}`;
@@ -7046,109 +7216,117 @@ body.detail-view-active .tt-photo-caption { margin: 7px 0 14px !important; }
 
 
 
-/* Reviews-tab redesign only: all rules are scoped to the existing place-detail review components. */
-.tt-detail-panel .tt-review-hub{padding:22px 22px 18px;background:rgba(255,255,255,.98);border:1px solid #f0e3da;border-radius:16px;box-shadow:0 5px 18px rgba(23,45,78,.035)}
-.tt-detail-panel .tt-reviews-heading{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 18px}
-.tt-detail-panel .tt-reviews-heading h2{margin:0 0 7px;color:#172d4e;font-size:25px;letter-spacing:-.35px}
-.tt-detail-panel .tt-reviews-heading p{margin:0;color:#728096;line-height:1.5;font-size:14px}
-.tt-detail-panel .tt-open-review-modal{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:12px 19px;border-radius:10px;white-space:nowrap;box-shadow:0 5px 12px rgba(239,108,59,.15)}
-.tt-detail-panel .tt-review-toolbar{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;padding:14px 0 17px;border-top:1px solid #f0e7e1;border-bottom:1px solid #f0e7e1;margin-bottom:5px}
-.tt-detail-panel .tt-review-control{display:grid;gap:6px;min-width:175px;font-size:12px;color:#40536b;font-weight:750}
-.tt-detail-panel .tt-review-control select{width:100%;min-height:42px;padding:9px 35px 9px 12px;border:1px solid #dbe2ec;border-radius:9px;background:#fff;color:#263b57;font-size:13px}
-.tt-detail-panel .tt-review-count{margin-left:auto;padding:0 3px 12px;color:#738096;font-size:13px;white-space:nowrap}
-.tt-detail-panel .tt-review-list{display:grid;gap:0}
-.tt-detail-panel .tt-review-card{display:grid;grid-template-columns:minmax(170px,215px) minmax(0,1fr);gap:18px;padding:19px 2px;border-bottom:1px solid #e8edf3;min-width:0}
-.tt-detail-panel .tt-review-author{display:flex;align-items:flex-start;gap:11px;min-width:0}
-.tt-detail-panel .tt-review-avatar{width:48px;height:48px;flex:0 0 48px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(145deg,#dbeafe,#bfdbfe);color:#174b82;font-size:16px;font-weight:850}
-.tt-detail-panel .tt-review-author-details{min-width:0;display:grid;gap:5px;padding-top:3px}
-.tt-detail-panel .tt-review-author-details strong{font-size:14px;color:#172d4e;overflow-wrap:anywhere}
-.tt-detail-panel .tt-review-userid{font-size:11px;color:#7b8797;overflow-wrap:anywhere;line-height:1.45}
-.tt-detail-panel .tt-review-card-content{min-width:0}
-.tt-detail-panel .tt-review-card-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
-.tt-detail-panel .tt-review-stars{color:#f59e0b;font-size:19px;letter-spacing:1px;line-height:1}
-.tt-detail-panel .tt-review-empty-stars{color:#c7d0dc}
-.tt-detail-panel .tt-review-card-meta time{font-size:12px;color:#8090a4}
-.tt-detail-panel .tt-review-unrated{font-size:12px;color:#8692a1;letter-spacing:0}
-.tt-detail-panel .tt-review-card-text{white-space:pre-wrap;overflow-wrap:anywhere;margin:0;color:#40536b;font-size:14px;line-height:1.58}
-.tt-detail-panel .tt-review-photo-only{color:#78879a;font-style:italic}
-.tt-detail-panel .tt-review-card-photos{display:flex;flex-wrap:wrap;gap:8px;margin-top:11px}
-.tt-detail-panel .tt-review-photo-thumb{position:relative;display:block;width:112px;height:78px;overflow:hidden;border-radius:8px;background:#edf2f7;border:1px solid #e0e7ef}
-.tt-detail-panel .tt-review-photo-thumb img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .2s}
-.tt-detail-panel .tt-review-photo-thumb:hover img{transform:scale(1.04)}
-.tt-detail-panel .tt-review-photo-zoom{position:absolute;right:4px;bottom:4px;width:21px;height:21px;display:grid;place-items:center;border-radius:5px;background:#172d4ed9;color:#fff;font-size:12px}
-.tt-detail-panel .tt-review-empty{padding:32px 14px;text-align:center;color:#718096}
-.tt-detail-panel .tt-review-empty>span{display:inline-grid;place-items:center;width:44px;height:44px;margin-bottom:10px;border-radius:50%;background:#fff0e7;color:#ef6c3b;font-size:23px}
-.tt-detail-panel .tt-review-empty strong{display:block;color:#263b57}
-.tt-detail-panel .tt-review-empty p{margin:7px 0 0;font-size:13px}
-.tt-detail-panel .tt-review-load-error{padding:16px;border-radius:10px;background:#fff4ef;color:#9d3e21}
-.tt-detail-panel .tt-review-pagination{display:flex;align-items:center;justify-content:center;gap:14px;padding-top:18px}
-.tt-detail-panel .tt-review-pagination[hidden]{display:none!important}
-.tt-detail-panel .tt-review-pagination button{min-height:38px;padding:8px 13px;border:1px solid #dbe2ec;border-radius:9px;background:#fff;color:#2f4868;font-size:13px;font-weight:700}
-.tt-detail-panel .tt-review-pagination button:last-child{border-color:#f25b22;color:#e94b12}
-.tt-detail-panel .tt-review-pagination button:disabled{opacity:.45;cursor:not-allowed}
-.tt-detail-panel .tt-review-pagination span{font-size:12px;color:#52657c}
-.tt-detail-panel .tt-rating-distribution{display:grid;gap:6px;max-width:540px;margin:12px 0 16px}
-.tt-detail-panel .tt-rating-distribution[hidden]{display:none!important}
-.tt-detail-panel .tt-rating-distribution-row{display:grid;grid-template-columns:38px minmax(70px,1fr) 38px;align-items:center;gap:9px;font-size:12px;color:#40536b}
-.tt-detail-panel .tt-rating-distribution-label{white-space:nowrap}
-.tt-detail-panel .tt-rating-distribution-track{display:block;height:8px;border-radius:999px;background:#e7edf4;overflow:hidden}
-.tt-detail-panel .tt-rating-distribution-track>span{display:block;height:100%;border-radius:999px;background:#f59e0b}
-.tt-detail-panel .tt-rating-distribution-row small{text-align:right;color:#748399}
-.tt-detail-panel .tt-review-modal[hidden]{display:none!important}
-.tt-detail-panel .tt-review-modal:not([hidden]){position:fixed;inset:0;z-index:10050;display:grid;place-items:center;padding:22px}
-.tt-detail-panel .tt-review-modal-backdrop{position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:0;background:rgba(15,29,48,.58);backdrop-filter:blur(3px);cursor:default}
-.tt-detail-panel .tt-review-dialog{position:relative;z-index:1;width:min(820px,100%);max-height:calc(100vh - 44px);overflow:auto;background:#fff;border:1px solid #f0dfd5;border-radius:18px;padding:24px;box-shadow:0 24px 70px rgba(15,29,48,.28);color:#172d4e}
-.tt-detail-panel .tt-review-dialog-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding-bottom:18px;border-bottom:1px solid #f0e7e1}
-.tt-detail-panel .tt-review-dialog-header h2{margin:0 0 7px;color:#172d4e;font-size:25px;letter-spacing:-.4px}
-.tt-detail-panel .tt-review-dialog-header p{margin:0;color:#728096;font-size:13px;line-height:1.5;max-width:620px}
-.tt-detail-panel .tt-review-close{width:36px;height:36px;flex:0 0 36px;padding:0;border:1px solid #e5e9ef;border-radius:50%;background:#fff;color:#65758a;font-size:24px;line-height:1}
-.tt-detail-panel .tt-review-modal-form{display:grid;gap:12px;padding-top:18px}
-.tt-detail-panel .tt-review-rating-field{padding:0;margin:0;border:0;min-width:0}
-.tt-detail-panel .tt-review-rating-field legend,.tt-detail-panel .tt-review-write-label,.tt-detail-panel .tt-review-photo-label{display:block;margin-bottom:8px;font-size:13px;font-weight:800;color:#203751}
-.tt-detail-panel .tt-review-rating-field legend span,.tt-detail-panel .tt-review-write-label span,.tt-detail-panel .tt-review-photo-label span{font-weight:400;color:#8390a0}
-.tt-detail-panel .tt-modal-rating-buttons{display:flex;gap:8px;flex-wrap:wrap}
-.tt-detail-panel .tt-modal-rating-buttons button{display:grid;gap:5px;min-width:72px;padding:10px 12px;border:1px solid #dbe3ed;border-radius:9px;background:#fff;color:#203751;font-size:16px}
-.tt-detail-panel .tt-modal-rating-buttons button small{font-size:11px;color:#728096}
-.tt-detail-panel .tt-modal-rating-buttons button:hover,.tt-detail-panel .tt-modal-rating-buttons button.is-selected{border-color:#f2a51a;background:#fff5e3;color:#183153}
-.tt-detail-panel .tt-review-modal-form textarea{display:block;width:100%;min-height:92px;resize:vertical;border:1px solid #d9e1eb;border-radius:10px;padding:12px 13px;background:#fff;color:#253b55;font:inherit;line-height:1.5}
-.tt-detail-panel .tt-review-modal-form textarea:focus,.tt-detail-panel .tt-review-control select:focus{outline:2px solid #f6b08f;outline-offset:1px;border-color:#ef6c3b}
-.tt-detail-panel .tt-review-char-count{margin-top:-7px;text-align:right;color:#8793a3;font-size:11px}
-.tt-detail-panel .tt-review-photo-area{padding:14px;border:1px solid #f1e3d8;border-radius:12px;background:#fffaf6}
-.tt-detail-panel .tt-review-photo-area p{margin:0 0 10px;color:#7d8796;font-size:12px;line-height:1.5}
-.tt-detail-panel .tt-review-photo-picker{width:100%;min-height:84px;display:grid;place-items:center;gap:4px;padding:14px;border:1px dashed #a8bdd5;border-radius:10px;background:#fff;color:#244b76;text-align:center}
-.tt-detail-panel .tt-review-photo-picker>span{font-size:23px}
-.tt-detail-panel .tt-review-photo-picker strong{font-size:13px}
-.tt-detail-panel .tt-review-photo-picker small{font-size:11px;color:#77879a}
-.tt-detail-panel .tt-review-photo-preview{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
-.tt-detail-panel .tt-review-photo-preview:empty{display:none}
-.tt-detail-panel .tt-review-selected-photo{position:relative;width:106px;min-width:0}
-.tt-detail-panel .tt-review-selected-photo img{display:block;width:106px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #e0e7ef;background:#eef3f8}
-.tt-detail-panel .tt-review-selected-photo>button{position:absolute;top:4px;right:4px;width:23px;height:23px;padding:0;border:0;border-radius:50%;background:#fff;color:#243b57;font-size:17px;line-height:1;box-shadow:0 1px 4px #0002}
-.tt-detail-panel .tt-review-selected-photo small{display:block;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;color:#718096}
-.tt-detail-panel .tt-review-add-more{justify-self:start;padding:8px 12px;border:1px dashed #ef6c3b;border-radius:9px;background:#fff;color:#c94d20;font-size:12px;font-weight:750}
-.tt-detail-panel .tt-review-add-more[hidden]{display:none!important}
-.tt-detail-panel .tt-review-status{min-height:18px;margin:0;color:#98502e;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
-.tt-detail-panel .tt-review-dialog-actions{display:flex;justify-content:flex-end;gap:10px;padding-top:8px}
-.tt-detail-panel .tt-review-dialog-actions button{min-width:130px;min-height:42px;padding:10px 16px;border-radius:9px;font-weight:750}
-.tt-detail-panel .tt-review-cancel{border:1px solid #ef6c3b;background:#fff;color:#cf4a1d}
-.tt-detail-panel .tt-review-dialog-actions .primary{box-shadow:0 5px 12px rgba(239,108,59,.15)}
-@media(max-width:700px){
-  .tt-detail-panel .tt-review-hub{padding:16px}
-  .tt-detail-panel .tt-reviews-heading{align-items:stretch;flex-direction:column}
-  .tt-detail-panel .tt-open-review-modal{align-self:flex-start}
-  .tt-detail-panel .tt-review-toolbar{align-items:stretch}
-  .tt-detail-panel .tt-review-control{flex:1 1 145px;min-width:0}
-  .tt-detail-panel .tt-review-count{flex-basis:100%;margin-left:0;padding-bottom:0}
-  .tt-detail-panel .tt-review-card{grid-template-columns:minmax(0,1fr);gap:10px;padding:16px 0}
-  .tt-detail-panel .tt-review-author{align-items:center}
-  .tt-detail-panel .tt-review-avatar{width:42px;height:42px;flex-basis:42px}
-  .tt-detail-panel .tt-review-dialog{padding:17px;border-radius:15px;max-height:calc(100vh - 20px)}
-  .tt-detail-panel .tt-review-modal:not([hidden]){padding:10px}
-  .tt-detail-panel .tt-review-dialog-header h2{font-size:22px}
-  .tt-detail-panel .tt-modal-rating-buttons button{flex:1 1 62px;min-width:0;padding:9px 6px}
-  .tt-detail-panel .tt-review-photo-picker{min-height:76px}
-  .tt-detail-panel .tt-review-dialog-actions button{min-width:0;flex:1}
-}
+
+/* Reviews-only interface: isolated to the existing Reviews tab and its overlays. */
+.tt-reviews-panel .tt-reviews-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin:4px 0 18px}
+.tt-reviews-main-title{margin:0;color:#172d4e;font-size:clamp(24px,3vw,31px);letter-spacing:-.5px}
+.tt-reviews-intro{margin:8px 0 0;color:#718096}
+.tt-reviews-main-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tt-review-outline-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid #f0a084;border-radius:10px;background:#fff;color:#d94a13;padding:10px 14px;font-weight:750;white-space:nowrap}
+.tt-review-outline-button:hover{background:#fff3ed;border-color:#ef6c3b}
+.tt-reviews-summary-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.85fr);gap:16px;align-items:stretch;margin-bottom:18px}
+.tt-review-summary-card{padding:20px;border:1px solid #e5ebf3;border-radius:15px;background:linear-gradient(135deg,#fff,#f8fbff);min-width:0}
+.tt-review-overall-summary{display:flex;align-items:center;gap:13px;margin-bottom:17px;color:#172d4e}
+.tt-review-overall-summary>strong{font-size:42px;line-height:1;font-weight:850;letter-spacing:-1.5px}
+.tt-review-overall-summary>div{display:grid;gap:3px}
+.tt-review-overall-stars{color:#f59e0b;font-size:22px;letter-spacing:2px;line-height:1}
+.tt-review-overall-summary small{color:#718096;font-size:12px}
+.tt-review-rating-distribution{display:grid;gap:8px}
+.tt-review-rating-row{display:grid;grid-template-columns:34px minmax(60px,1fr) 36px;gap:8px;align-items:center;color:#40536b;font-size:12px}
+.tt-review-rating-row>span:first-child{white-space:nowrap}
+.tt-review-rating-row small{text-align:right;color:#718096}
+.tt-review-rating-track{height:8px;overflow:hidden;border-radius:99px;background:#e6ebf2}
+.tt-review-rating-track span{display:block;height:100%;border-radius:99px;background:#f7a51a}
+.tt-review-rate-card>.tt-detail-card{height:100%;margin:0!important;border:1px solid #e5ebf3;border-radius:15px;background:#fff;padding:19px!important}
+.tt-review-rate-card .tt-rating-card h2{margin-top:0}
+.tt-review-rate-card .tt-rating-buttons{display:flex;flex-wrap:wrap;gap:7px}
+.tt-review-rate-card .tt-rating-buttons button{min-width:40px}
+.tt-review-page-message,.tt-review-editor-message{min-height:0;margin:7px 0 12px;color:#96502b;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+.tt-review-list-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.tt-review-list-heading h2{margin:0;color:#172d4e}
+.tt-review-list-heading p{margin:6px 0 0;color:#718096;font-size:14px}
+.tt-reviews-count{flex:0 0 auto;padding:7px 10px;border-radius:999px;background:#f0f5fb;color:#516780;font-size:12px;font-weight:750}
+.tt-review-controls{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;padding:16px 0 7px}
+.tt-review-controls label{display:grid;gap:5px;min-width:190px;color:#43546a;font-size:12px;font-weight:750}
+.tt-review-controls select{width:100%;border:1px solid #dbe3ed;border-radius:9px;background:#fff;color:#26384e;padding:10px 12px;font:inherit;font-weight:500}
+.tt-review-card{display:grid;grid-template-columns:54px minmax(0,1fr) auto;gap:13px;align-items:start;padding:18px 0;border-top:1px solid #e9eef4}
+.tt-review-avatar{width:50px;height:50px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(145deg,#dceaff,#c4dafb);color:#1c4f89;font-weight:850;font-size:17px}
+.tt-review-card-main{min-width:0}
+.tt-review-author-line{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;color:#172d4e}
+.tt-review-author-line strong{font-size:14px;font-weight:850}
+.tt-review-author-line span{font-size:10px;color:#8290a2;overflow-wrap:anywhere}
+.tt-review-rating-date{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:5px 0 7px}
+.tt-review-stars{display:inline-flex;gap:1px;font-size:19px;line-height:1;white-space:nowrap}
+.tt-review-stars .is-filled{color:#f5a515}
+.tt-review-stars .is-empty{color:#cbd5e1}
+.tt-review-rating-date time{font-size:12px;color:#8190a3}
+.tt-review-card-text{margin:0;color:#3f526b;line-height:1.55;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.tt-review-photo-only{font-style:italic;color:#758398}
+.tt-review-card-photos{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.tt-review-photo-thumb{display:block;width:102px;height:76px;border:1px solid #e0e7ef;border-radius:8px;overflow:hidden;background:#f3f6fa}
+.tt-review-photo-thumb img{display:block;width:100%;height:100%;object-fit:cover}
+.tt-review-card-owner-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.tt-review-card-owner-actions button,.tt-my-review-actions button{border:1px solid #dce5ef;border-radius:8px;padding:7px 10px;background:#fff;color:#24486e;font-size:12px;font-weight:700}
+.tt-review-card-owner-actions button:hover,.tt-my-review-actions button:hover{background:#f6f9fc}
+.tt-review-card-owner-actions .is-danger,.tt-my-review-actions .is-danger{color:#b42318;border-color:#f2d0ce}
+.tt-review-card-owner-actions .is-danger:hover,.tt-my-review-actions .is-danger:hover{background:#fff4f3}
+.tt-review-empty{margin:0;padding:22px 10px;color:#7a8797;text-align:center;line-height:1.55}
+.tt-review-pagination{display:flex;align-items:center;justify-content:center;gap:14px;padding:18px 0 2px}
+.tt-review-pagination[hidden]{display:none!important}
+.tt-review-pagination span{font-size:13px;color:#4f6178}
+.tt-review-pagination button:disabled{opacity:.45;cursor:not-allowed}
+.tt-review-modal,.tt-my-reviews-modal{position:fixed;inset:0;z-index:10010;display:grid;place-items:center;overflow:auto;padding:22px;overscroll-behavior:contain}
+.tt-review-modal[hidden],.tt-my-reviews-modal[hidden]{display:none!important}
+.tt-review-modal-backdrop,.tt-my-reviews-backdrop{position:fixed;inset:0;background:rgba(17,31,49,.58);backdrop-filter:blur(5px)}
+.tt-review-modal-dialog,.tt-my-reviews-dialog{position:relative;z-index:1;width:min(100%,680px);max-height:calc(100vh - 44px);overflow-y:auto;border:1px solid #e6ebf2;border-radius:18px;background:#fff;box-shadow:0 22px 70px rgba(10,22,38,.28);padding:24px}
+.tt-review-modal-heading,.tt-my-reviews-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px}
+.tt-review-modal-heading h2,.tt-my-reviews-header h2{margin:0;color:#172d4e;font-size:25px;letter-spacing:-.5px}
+.tt-review-modal-heading p,.tt-my-reviews-header p{margin:7px 0 0;color:#718096;line-height:1.5;font-size:13px}
+.tt-review-modal-close{flex:0 0 auto;width:36px;height:36px;border:0;border-radius:50%;background:#f2f5f9;color:#41536a;font-size:25px;line-height:1}
+.tt-review-modal-close:hover{background:#e7edf5}
+#ttReviewEditorForm{display:grid;gap:15px}
+.tt-review-field-title,.tt-review-text-label{display:block;color:#233a56;font-size:13px;font-weight:800;margin-bottom:8px}
+.tt-review-field-title span,.tt-review-text-label span{color:#8390a0;font-weight:500}
+.tt-review-star-picker{display:flex;align-items:stretch;gap:7px;flex-wrap:wrap}
+.tt-review-star-picker button{min-width:70px;display:grid;place-items:center;gap:3px;padding:9px 8px;border:1px solid #dbe4ee;border-radius:9px;background:#fff;color:#23466e;font-size:17px;white-space:nowrap}
+.tt-review-star-picker button small{font-size:10px;color:#6f8094}
+.tt-review-star-picker button:hover,.tt-review-star-picker button.is-selected{border-color:#ef6c3b;background:#fff4ed;color:#e35119}
+.tt-review-star-picker .tt-review-clear-rating{min-width:52px;font-size:12px;color:#68778b}
+.tt-review-text-label{display:grid;gap:7px}
+#ttReviewEditorText{width:100%;min-height:125px;resize:vertical;border:1px solid #dbe3ed;border-radius:10px;padding:12px 13px;font:inherit;line-height:1.5;color:#24374e}
+#ttReviewEditorText:focus,.tt-review-controls select:focus{outline:2px solid #f5b298;outline-offset:1px}
+.tt-review-photo-upload-area{padding:15px;border:1px solid #e4ebf3;border-radius:12px;background:#fbfdff}
+.tt-review-existing-photo-note,.tt-review-photo-hint{color:#7c8ca0;font-size:12px;line-height:1.45;margin:7px 0}
+.tt-review-existing-photos{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.tt-review-existing-photo{display:grid;gap:4px;width:76px}
+.tt-review-existing-photo img{width:76px;height:58px;object-fit:cover;border:1px solid #dce4ed;border-radius:7px}
+.tt-review-existing-photo small{font-size:9px;color:#7c8798;text-transform:capitalize}
+.tt-review-photo-picker{display:flex;align-items:center;justify-content:center;min-height:65px;width:100%;border:1px dashed #9ab9de;border-radius:10px;background:#fff;color:#204b7b;font-weight:750;padding:14px;text-align:center}
+.tt-review-photo-picker:hover,.tt-review-add-more:hover{background:#f2f7ff}
+.tt-review-photo-previews{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.tt-review-selected-photo{width:78px;height:72px;position:relative}
+.tt-review-selected-photo img{display:block;width:100%;height:100%;border-radius:8px;border:1px solid #dce4ed;object-fit:cover}
+.tt-review-selected-photo button{position:absolute;right:-5px;top:-5px;width:22px;height:22px;padding:0;border:1px solid #fff;border-radius:50%;background:#b42318;color:#fff;font-size:17px;line-height:1}
+.tt-review-add-more{display:block;margin-top:10px;padding:8px 12px;border:1px dashed #d5dfeb;border-radius:8px;background:#fff;color:#244d79;font-size:12px;font-weight:750}
+.tt-review-modal-actions{display:flex;justify-content:flex-end;gap:10px;padding-top:2px}
+.tt-review-modal-actions button{min-width:105px}
+.tt-review-editor-message{margin:0;white-space:pre-wrap}
+.tt-my-reviews-modal{z-index:10005}
+.tt-my-reviews-dialog{width:min(100%,1050px);padding:26px}
+.tt-my-reviews-list{display:grid;gap:12px}
+.tt-my-review-row{display:grid;grid-template-columns:60px minmax(0,1fr) auto;gap:14px;align-items:start;padding:15px;border:1px solid #e6edf5;border-radius:12px;background:#fff}
+.tt-my-review-place-icon{width:58px;height:58px;display:grid;place-items:center;border-radius:10px;background:#f0f5fb;font-size:24px}
+.tt-my-review-main{min-width:0}
+.tt-my-review-place-name{display:block;color:#d94a13;font-size:15px;font-weight:850}
+.tt-my-review-main>small{display:block;color:#8290a2;font-size:11px;margin:4px 0;overflow-wrap:anywhere}
+.tt-my-review-main p{margin:7px 0;color:#40536b;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.tt-my-review-author{padding-top:3px;overflow-wrap:anywhere}
+.tt-my-review-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.tt-my-review-actions button{padding:9px 11px}
+body.tt-review-modal-open,body.tt-my-reviews-open{overflow:hidden}
+@media(max-width:800px){.tt-reviews-summary-layout{grid-template-columns:minmax(0,1fr)}.tt-reviews-title-row{flex-direction:column}.tt-reviews-main-actions{width:100%}.tt-reviews-main-actions button{flex:1}.tt-my-review-row{grid-template-columns:48px minmax(0,1fr)}.tt-my-review-place-icon{width:46px;height:46px}.tt-my-review-actions{grid-column:2}.tt-review-card{grid-template-columns:44px minmax(0,1fr)}.tt-review-avatar{width:42px;height:42px}.tt-review-card-owner-actions{grid-column:2;justify-content:flex-start}}
+@media(max-width:560px){.tt-review-modal,.tt-my-reviews-modal{padding:8px}.tt-review-modal-dialog,.tt-my-reviews-dialog{max-height:calc(100vh - 16px);padding:17px;border-radius:14px}.tt-review-modal-heading h2,.tt-my-reviews-header h2{font-size:22px}.tt-review-star-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.tt-review-star-picker button{min-width:0}.tt-review-controls label{flex:1;min-width:140px}.tt-review-card{gap:9px;padding:15px 0}.tt-review-photo-thumb{width:82px;height:64px}.tt-review-list-heading{align-items:center}.tt-review-pagination{gap:8px}.tt-review-pagination button{padding:8px 9px}}
+
 </style>
 
 </body>
