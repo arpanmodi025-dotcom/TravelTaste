@@ -4150,15 +4150,19 @@ async function openListingDetails(listingId) {
     String(place.id) !== String(item.id)
   );
   try {
-    const { data: publishedCityPlaces, error: publishedCityPlacesError } = await supabase
+    // Fetch only records marked published, then compare city IDs as strings.
+    // This avoids mismatches when the city ID is represented as a string/number.
+    const { data: publishedPlaces, error: publishedPlacesError } = await supabase
       .from('listings')
       .select('*')
-      .eq('city_id', selectedCity.id)
       .eq('is_published', true);
-    if (!publishedCityPlacesError && Array.isArray(publishedCityPlaces)) {
-      cityRecommendations = publishedCityPlaces.filter(place => String(place.id) !== String(item.id));
-    } else if (publishedCityPlacesError) {
-      console.warn('Could not load published places for recommendations:', publishedCityPlacesError.message);
+    if (!publishedPlacesError && Array.isArray(publishedPlaces)) {
+      cityRecommendations = publishedPlaces.filter(place =>
+        String(place.city_id) === String(selectedCity.id) &&
+        String(place.id) !== String(item.id)
+      );
+    } else if (publishedPlacesError) {
+      console.warn('Could not load published places for recommendations:', publishedPlacesError.message);
     }
   } catch (recommendationLoadError) {
     console.warn('Could not load published places for recommendations:', recommendationLoadError);
@@ -4304,7 +4308,7 @@ const allPhotos = combinedPhotos.length
         </section>
       </div>
 
-      <section class="tt-more-places" aria-label="Recommended places in ${escapeHtml(selectedCity.name)}">
+      <section class="tt-more-places" style="display:block!important;visibility:visible!important;opacity:1!important;position:relative;z-index:1" aria-label="Recommended places in ${escapeHtml(selectedCity.name)}">
         <div class="tt-more-places-heading">
           <div><h2><span class="tt-section-icon tt-section-pin" aria-hidden="true">📍</span> Recommended places in ${escapeHtml(selectedCity.name)}</h2><p>Popular places, food and activities selected by TravelTaste travellers.</p></div>
           <button type="button" class="tt-view-all" id="viewAllCityPlaces">View all →</button>
