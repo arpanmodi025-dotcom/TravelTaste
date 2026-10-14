@@ -4346,6 +4346,296 @@ const allPhotos = combinedPhotos.length
     </div>
   `;
 
+
+  // Place detail tabs: keep the existing gallery and its exact dimensions untouched.
+  const detailRoot = detailContent.querySelector('.tt-detail-page');
+  if (detailRoot) {
+    const infoGrid = detailRoot.querySelector('.tt-info-grid');
+    const aboutCard = infoGrid?.querySelector('.tt-about-card');
+    const locationCard = infoGrid?.querySelector('.tt-location-card');
+    const nearbySection = detailRoot.querySelector('.tt-more-places');
+    const feedbackGrid = detailRoot.querySelector('.tt-feedback-grid');
+    const ratingCard = feedbackGrid?.querySelector('#placeRatingSection');
+    const visitorPhotoCard = feedbackGrid?.querySelector('#visitorPhotoSection');
+
+    const tabs = document.createElement('div');
+    tabs.className = 'tt-detail-tabs';
+    tabs.setAttribute('role', 'tablist');
+    tabs.setAttribute('aria-label', 'Place details');
+    tabs.innerHTML = `
+      <button type="button" class="tt-detail-tab active" role="tab" aria-selected="true" data-detail-tab="overview">Overview</button>
+      <button type="button" class="tt-detail-tab" role="tab" aria-selected="false" data-detail-tab="budget">Visit Budget</button>
+      <button type="button" class="tt-detail-tab" role="tab" aria-selected="false" data-detail-tab="visitor">Visitor Info</button>
+      <button type="button" class="tt-detail-tab" role="tab" aria-selected="false" data-detail-tab="reviews">Reviews</button>
+      <button type="button" class="tt-detail-tab" role="tab" aria-selected="false" data-detail-tab="nearby">Nearby Places</button>`;
+    const panels = document.createElement('div');
+    panels.className = 'tt-detail-tab-panels';
+    panels.innerHTML = `
+      <section class="tt-detail-panel active" data-detail-panel="overview" role="tabpanel">
+        <div class="tt-info-grid" data-panel-info></div>
+        <div data-panel-photos></div>
+      </section>
+      <section class="tt-detail-panel" data-detail-panel="budget" role="tabpanel" hidden>
+        <section class="tt-detail-card tt-budget-panel">
+          <h2>Visit Budget</h2>
+          <p class="tt-visitor-tip">Estimates use real visitor submissions from the last 30 days. No sample amounts are shown as real data.</p>
+          <label class="tt-budget-people-label" for="ttBudgetPeople">Number of people</label>
+          <select id="ttBudgetPeople"><option value="1">1 person</option><option value="2" selected>2 people</option><option value="3">3 people</option><option value="4">4 people</option><option value="5">5 people</option><option value="6">6 people</option><option value="8">8 people</option><option value="10">10 people</option></select>
+          <div id="ttBudgetSummary" class="tt-budget-summary" aria-live="polite">Loading recent visitor submissions…</div>
+          <h3>Share your actual visit costs</h3>
+          <p>Enter what you paid. Use 0 for a category that did not apply.</p>
+          <form id="ttBudgetForm" class="tt-budget-form">
+            <label>Entry ticket (₹ per person)<input name="entry_ticket_per_person" type="number" min="0" max="1000000" step="0.01" value="0" required></label>
+            <label>Food and beverages (₹ per person)<input name="food_per_person" type="number" min="0" max="1000000" step="0.01" value="0" required></label>
+            <label>Parking (₹ per vehicle)<input name="parking_per_vehicle" type="number" min="0" max="1000000" step="0.01" value="0" required></label>
+            <label>Fuel (₹ total for the trip)<input name="car_fuel_total" type="number" min="0" max="1000000" step="0.01" value="0" required></label>
+            <label>Toll (₹ total for the trip)<input name="car_toll_total" type="number" min="0" max="1000000" step="0.01" value="0" required></label>
+            <label>Number of vehicles<input name="vehicle_count" type="number" min="1" max="20" step="1" value="1" required></label>
+            <label>Notes (optional)<textarea name="notes" maxlength="1000" rows="3" placeholder="Anything visitors should know?"></textarea></label>
+            <button type="submit" class="btn primary">Submit visit costs</button>
+            <p id="ttBudgetMessage" role="status" aria-live="polite"></p>
+          </form>
+        </section>
+      </section>
+      <section class="tt-detail-panel" data-detail-panel="visitor" role="tabpanel" hidden>
+        <div data-panel-location></div>
+        <section class="tt-detail-card tt-visitor-info-extra">
+          <h2>Visitor Information</h2>
+          <div class="tt-visitor-info-grid">
+            <p><strong>Address:</strong> <span data-visitor-address></span></p>
+            <p><strong>Opening hours:</strong> <span data-visitor-hours></span></p>
+            <p><strong>Entry fee:</strong> <span data-visitor-entry></span></p>
+            <p><strong>Parking:</strong> <span data-visitor-parking></span></p>
+            <p><strong>Facilities / accessibility:</strong> <span data-visitor-facilities></span></p>
+            <p><strong>Official website:</strong> <span data-visitor-website></span></p>
+          </div>
+          <p class="tt-visitor-tip">Information is shown only when available in the place record. Confirm details with the venue before travelling.</p>
+        </section>
+      </section>
+      <section class="tt-detail-panel" data-detail-panel="reviews" role="tabpanel" hidden>
+        <div data-panel-rating></div>
+        <section class="tt-detail-card tt-written-reviews">
+          <h2>Visitor Reviews</h2>
+          <p>Share a written review of your experience at this place.</p>
+          <form id="ttWrittenReviewForm">
+            <label for="ttWrittenReviewText">Your review</label>
+            <textarea id="ttWrittenReviewText" name="review_text" rows="4" minlength="5" maxlength="3000" required placeholder="What did you like? What should other visitors know?"></textarea>
+            <button type="submit" class="btn primary">Submit review</button>
+            <p id="ttWrittenReviewMessage" role="status" aria-live="polite"></p>
+          </form>
+          <div id="ttWrittenReviewList" aria-live="polite">Loading reviews…</div>
+        </section>
+        <div data-panel-photos></div>
+      </section>
+      <section class="tt-detail-panel" data-detail-panel="nearby" role="tabpanel" hidden>
+        <div data-panel-nearby></div>
+      </section>`;
+    const gallery = detailRoot.querySelector('.tt-photo-gallery');
+    const caption = detailRoot.querySelector('#detailPhotoCaption');
+    const highlights = detailRoot.querySelector('.tt-detail-highlights');
+    if (highlights) highlights.insertAdjacentElement('afterend', tabs);
+    else if (caption) caption.insertAdjacentElement('afterend', tabs);
+    else detailRoot.insertBefore(tabs, detailRoot.firstChild);
+    tabs.insertAdjacentElement('afterend', panels);
+
+    const overviewInfo = panels.querySelector('[data-panel-info]');
+    if (aboutCard) overviewInfo.appendChild(aboutCard);
+    const visitorLocation = panels.querySelector('[data-panel-location]');
+    if (locationCard) visitorLocation.appendChild(locationCard);
+    if (infoGrid) infoGrid.remove();
+    if (nearbySection) panels.querySelector('[data-panel-nearby]').appendChild(nearbySection);
+    if (ratingCard) panels.querySelector('[data-panel-rating]').appendChild(ratingCard);
+    // Keep the existing photo upload section and form exactly once, in Overview.
+    const photoPanel = panels.querySelector('[data-panel-photos]');
+    if (visitorPhotoCard && photoPanel) photoPanel.appendChild(visitorPhotoCard);
+    if (feedbackGrid) feedbackGrid.remove();
+
+    // Populate visitor information only from fields already present on the listing record.
+    const setVisitorField = (name, value, fallback = 'Not provided') => {
+      const target = panels.querySelector(`[data-visitor-${name}]`);
+      if (target) target.textContent = value == null || String(value).trim() === '' ? fallback : String(value);
+    };
+    setVisitorField('address', item.address || selectedCity.name);
+    setVisitorField('hours', item.opening_hours || item.hours || item.timings);
+    setVisitorField('entry', item.entry_fee || item.entry_fees || item.ticket_price || item.price_range);
+    setVisitorField('parking', item.parking_info || item.parking);
+    setVisitorField('facilities', item.facilities || item.accessibility || item.accessibility_info);
+    const websiteTarget = panels.querySelector('[data-visitor-website]');
+    if (websiteTarget) {
+      if (item.website) {
+        const link = document.createElement('a');
+        link.href = item.website;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = item.website;
+        websiteTarget.appendChild(link);
+      } else websiteTarget.textContent = 'Not provided';
+    }
+
+    const setActiveDetailTab = (key) => {
+      tabs.querySelectorAll('[data-detail-tab]').forEach(button => {
+        const active = button.dataset.detailTab === key;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-selected', String(active));
+        button.tabIndex = active ? 0 : -1;
+      });
+      panels.querySelectorAll('[data-detail-panel]').forEach(panel => {
+        const active = panel.dataset.detailPanel === key;
+        panel.hidden = !active;
+        panel.classList.toggle('active', active);
+      });
+      if (key === 'budget') loadRecentBudgets();
+      if (key === 'reviews') loadWrittenReviews();
+    };
+    tabs.querySelectorAll('[data-detail-tab]').forEach(button => button.addEventListener('click', () => setActiveDetailTab(button.dataset.detailTab)));
+    tabs.querySelectorAll('[data-detail-tab]').forEach((button, index, all) => button.addEventListener('keydown', event => {
+      if (!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
+      event.preventDefault();
+      let next = index;
+      if (event.key === 'ArrowRight') next = (index + 1) % all.length;
+      if (event.key === 'ArrowLeft') next = (index - 1 + all.length) % all.length;
+      if (event.key === 'Home') next = 0;
+      if (event.key === 'End') next = all.length - 1;
+      all[next].focus();
+      all[next].click();
+    }));
+
+    const money = value => '₹' + Number(value || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+    const budgetSummary = panels.querySelector('#ttBudgetSummary');
+    let recentBudgetRows = [];
+    async function loadRecentBudgets() {
+      if (!budgetSummary) return;
+      budgetSummary.textContent = 'Loading recent visitor submissions…';
+      const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const { data, error } = await supabase.from('place_budget_submissions')
+        .select('people_count,entry_ticket_per_person,food_per_person,parking_per_vehicle,car_fuel_total,car_toll_total,vehicle_count,created_at')
+        .eq('listing_id', item.id).gte('created_at', cutoff).order('created_at', { ascending: false });
+      if (error) {
+        budgetSummary.textContent = 'Could not load visitor budgets. Please check the Supabase table permissions.';
+        console.error('Budget load failed:', error);
+        return;
+      }
+      recentBudgetRows = data || [];
+      const categories = [
+        ['Entry ticket', row => Number(row.entry_ticket_per_person || 0), 'entry_ticket_per_person'],
+        ['Food and beverages', row => Number(row.food_per_person || 0), 'food_per_person'],
+        ['Parking per vehicle', row => Number(row.parking_per_vehicle || 0), 'parking_per_vehicle'],
+        ['Fuel per trip', row => Number(row.car_fuel_total || 0), 'car_fuel_total'],
+        ['Toll per trip', row => Number(row.car_toll_total || 0), 'car_toll_total']
+      ];
+      if (!recentBudgetRows.length) {
+        budgetSummary.innerHTML = '<p>No visitor budget submissions in the last 30 days yet. Be the first to share your actual costs.</p>';
+        return;
+      }
+      const people = Number(panels.querySelector('#ttBudgetPeople')?.value || 2);
+      const avg = (fn, rows) => rows.length ? rows.reduce((sum, row) => sum + fn(row), 0) / rows.length : 0;
+      const cards = categories.map(([label, fn, field]) => {
+        const applicable = recentBudgetRows.filter(row => Number(row[field] || 0) > 0);
+        return `<div class="tt-budget-stat"><span>${label}</span><strong>${applicable.length ? money(avg(fn, applicable)) : 'No data'}</strong><small>${applicable.length} submission${applicable.length === 1 ? '' : 's'} with this cost</small></div>`;
+      }).join('');
+      const totalRows = recentBudgetRows.map(row => ({
+        total: Number(row.entry_ticket_per_person || 0) * people +
+          Number(row.food_per_person || 0) * people +
+          Number(row.parking_per_vehicle || 0) * Number(row.vehicle_count || 1) +
+          Number(row.car_fuel_total || 0) + Number(row.car_toll_total || 0),
+        perPerson: Number(row.entry_ticket_per_person || 0) +
+          Number(row.food_per_person || 0) +
+          (Number(row.parking_per_vehicle || 0) * Number(row.vehicle_count || 1) +
+           Number(row.car_fuel_total || 0) + Number(row.car_toll_total || 0)) /
+            Math.max(1, Number(row.people_count || 1))
+      }));
+      const averageTotal = avg(row => row.total, totalRows);
+      const averagePerPerson = avg(row => row.perPerson, totalRows);
+      budgetSummary.innerHTML = `<div class="tt-budget-stats">${cards}</div><div class="tt-budget-total"><strong>Estimated group total for ${people} people: ${money(averageTotal)}</strong><span>Average per person in submitted trips: ${money(averagePerPerson)}</span></div><p class="tt-visitor-tip">Group total applies per-person ticket and food averages to your selected group size, then adds average reported vehicle parking, fuel and toll. These are averages of submitted reports, not guaranteed prices.</p>`;
+    }
+    panels.querySelector('#ttBudgetPeople')?.addEventListener('change', loadRecentBudgets);
+
+    const budgetForm = panels.querySelector('#ttBudgetForm');
+    budgetForm?.addEventListener('submit', async event => {
+      event.preventDefault();
+      const status = panels.querySelector('#ttBudgetMessage');
+      const button = budgetForm.querySelector('button[type="submit"]');
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+        status.textContent = 'Please sign in before submitting visit costs.';
+        return;
+      }
+      const formData = new FormData(budgetForm);
+      const payload = {
+        listing_id: item.id, user_id: user.id,
+        people_count: Number(panels.querySelector('#ttBudgetPeople').value || 1),
+        entry_ticket_per_person: Number(formData.get('entry_ticket_per_person') || 0),
+        food_per_person: Number(formData.get('food_per_person') || 0),
+        parking_per_vehicle: Number(formData.get('parking_per_vehicle') || 0),
+        car_fuel_total: Number(formData.get('car_fuel_total') || 0),
+        car_toll_total: Number(formData.get('car_toll_total') || 0),
+        vehicle_count: Number(formData.get('vehicle_count') || 1),
+        notes: String(formData.get('notes') || '').trim() || null
+      };
+      if (Object.values(payload).some(value => typeof value === 'number' && (!Number.isFinite(value) || value < 0))) {
+        status.textContent = 'Please enter valid non-negative amounts.';
+        return;
+      }
+      button.disabled = true; status.textContent = 'Submitting your visit costs…';
+      try {
+        const { error } = await supabase.from('place_budget_submissions').insert(payload);
+        if (error) throw error;
+        budgetForm.reset();
+        status.textContent = 'Thank you! Your actual visit costs have been submitted.';
+        await loadRecentBudgets();
+      } catch (error) {
+        console.error('Budget submission failed:', error);
+        status.textContent = 'Could not submit costs: ' + (error?.message || 'Please try again.');
+      } finally { button.disabled = false; }
+    });
+
+    const reviewForm = panels.querySelector('#ttWrittenReviewForm');
+    const reviewList = panels.querySelector('#ttWrittenReviewList');
+    async function loadWrittenReviews() {
+      if (!reviewList) return;
+      reviewList.textContent = 'Loading reviews…';
+      const { data, error } = await supabase.from('place_written_reviews')
+        .select('id,user_id,review_text,created_at')
+        .eq('listing_id', item.id).order('created_at', { ascending: false });
+      if (error) {
+        reviewList.textContent = 'Could not load reviews. Please check the Supabase table permissions.';
+        console.error('Review load failed:', error);
+        return;
+      }
+      if (!data?.length) {
+        reviewList.innerHTML = '<p>No written reviews yet. Be the first to share your experience.</p>';
+        return;
+      }
+      reviewList.innerHTML = data.map(row => `<article class="tt-written-review"><p>${escapeHtml(row.review_text)}</p><small>${escapeHtml(new Date(row.created_at).toLocaleDateString())}${currentUser && currentUser.id === row.user_id ? ' · Your review' : ''}</small></article>`).join('');
+    }
+    reviewForm?.addEventListener('submit', async event => {
+      event.preventDefault();
+      const status = panels.querySelector('#ttWrittenReviewMessage');
+      const button = reviewForm.querySelector('button[type="submit"]');
+      const text = panels.querySelector('#ttWrittenReviewText').value.trim();
+      if (text.length < 5 || text.length > 3000) { status.textContent = 'Write between 5 and 3,000 characters.'; return; }
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) { status.textContent = 'Please sign in before submitting a review.'; return; }
+      button.disabled = true; status.textContent = 'Submitting review…';
+      try {
+        const { error } = await supabase.from('place_written_reviews').insert({ listing_id: item.id, user_id: user.id, review_text: text });
+        if (error) throw error;
+        reviewForm.reset();
+        status.textContent = 'Thank you! Your review has been published.';
+        currentUser = currentUser || user;
+        await loadWrittenReviews();
+      } catch (error) {
+        console.error('Review submission failed:', error);
+        status.textContent = error?.code === '23505'
+          ? 'You have already reviewed this place. Each account can submit one written review per place.'
+          : 'Could not submit review: ' + (error?.message || 'Please try again.');
+      } finally { button.disabled = false; }
+    });
+    // Overview is selected by default. All five panels are navigable.
+    setActiveDetailTab('overview');
+    loadWrittenReviews();
+  }
+
   // New same-city recommendation cards reuse the existing place-detail flow.
   detailContent.querySelectorAll('[data-more-place-id]').forEach(button => {
     button.addEventListener('click', (event) => {
@@ -6267,6 +6557,42 @@ body.detail-view-active .tt-photo-caption { margin: 7px 0 14px !important; }
     grid-auto-rows: 100px !important;
   }
 }
+
+/* Five destination-detail tabs; existing gallery sizing remains unchanged. */
+.tt-detail-tabs{display:flex;gap:8px;overflow-x:auto;padding:14px 0 12px;margin:8px 0 18px;border-bottom:1px solid #eadfd6;scrollbar-width:thin}
+.tt-detail-tab{flex:0 0 auto;border:1px solid #eadfd6;border-radius:999px;background:#fff;color:#5d514a;padding:11px 17px;font-weight:750;font-size:14px}
+.tt-detail-tab:hover{border-color:#ef6c3b;color:#c94d20}
+.tt-detail-tab.active{background:#ef6c3b;border-color:#ef6c3b;color:#fff}
+.tt-detail-tab:focus-visible{outline:3px solid #ef6c3b;outline-offset:2px}
+.tt-detail-panel[hidden]{display:none!important}
+.tt-detail-panel{min-width:0}
+.tt-detail-panel>.tt-detail-card,.tt-detail-panel .tt-detail-card{margin-bottom:16px}
+.tt-budget-panel h2,.tt-written-reviews h2,.tt-visitor-info-extra h2{margin-top:0}
+.tt-budget-people-label{display:block;font-weight:750;margin:14px 0 6px}
+#ttBudgetPeople{max-width:240px;width:100%;padding:10px 12px;border:1px solid #ded6d0;border-radius:10px;background:#fff}
+.tt-budget-summary{margin:18px 0}
+.tt-budget-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.tt-budget-stat{min-width:0;padding:15px;border:1px solid #eee1d8;border-radius:13px;background:#fffaf6;display:flex;flex-direction:column;gap:7px}
+.tt-budget-stat span{font-size:13px;color:#6e625a}
+.tt-budget-stat strong{font-size:21px;color:#b94c22;overflow-wrap:anywhere}
+.tt-budget-stat small{font-size:11px;color:#85776d;line-height:1.4}
+.tt-budget-total{display:grid;gap:7px;margin-top:13px;padding:16px;border-radius:13px;background:#fff0e5;color:#793b1e}
+.tt-budget-total strong{font-size:18px}
+.tt-budget-total span{font-size:13px}
+.tt-budget-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin-top:16px}
+.tt-budget-form label,.tt-written-reviews label{display:grid;gap:6px;font-weight:700;font-size:13px;color:#55473e}
+.tt-budget-form input,.tt-budget-form textarea,.tt-written-reviews textarea{width:100%;min-width:0;border:1px solid #ddd4cd;border-radius:10px;padding:11px 12px;background:#fff;font:inherit}
+.tt-budget-form label:last-of-type{grid-column:1/-1}
+.tt-budget-form button,.tt-written-reviews form button{justify-self:start}
+.tt-budget-form #ttBudgetMessage,.tt-written-reviews #ttWrittenReviewMessage{grid-column:1/-1;margin:0;color:#87502f;font-size:13px}
+.tt-visitor-info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 18px}
+.tt-visitor-info-grid p{margin:0;padding:12px;border:1px solid #f0e5dc;border-radius:10px;overflow-wrap:anywhere}
+.tt-written-reviews form{display:grid;gap:12px;margin:16px 0 22px}
+.tt-written-review{padding:15px 0;border-top:1px solid #eee4dc}
+.tt-written-review p{margin:0 0 8px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}
+.tt-written-review small{color:#84766d}
+@media(max-width:700px){.tt-budget-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.tt-budget-form,.tt-visitor-info-grid{grid-template-columns:minmax(0,1fr)}.tt-budget-form label:last-of-type{grid-column:auto}.tt-detail-tab{padding:10px 14px;font-size:13px}}
+
 </style>
 
 </body>
