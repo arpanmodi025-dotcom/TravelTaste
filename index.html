@@ -90,3 +90,366 @@ function updateButtonStates(selector, dataKey, selectedValue) {
     button.setAttribute('aria-pressed', String(isSelected));
   });
 }
+function getListingPrice(item) {
+  const explicitCost = [
+    item.estimated_cost_per_person,
+    item.cost_per_person,
+    item.price_per_person,
+  ].find(value =>
+    value !== null &&
+    value !== undefined &&
+    String(value).trim() !== ''
+  );
+
+  if (explicitCost !== undefined) {
+    const cost = Number(explicitCost);
+    if (Number.isFinite(cost) && cost >= 0) return cost;
+  }
+
+  // Support older records that store the price as text.
+  const priceText = String(item.price_range || '').replace(/,/g, '');
+  const amounts = [...priceText.matchAll(/(?:₹|rs\.?|inr)?\s*(\d+(?:\.\d+)?)/ig)]
+    .map(match => Number(match[1]))
+    .filter(amount => Number.isFinite(amount) && amount >= 0);
+
+  if (amounts.length === 0) return null;
+  if (amounts.length === 1) return amounts[0];
+
+  // Treat a written price range as its midpoint.
+  return (amounts[0] + amounts[1]) / 2;
+}
+
+function getDurationGroup(item) {
+  const savedDuration = String(
+    item.duration_category || item.visit_duration_category || ''
+  )
+    .trim()
+    .toLowerCase();
+
+  const durationAliases = {
+    short: ['short', 'quick', 'under_2_hours', 'under 2 hours'],
+    half: ['half', 'half_day', 'half day'],
+    day: ['day', 'full_day', 'full day'],
+  };
+
+  for (const [category, aliases] of Object.entries(durationAliases)) {
+    if (aliases.includes(savedDuration)) return category;
+  }
+
+  const savedHours = item.duration_hours ?? item.visit_duration_hours;
+
+  if (
+    savedHours !== null &&
+    savedHours !== undefined &&
+    String(savedHours).trim() !== ''
+  ) {
+    const hours = Number(savedHours);
+
+    if (Number.isFinite(hours) && hours >= 0) {
+      return durationGroupFromHours(hours);
+    }
+  }
+
+  // Older records may only mention a duration in text.
+  const durationText = [
+    item.duration,
+    item.visit_duration,
+    item.travel_tips,
+    item.description,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+  const match = durationText.match(/(\d+(?:\.\d+)?)\s*(minutes?|mins?|hours?|hrs?)/i);
+  if (!match) return 'unknown';
+
+  const amount = Number(match[1]);
+  const unit = match[2].toLowerCase();
+  const hours = unit.startsWith('m') ? amount / 60 : amount;
+
+  return durationGroupFromHours(hours);
+}
+
+function durationGroupFromHours(hours) {
+  if (hours < 2) return 'short';
+  if (hours <= 5) return 'half';
+  return 'day';
+}
+function getDurationLabel(durationGroup) {
+  const labels = {
+    short: 'Under 2 hours',
+    half: '2–5 hours',
+    day: '5+ hours',
+    unknown: 'Duration not added',
+  };
+
+  return labels[durationGroup] || labels.unknown;
+}
+
+function getMapUrl(item) {
+  if (item.google_maps_url) return item.google_maps_url;
+
+  const coordinates =
+    item.latitude != null && item.longitude != null
+      ? `${item.latitude},${item.longitude}`
+      : `${item.address || ''} ${selectedCity?.name || ''} ${item.name || ''}`;
+
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(coordinates)}`;
+}
+
+function getSearchableText(item) {
+  return [
+    item.name,
+    item.type,
+    item.description,
+    item.address,
+    item.price_range,
+    item.travel_tips,
+    item.category,
+    item.city_name,
+    item.state,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLocaleLowerCase();
+}
+
+function renderListings() {
+  const searchQuery = (globalSearchInput?.value || '')
+    .trim()
+    .toLocaleLowerCase();
+
+  let items = listings.filter(item =>
+    selectedCategory === 'all' || item.type === selectedCategory
+  );
+
+  const matchingStyleItems = items.filter(styleMatches);
+  const hasStyleMatches =
+    selectedStyle === 'all' || matchingStyleItems.length > 0;
+
+  // If no listings match a style, keep category results visible instead.
+  if (selectedStyle !== 'all' && hasStyleMatches) {
+    items = matchingStyleItems;
+  }
+
+  if (selectedBudget !== 'all') {
+    items = items.filter(matchesBudget);
+  }
+
+  if (selectedTripDuration !== 'any') {
+    items = items.filter(
+      item => getDurationGroup(item) === selectedTripDuration
+    );
+  }
+
+  if (searchQuery) {
+    items = items.filter(item => getSearchableText(item).includes(searchQuery));
+  }
+
+  updateListingHeadings(hasStyleMatches);
+  updateResultsMeta(items.length, searchQuery);
+
+  if (items.length === 0) {
+    renderEmptyListings(searchQuery);
+    return;
+  }
+
+  $('list').innerHTML = items.map(renderListingCard).join('');
+}
+
+function updateListingHeadings(hasStyleMatches) {
+  $('styleStatus').textContent = styleNames[selectedStyle];
+  $('resultsTitle').textContent = selectedCity
+    ? `Explore ${selectedCity.name}`
+    : 'Explore destinations';
+
+  if (!selectedCity) {
+    $('resultsSubtitle').textContent =
+      'Choose a destination to see recommendations.';
+    return;
+  }
+
+  if (selectedStyle !== 'all' && !hasStyleMatches) {
+    $('resultsSubtitle').textContent =
+      `No specific ${styleNames[selectedStyle].toLowerCase()} matches yet. ` +
+      `Showing other recommendations in ${selectedCity.name}.`;
+    return;
+  }
+
+  $('resultsSubtitle').textContent =
+    `Discover ${styleNames[selectedStyle].toLowerCase()} ideas in ${selectedCity.name}.`;
+}
+
+function updateResultsMeta(resultCount, searchQuery) {
+  const activeFilters = [];
+
+  if (selectedBudget !== 'all') {
+    const budgetButton = document.querySelector(
+      `[data-budget="${selectedBudget}"]`
+    );
+
+    if (budgetButton) activeFilters.push(budgetButton.textContent.trim());
+  }
+
+  if (selectedTripDuration !== 'any') {
+    const durationControl = $('tripDuration');
+    const selectedOption = durationControl?.selectedOptions[0];
+
+    if (selectedOption) activeFilters.push(selectedOption.textContent);
+  }
+
+  const resultLabel = searchQuery
+    ? `${resultCount} result${resultCount === 1 ? '' : 's'} matching “${escapeHtml(searchQuery)}”`
+    : `${resultCount} recommendation${resultCount === 1 ? '' : 's'}`;
+
+  $('resultsMeta').textContent = [
+    resultLabel,
+    ...activeFilters,
+  ].join(' · ');
+}
+
+function renderEmptyListings(searchQuery) {
+  if (searchQuery) {
+    $('list').innerHTML = `
+      <div class="empty">
+        <div style="font-size:38px">🔎</div>
+        <strong>No results found for “${escapeHtml(searchQuery)}”.</strong>
+        <p>Try another word, or press Enter after typing a destination name.</p>
+      </div>`;
+    return;
+  }
+
+  if (selectedBudget !== 'all' || selectedTripDuration !== 'any') {
+    renderEmptyFilteredListings();
+    return;
+  }
+
+  $('list').innerHTML = `
+    <div class="empty">
+      <div style="font-size:38px">🧭</div>
+      <strong>No recommendations in this category yet.</strong>
+      <p>
+        Add published recommendations for
+        ${escapeHtml(selectedCity?.name || 'this destination')} in Supabase
+        to fill this section.
+      </p>
+    </div>`;
+}
+
+function renderEmptyFilteredListings() {
+  const missingCosts = listings.filter(item => getListingPrice(item) === null).length;
+  const missingDurations = listings.filter(
+    item => getDurationGroup(item) === 'unknown'
+  ).length;
+
+  const missingData = [];
+
+  if (selectedBudget !== 'all' && missingCosts > 0) {
+    missingData.push(
+      `${missingCosts} place${missingCosts === 1 ? '' : 's'} need a cost per person`
+    );
+  }
+
+  if (selectedTripDuration !== 'any' && missingDurations > 0) {
+    missingData.push(
+      `${missingDurations} place${missingDurations === 1 ? '' : 's'} need a visit duration`
+    );
+  }
+
+  const missingDataMessage = missingData.length
+    ? `Some existing places are missing filter data: ${escapeHtml(missingData.join(' and '))}. `
+    : '';
+
+  $('list').innerHTML = `
+    <div class="empty">
+      <div style="font-size:38px">🧭</div>
+      <strong>No places match these filters yet.</strong>
+      <p>
+        ${missingDataMessage}
+        Try another budget or duration, or add the missing details to published places.
+      </p>
+    </div>`;
+}
+
+function renderListingCard(item) {
+  const listingId = escapeHtml(item.id);
+  const name = escapeHtml(item.name);
+  const type = escapeHtml(
+    categoryNames[item.type] || item.type || 'Recommendation'
+  );
+  const description = escapeHtml(
+    item.description || 'Discover this recommendation on your next trip.'
+  );
+  const address = escapeHtml(item.address || '');
+
+  const image = item.image_url
+    ? `<img class="card-photo" src="${escapeHtml(item.image_url)}" alt="${name}" loading="lazy">`
+    : '<div class="photo-placeholder" aria-label="No photo available">📍</div>';
+
+  const price = getListingPrice(item);
+  const costLabel = price !== null
+    ? `₹${Math.round(price).toLocaleString('en-IN')} per person`
+    : item.price_range
+      ? escapeHtml(item.price_range)
+      : 'Budget not added';
+
+  const durationLabel = getDurationLabel(getDurationGroup(item));
+  const isSaved = savedListingIds.has(String(item.id));
+  const communityScore = communityScores.get(String(item.id)) || 0;
+  const isRecommended = communityTopFiveIds.has(String(item.id));
+
+  return `
+    <article class="card" role="button" tabindex="0"
+      data-listing-id="${listingId}"
+      onclick="openListingDetails('${listingId}')">
+      ${image}
+
+      <button type="button" class="travel-favourite-button"
+        data-favourite-id="${listingId}"
+        aria-label="${isSaved ? 'Remove from' : 'Save to'} My Favourites"
+        aria-pressed="${isSaved}"
+        title="${isSaved ? 'Remove from My Favourites' : 'Save to My Favourites'}"
+        onclick="event.stopPropagation(); toggleFavourite('${listingId}', this)">
+        ${isSaved ? '♥' : '♡'}
+      </button>
+
+      ${isRecommended ? `
+        <span class="community-recommended-badge"
+          title="One of the five highest community feedback scores">
+          ✦ Community Recommended
+          <span class="recommendation-count">+${communityScore}</span>
+        </span>` : ''}
+
+      <div class="card-body">
+        <span class="tag">${type}</span>
+        <h3>${name}</h3>
+        ${address ? `<p class="address">📍 ${address}</p>` : ''}
+        <p>${description}</p>
+
+        <div class="travel-card-meta" aria-label="Estimated budget and visit duration">
+          <span class="travel-card-badge">
+            <span aria-hidden="true">💰</span>
+            <span>${costLabel}</span>
+          </span>
+          <span class="travel-card-badge">
+            <span aria-hidden="true">◷</span>
+            <span>${durationLabel}</span>
+          </span>
+        </div>
+
+        <div class="card-actions travel-card-actions">
+          <button class="btn primary travel-details-button" type="button"
+            onclick="event.stopPropagation(); openListingDetails('${listingId}')">
+            View details <span aria-hidden="true">→</span>
+          </button>
+          <a class="map-link" href="${escapeHtml(getMapUrl(item))}"
+            target="_blank" rel="noopener noreferrer"
+            onclick="event.stopPropagation()">
+            <button class="btn secondary" type="button">🗺️ Exact Location</button>
+          </a>
+        </div>
+      </div>
+    </article>`;
+}
+
