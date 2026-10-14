@@ -4142,6 +4142,28 @@ async function openListingDetails(listingId) {
 
   if (!item || !selectedCity) return;
 
+  // Fetch published places for the selected city specifically, so this section
+  // is not dependent on whichever subset of listings happens to be in memory.
+  let cityRecommendations = listings.filter(place =>
+    (place.is_published === true || place.is_published === 'true') &&
+    String(place.city_id) === String(selectedCity.id) &&
+    String(place.id) !== String(item.id)
+  );
+  try {
+    const { data: publishedCityPlaces, error: publishedCityPlacesError } = await supabase
+      .from('listings')
+      .select('*')
+      .eq('city_id', selectedCity.id)
+      .eq('is_published', true);
+    if (!publishedCityPlacesError && Array.isArray(publishedCityPlaces)) {
+      cityRecommendations = publishedCityPlaces.filter(place => String(place.id) !== String(item.id));
+    } else if (publishedCityPlacesError) {
+      console.warn('Could not load published places for recommendations:', publishedCityPlacesError.message);
+    }
+  } catch (recommendationLoadError) {
+    console.warn('Could not load published places for recommendations:', recommendationLoadError);
+  }
+
   const detailSection = $('locationDetails');
   const detailContent = $('detailContent');
 
@@ -4288,7 +4310,7 @@ const allPhotos = combinedPhotos.length
           <button type="button" class="tt-view-all" id="viewAllCityPlaces">View all →</button>
         </div>
         <div class="tt-more-places-grid">
-          ${listings.filter(place => (place.is_published === true || place.is_published === 'true') && String(place.city_id) === String(selectedCity.id) && String(place.id) !== String(item.id))
+          ${cityRecommendations
             .slice().sort((a,b) => {
               const aId=String(a.id), bId=String(b.id);
               const aTop=communityTopFiveIds.has(aId)?1:0, bTop=communityTopFiveIds.has(bId)?1:0;
