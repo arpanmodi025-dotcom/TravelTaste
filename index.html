@@ -4077,26 +4077,31 @@ async function loadDestination(cityId) {
   }
 
   listings = data || [];
-  // Keep the main Explore page scoped to the selected city, but load all published
-  // listings separately for Nearby Discoveries so places in neighbouring cities
-  // can appear inside the 200 km radius.
+
+  // Render the selected destination immediately. Do not make the main cards wait
+  // for the separate, potentially large Nearby Discoveries query.
   window.travelTasteNearbyListings = listings;
-  try {
-    const { data: nearbyData, error: nearbyError } = await supabase
-      .from('listings')
-      .select('*')
-      .eq('is_published', true);
-    if (!nearbyError && Array.isArray(nearbyData)) {
-      window.travelTasteNearbyListings = nearbyData;
-    } else if (nearbyError) {
-      console.warn('Nearby Discoveries could not load all published listings:', nearbyError.message);
-    }
-  } catch (nearbyLoadError) {
-    console.warn('Nearby Discoveries could not load all published listings:', nearbyLoadError);
-  }
   if (typeof updateBudgetControls === 'function') updateBudgetControls();
   renderListings();
   syncTravelTasteUrlState({ replace: true });
+
+  // Load the wider nearby-destinations dataset in the background after the main
+  // listings are visible. This query is supplemental and must not block rendering.
+  (async () => {
+    try {
+      const { data: nearbyData, error: nearbyError } = await supabase
+        .from('listings')
+        .select('*')
+        .eq('is_published', true);
+      if (!nearbyError && Array.isArray(nearbyData)) {
+        window.travelTasteNearbyListings = nearbyData;
+      } else if (nearbyError) {
+        console.warn('Nearby Discoveries could not load all published listings:', nearbyError.message);
+      }
+    } catch (nearbyLoadError) {
+      console.warn('Nearby Discoveries could not load all published listings:', nearbyLoadError);
+    }
+  })();
 }
 
 function styleMatches(item) {
