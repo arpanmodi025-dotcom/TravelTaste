@@ -2340,6 +2340,74 @@ body.detail-view-active .tt-photo-caption { color: #64748b; font-size: 13px; mar
 #legacyCommunityRuntime[hidden]{display:none!important}
 @media(max-width:760px){#ttCommunityApp .community-feed-tools{width:100%}#ttCommunityApp .community-feed-tools .searchbar{flex:1;max-width:none}}
 
+
+
+/* Community refinement: sticky side rails, editable profile photos and social post carousel */
+#ttCommunityApp .left-column,
+#ttCommunityApp .right-column{
+  position:sticky;top:82px;align-self:start;max-height:calc(100vh - 96px);
+  overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding-bottom:6px;
+}
+#ttCommunityApp .profile-cover{position:relative;background-position:center;background-size:cover;background-repeat:no-repeat}
+#ttCommunityApp .profile-cover.has-cover>span{opacity:0}
+#ttCommunityApp .profile-cover-edit{position:absolute;right:10px;bottom:10px;width:34px;height:34px;border:1px solid #ffffffb5;border-radius:50%;background:#fff;color:var(--navy);box-shadow:0 2px 10px #17203326;display:grid;place-items:center;padding:0;font-size:15px}
+#ttCommunityApp .profile-avatar-wrap{position:relative;width:max-content;margin-top:-40px}
+#ttCommunityApp .profile-avatar-wrap .profile-avatar{margin-top:0}
+#ttCommunityApp .profile-avatar-edit{position:absolute;right:-2px;bottom:0;width:29px;height:29px;border:2px solid #fff;border-radius:50%;background:var(--orange);color:#fff;display:grid;place-items:center;padding:0;font-size:12px}
+#ttCommunityApp .avatar img{width:100%;height:100%;display:block;object-fit:cover;border-radius:inherit}
+#ttCommunityApp .profile-avatar.has-photo{background:#fff;color:transparent}
+#ttCommunityApp .photo-preview img{object-fit:cover}
+#ttCommunityApp .profile-photo-settings{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+#ttCommunityApp .profile-photo-settings label{display:grid;gap:7px;color:var(--navy);font-size:13px;font-weight:750}
+#ttCommunityApp .profile-photo-settings small{font-size:11px;color:var(--muted);font-weight:500}
+#ttCommunityApp .profile-photo-settings input{min-width:0;width:100%;font-size:12px;padding:9px}
+#ttCommunityApp .profile-photo-preview{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+#ttCommunityApp .profile-photo-preview img{width:72px;height:64px;object-fit:cover;border:1px solid var(--line);border-radius:10px}
+#ttCommunityApp .post-head{position:relative}
+#ttCommunityApp .post-menu-wrap{position:relative;margin-left:auto;flex:0 0 auto}
+#ttCommunityApp .post-menu{width:38px;height:38px;border:0;border-radius:10px;background:transparent;color:var(--navy);font-size:25px;line-height:1;display:grid;place-items:center}
+#ttCommunityApp .post-menu:hover{background:#f5f7fb}
+#ttCommunityApp .post-menu-dropdown{position:absolute;right:0;top:calc(100% + 4px);z-index:25;width:174px;padding:6px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px #152e5524;display:grid;gap:3px}
+#ttCommunityApp .post-menu-dropdown[hidden]{display:none!important}
+#ttCommunityApp .post-menu-dropdown button{display:flex;align-items:center;gap:9px;width:100%;padding:10px 11px;border:0;border-radius:8px;background:#fff;color:var(--navy);text-align:left;font-size:13px;font-weight:700}
+#ttCommunityApp .post-menu-dropdown button:hover{background:#fff0e6;color:var(--orange)}
+#ttCommunityApp .post-menu-dropdown button.delete-option{color:#b42318}
+#ttCommunityApp .post-carousel{background:#f4f6f9;border-top:1px solid #edf0f4;border-bottom:1px solid #edf0f4}
+#ttCommunityApp .post-carousel-stage{position:relative;display:grid;place-items:center;width:100%;min-height:210px;max-height:580px;overflow:hidden;background:#f4f6f9;touch-action:pan-y}
+#ttCommunityApp .post-carousel-image{display:block;width:100%;height:auto;max-height:580px;object-fit:contain;background:#f4f6f9;transition:opacity .12s ease}
+#ttCommunityApp .post-carousel-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:40px;height:40px;border:1px solid #ffffffc9;border-radius:50%;display:grid;place-items:center;padding:0;background:#ffffffed;color:var(--navy);box-shadow:0 2px 12px #17203320;font-size:23px;line-height:1}
+#ttCommunityApp .post-carousel-arrow:hover{background:#fff;color:var(--orange)}
+#ttCommunityApp .post-carousel-arrow.prev{left:12px}
+#ttCommunityApp .post-carousel-arrow.next{right:12px}
+#ttCommunityApp .post-carousel-arrow[hidden],#ttCommunityApp .post-carousel-count[hidden]{display:none!important}
+#ttCommunityApp .post-carousel-count{position:absolute;left:12px;bottom:12px;z-index:2;padding:4px 9px;border-radius:999px;background:#14233be8;color:#fff;font-size:12px;font-variant-numeric:tabular-nums}
+#ttCommunityApp .post-actions{display:flex;align-items:center;gap:4px;padding:10px 13px 9px;flex-wrap:nowrap}
+#ttCommunityApp .post-actions .post-action{width:44px;min-width:44px;height:42px;border:0;border-radius:10px;background:transparent;color:var(--navy);display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:6px;font-size:22px;line-height:1}
+#ttCommunityApp .post-actions .post-action:hover{background:#f5f7fb;color:var(--orange)}
+#ttCommunityApp .post-actions .post-action.active{color:var(--orange);background:#fff0e5}
+#ttCommunityApp .post-actions .post-action .action-count{font-size:12px;font-weight:800;line-height:1}
+#ttCommunityApp .post-actions .post-action .action-icon{font-size:22px;line-height:1}
+#ttCommunityApp .post-actions .post-action .action-icon svg{width:22px;height:22px;display:block;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#ttCommunityApp .post-actions .post-action.active .action-icon .bookmark-svg{fill:#fff0e5}
+#ttCommunityApp .post-actions .post-action-spacer{flex:1}
+#ttCommunityApp .post-footer{padding-top:0}
+#ttCommunityApp .post-footer>.counts{display:none}
+#ttCommunityApp .comments{padding-top:11px}
+#ttCommunityApp .comment-form button{width:42px;min-width:42px;padding:8px;font-size:18px}
+#ttCommunityApp .settings-form{display:grid;gap:12px}
+#ttCommunityApp .settings-form>label{display:grid;gap:7px;font-size:13px;font-weight:750;color:var(--navy)}
+#ttCommunityApp .settings-form .profile-photo-settings label{margin:0}
+#ttCommunityApp .settings-form .btn{width:max-content;max-width:100%}
+#profileNavButton img{width:100%;height:100%;display:block;object-fit:cover;border-radius:50%}
+#profileNavButton .global-avatar-initials{display:grid;place-items:center;width:100%;height:100%;border-radius:50%;font-weight:800}
+@media(max-width:760px){
+  #ttCommunityApp .left-column,#ttCommunityApp .right-column{position:static;max-height:none;overflow:visible;padding-bottom:0}
+  #ttCommunityApp .profile-photo-settings{grid-template-columns:1fr}
+  #ttCommunityApp .post-carousel-stage{min-height:185px;max-height:65vh}
+  #ttCommunityApp .post-carousel-image{max-height:65vh}
+  #ttCommunityApp .post-carousel-arrow{width:36px;height:36px}
+  #ttCommunityApp .post-actions .post-action{width:42px;min-width:42px}
+}
 </style>
 </head>
 
@@ -2760,9 +2828,15 @@ body.detail-view-active .tt-photo-caption { color: #64748b; font-size: 13px; mar
   <section id="ttc_appShell" class="shell hidden">
     <aside class="column left-column">
       <section class="panel profile-panel">
-        <div class="profile-cover">🏔️ 🌅</div>
+        <div class="profile-cover" id="ttc_profileCover" aria-label="Profile cover photo">
+          <span aria-hidden="true">🏔️ 🌅</span>
+          <button type="button" id="ttc_editProfileCoverButton" class="profile-cover-edit" title="Change cover photo" aria-label="Change cover photo">📷</button>
+        </div>
         <div class="profile-content">
-          <div id="ttc_profileAvatar" class="avatar profile-avatar">T</div>
+          <div class="profile-avatar-wrap">
+            <div id="ttc_profileAvatar" class="avatar profile-avatar">T</div>
+            <button type="button" id="ttc_editProfileAvatarButton" class="profile-avatar-edit" title="Change profile picture" aria-label="Change profile picture">📷</button>
+          </div>
           <h2 id="ttc_profileName">TravelTaste member</h2><div id="ttc_profileHandle" class="handle">@traveller</div>
           <div class="stats"><div class="stat"><strong id="ttc_profileAchievementCount">0</strong><span>Golden achievements</span></div><div class="stat"><strong id="ttc_profilePoints">0</strong><span>Celebrations received</span></div></div>
           <button class="btn secondary wide" id="ttc_viewMyAchievementsButton">🏆 View my achievements</button>
@@ -2823,7 +2897,15 @@ body.detail-view-active .tt-photo-caption { color: #64748b; font-size: 13px; mar
       </section>
       <section id="ttc_settingsView" class="panel hidden" style="padding:18px">
         <h2 style="margin-top:0">Community settings</h2><p style="color:var(--muted);font-size:13px">Update the public name shown with your posts and achievements.</p>
-        <form id="ttc_settingsForm" class="settings-form"><label>Display name<input id="ttc_settingsNameInput" class="settings-input" maxlength="40" required></label><button class="btn primary" type="submit">Save display name</button></form>
+        <form id="ttc_settingsForm" class="settings-form">
+          <label>Display name<input id="ttc_settingsNameInput" class="settings-input" maxlength="40" required></label>
+          <div class="profile-photo-settings">
+            <label>Profile picture <small>JPG, PNG or WebP · max 5 MB</small><input id="ttc_settingsAvatarInput" class="settings-input" type="file" accept="image/jpeg,image/png,image/webp"></label>
+            <label>Cover photo <small>JPG, PNG or WebP · max 5 MB</small><input id="ttc_settingsCoverInput" class="settings-input" type="file" accept="image/jpeg,image/png,image/webp"></label>
+          </div>
+          <div id="ttc_settingsPhotoPreview" class="profile-photo-preview" hidden></div>
+          <button class="btn primary" type="submit">Save profile</button>
+        </form>
       </section>
     </section>
 
@@ -8414,6 +8496,7 @@ const $ = id => document.getElementById('ttc_' + id);
 const BUCKET = 'community-photos';
 const MAX_PHOTOS = 5, MAX_FILE_SIZE = 5 * 1024 * 1024;
 let currentUser = null, feedMode = 'for-you', allPosts = [], postMetrics = new Map(), postProfiles = new Map(), follows = new Set(), savedPosts = new Set(), challenges = [], challengePlaces = [], myCompletions = new Map(), myAchievements = new Set(), selectedFiles = [], busyPostIds = new Set(), toastTimer = null;
+let currentProfile = { avatar_url: null, cover_url: null };
 const challengeEmoji = { 'seven-wonders':'🌍', 'twelve-jyotirlinga':'🛕', 'mountain-climber':'🏔️', 'indian-heritage-trail':'🏰' };
 const fallbackChallengeNames = { 'seven-wonders':'7 Wonders Explorer', 'twelve-jyotirlinga':'12 Jyotirlinga Yatra', 'mountain-climber':'Mountain Climber', 'indian-heritage-trail':'Indian Heritage Trail' };
 function say(text){ $('appStatus').textContent = text || ''; }
@@ -8424,21 +8507,31 @@ function safeImageUrl(value){ try{const u=new URL(value);return u.protocol==='ht
 function safeHttpUrl(value){ try{const u=new URL(value);return ['https:','http:'].includes(u.protocol)?u.href:null;}catch{return null;} }
 function displayName(user){return user?.communityDisplayName || user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'TravelTaste member';}
 function initials(name){const parts=String(name||'T').trim().split(/\s+/).slice(0,2);return parts.map(p=>p[0]||'').join('').toUpperCase()||'T';}
-function avatarMarkup(name, extra=''){return `<div class="avatar ${extra}">${escapeHtml(initials(name))}</div>`;}
+function avatarMarkup(name, extra='', imageUrl=null){const image=safeImageUrl(imageUrl);return `<div class="avatar ${extra}${image?' has-photo':''}">${image?`<img src="${escapeHtml(image)}" alt="${escapeHtml(name)} profile picture" loading="lazy">`:escapeHtml(initials(name))}</div>`;}
+function setAvatarElement(el,name,url){if(!el)return;const image=safeImageUrl(url);el.replaceChildren();el.classList.toggle('has-photo',!!image);if(image){const img=document.createElement('img');img.src=image;img.alt=`${name||'Traveller'} profile picture`;img.loading='lazy';el.append(img);}else{el.textContent=initials(name);}}
+function applyCommunityProfileUI(user){const name=user?displayName(user):'TravelTaste member';setAvatarElement($('profileAvatar'),name,currentProfile.avatar_url);setAvatarElement($('composerAvatar'),name,currentProfile.avatar_url);const cover=$('profileCover');if(cover){const image=safeImageUrl(currentProfile.cover_url);cover.classList.toggle('has-cover',!!image);cover.style.backgroundImage=image?`url("${image.replace(/["\\]/g,'\\$&')}")`:'';const placeholder=cover.querySelector('span');if(placeholder)placeholder.hidden=!!image;}const globalButton=document.getElementById('profileNavButton');if(globalButton){globalButton.replaceChildren();const image=safeImageUrl(currentProfile.avatar_url);if(user&&image){const img=document.createElement('img');img.src=image;img.alt='';globalButton.append(img);}else{const label=document.createElement('span');label.className='global-avatar-initials';label.textContent=user?initials(name):'👤';globalButton.append(label);}}}
 function formatDate(value){const d=new Date(value);return Number.isNaN(d.getTime())?'Recently':d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});}
 function challengeTitle(c){return c?.title || fallbackChallengeNames[c?.slug] || 'Travel Challenge';}
 function challengeIcon(c){return c?.badge_emoji || challengeEmoji[c?.slug] || '🏆';}
 function openModal(title, html){$('modalTitle').textContent=title; $('modalBody').innerHTML=html; $('modalBackdrop').classList.add('open'); $('modalBackdrop').setAttribute('aria-hidden','false');}
 function closeModal(){ $('modalBackdrop').classList.remove('open'); $('modalBackdrop').setAttribute('aria-hidden','true'); $('modalBody').replaceChildren(); }
 $('closeModalButton').addEventListener('click',closeModal); $('modalBackdrop').addEventListener('click',e=>{if(e.target===$('modalBackdrop'))closeModal();}); document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
-function showAccountUI(user){currentUser=user; $('authGate').classList.toggle('hidden',!!user); $('appShell').classList.toggle('hidden',!user); const topAvatar=$('topAvatar'); if(topAvatar) topAvatar.textContent=user?initials(displayName(user)):'T'; if(user){$('profileName').textContent=displayName(user);$('profileHandle').textContent='@'+(user.email||'traveller').split('@')[0];$('profileAvatar').textContent=initials(displayName(user));$('composerAvatar').textContent=initials(displayName(user));$('settingsNameInput').value=displayName(user);} }
+function showAccountUI(user){
+ currentUser=user;
+ if(!user)currentProfile={avatar_url:null,cover_url:null,display_name:null};
+ else if(user.communityProfile)currentProfile={...currentProfile,...user.communityProfile};
+ $('authGate').classList.toggle('hidden',!!user);$('appShell').classList.toggle('hidden',!user);
+ if(user){$('profileName').textContent=displayName(user);$('profileHandle').textContent='@'+(user.email||'traveller').split('@')[0];$('settingsNameInput').value=displayName(user);}
+ applyCommunityProfileUI(user);
+}
 async function ensureProfile(user, preferred=''){
  if(!user)return;
  const desired=(preferred||user.user_metadata?.display_name||user.email?.split('@')[0]||'TravelTaste member').trim().slice(0,40)||'TravelTaste member';
- let {data,error}=await supabase.from('community_profiles').select('display_name,avatar_url').eq('user_id',user.id).maybeSingle();
- if(error){console.warn('Profile lookup failed; page can still show account email.',error.message); user.communityDisplayName=desired; return;}
- if(!data){const ins=await supabase.from('community_profiles').insert({user_id:user.id,display_name:desired});if(ins.error)console.warn('Could not create community profile:',ins.error.message); user.communityDisplayName=desired;}
- else {user.communityDisplayName=data.display_name||desired;}
+ let {data,error}=await supabase.from('community_profiles').select('display_name,avatar_url,cover_url').eq('user_id',user.id).maybeSingle();
+ if(error){console.warn('Profile lookup failed; page can still show account email.',error.message);user.communityDisplayName=desired;user.communityProfile={display_name:desired,avatar_url:null,cover_url:null};if(currentUser?.id===user.id)currentProfile={...user.communityProfile};return;}
+ if(!data){const ins=await supabase.from('community_profiles').insert({user_id:user.id,display_name:desired}).select('display_name,avatar_url,cover_url').maybeSingle();if(ins.error)console.warn('Could not create community profile:',ins.error.message);data=ins.data||{display_name:desired,avatar_url:null,cover_url:null};}
+ user.communityDisplayName=data.display_name||desired;user.communityProfile={display_name:user.communityDisplayName,avatar_url:data.avatar_url||null,cover_url:data.cover_url||null};
+ if(currentUser?.id===user.id)currentProfile={...user.communityProfile};
 }
 function readCredentials(){const email=$('emailInput').value.trim(),password=$('passwordInput').value, name=$('displayNameInput').value.trim(); if(!email||!$('emailInput').checkValidity()||password.length<6){authSay('Enter a valid email and a password of at least 6 characters.');return null;}return {email,password,name};}
 $('signupButton').addEventListener('click',async()=>{const c=readCredentials();if(!c)return;$('signupButton').disabled=true;authSay('Creating your account…');try{const {data,error}=await supabase.auth.signUp({email:c.email,password:c.password,options:{data:{display_name:c.name||c.email.split('@')[0]}}});if(error)throw error;if(data.session){currentUser=data.user;await ensureProfile(currentUser,c.name);showAccountUI(currentUser);authSay('Account created. Welcome to TravelTaste!');await initializeApp();}else authSay('Check your email for a confirmation link, then log in.');}catch(e){authSay(e.message||'Could not create your account.');}finally{$('signupButton').disabled=false;}});
@@ -8465,21 +8558,112 @@ function openChallenge(challengeId){const challenge=challenges.find(c=>c.id===ch
 function showCompletionForm(challenge,place){if(!currentUser){notify('Log in to record a challenge visit.');return;}const panel=$('completePlacePanel');panel.innerHTML=`<form id="ttc_completionForm" class="complete-form"><h3>📍 ${escapeHtml(place.name)}</h3><p style="margin:0;color:var(--muted);font-size:13px">Upload at least one photo from this visit. A progress post will be shared with the community.</p><label>Visit photo *<input id="ttc_completionPhoto" type="file" accept="image/jpeg,image/png,image/webp" required></label><label>Share your experience (optional)<textarea id="ttc_completionNote" rows="3" maxlength="1000" placeholder="What did you discover here?"></textarea></label><button class="btn primary" type="submit">✓ Mark as completed</button><p id="ttc_completionStatus" class="status"></p></form>`; $('completionForm').addEventListener('submit',async e=>{e.preventDefault();const file=$('completionPhoto').files[0];const status=$('completionStatus');if(!file){status.textContent='Choose a visit photo first.';return;}try{validateFiles([file]);}catch(err){status.textContent=err.message;return;}const submit=e.currentTarget.querySelector('button[type=submit]');submit.disabled=true;status.textContent='Uploading photo and saving progress…';let uploaded=[];try{uploaded=await uploadImages([file],`challenges/${challenge.slug}`);const {data,error}=await supabase.rpc('complete_community_challenge_place',{p_challenge_place_id:place.id,p_photo_url:uploaded[0].url,p_caption:$('completionNote').value.trim()||null});if(error)throw error;if(!data?.success)throw new Error(data?.error||'Could not save challenge progress.');await loadChallenges();await loadFeed();await renderProfileStats();openChallenge(challenge.id);if(data.unlocked){notify(`🎉 Golden Achievement unlocked: ${challengeTitle(challenge)}!`);say(`You completed ${challengeTitle(challenge)}. Your golden badge has been added to your profile and shared to the Community Feed.`);}else if(data.already_completed){notify('This destination was already completed.');}else{notify(`Progress saved: ${data.completed_count}/${data.total_places} destinations.`);}}catch(err){if(uploaded.length)await supabase.storage.from(BUCKET).remove(uploaded.map(x=>x.path));status.textContent='Could not record the visit: '+(err.message||'Unknown error');submit.disabled=false;}});}
 
 async function renderProfileStats(){if(!currentUser)return;const {count:postCount}=await supabase.from('community_posts').select('id',{count:'exact',head:true}).eq('user_id',currentUser.id);const {count:earnedCount}=await supabase.from('community_user_achievements').select('id',{count:'exact',head:true}).eq('user_id',currentUser.id);const {data:ownPosts}=await supabase.from('community_posts').select('id').eq('user_id',currentUser.id);const ids=(ownPosts||[]).map(p=>p.id);let points=0;if(ids.length){const q=await supabase.from('community_post_likes').select('post_id',{count:'exact',head:true}).in('post_id',ids).eq('reaction','like');if(!q.error)points=q.count||0;} $('profileAchievementCount').textContent=String(earnedCount||0);$('profilePoints').textContent=String(points);}
-async function loadProfileMap(userIds){const ids=[...new Set(userIds.filter(Boolean))];if(!ids.length)return new Map();const {data,error}=await supabase.from('community_profiles').select('user_id,display_name,avatar_url').in('user_id',ids);if(error){console.warn('Could not load community profiles:',error.message);return new Map();}return new Map((data||[]).map(p=>[p.user_id,p]));}
+async function loadProfileMap(userIds){const ids=[...new Set(userIds.filter(Boolean))];if(!ids.length)return new Map();const {data,error}=await supabase.from('community_profiles').select('user_id,display_name,avatar_url,cover_url').in('user_id',ids);if(error){console.warn('Could not load community profiles:',error.message);return new Map();}return new Map((data||[]).map(p=>[p.user_id,p]));}
 async function loadFeed(){const feed=$('feed');feed.innerHTML='<div class="empty">Loading stories…</div>';try{let query=supabase.from('community_posts').select('id,user_id,title,caption,image_url,created_at,post_type,location_name,location_url,challenge_id,challenge_place_id').order('created_at',{ascending:false}).limit(100);if(feedMode==='mine'&&currentUser)query=query.eq('user_id',currentUser.id);if(feedMode==='following'){if(!currentUser){feed.innerHTML='<div class="empty">Log in to see posts from travellers you follow.</div>';return;}const ids=[...follows];if(!ids.length){feed.innerHTML='<div class="empty">You are not following anyone yet. Use Discover Travellers to find members.</div>';return;}query=query.in('user_id',ids);}if(feedMode==='saved'){if(!currentUser){feed.innerHTML='<div class="empty">Log in to see your saved posts.</div>';return;}const {data:saves,error:saveError}=await supabase.from('community_saved_posts').select('post_id').eq('user_id',currentUser.id);if(saveError)throw saveError;const ids=(saves||[]).map(x=>x.post_id);if(!ids.length){feed.innerHTML='<div class="empty">You have not saved any posts yet. Use Save on a story to keep it here.</div>';return;}query=query.in('id',ids);}const {data:posts,error}=await query;if(error)throw error;let rows=posts||[];if(feedMode==='trending'||feedMode==='most-liked'){const counts=new Map();if(rows.length){const {data:likes,error:likeError}=await supabase.from('community_post_likes').select('post_id').in('post_id',rows.map(p=>p.id)).eq('reaction','like');if(!likeError)for(const l of likes||[])counts.set(l.post_id,(counts.get(l.post_id)||0)+1);}rows.sort((a,b)=>(counts.get(b.id)||0)-(counts.get(a.id)||0)||new Date(b.created_at)-new Date(a.created_at));}const search=$('globalSearch').value.trim().toLowerCase();if(search)rows=rows.filter(p=>`${p.title||''} ${p.caption||''} ${p.location_name||''}`.toLowerCase().includes(search));allPosts=rows;postProfiles=await loadProfileMap(rows.map(p=>p.user_id));await loadPostMetrics(rows);await renderPosts(rows);await renderTrending();}catch(e){feed.innerHTML=`<div class="empty">Could not load community stories: ${escapeHtml(e.message||'Unknown error')}<br><br>Make sure you have run the supplied SQL setup before using the new challenge features.</div>`;}}
 async function loadPostMetrics(posts){postMetrics=new Map();if(!posts.length)return;const ids=posts.map(p=>p.id);const {data:likes,error}=await supabase.from('community_post_likes').select('post_id,user_id,reaction').in('post_id',ids);if(error)throw error;for(const p of posts){const these=(likes||[]).filter(l=>l.post_id===p.id);postMetrics.set(p.id,{likes:these.filter(l=>l.reaction==='like').length,reacted:these.find(l=>l.user_id===currentUser?.id)?.reaction||null,comments:0});}const {data:comments,error:commentsError}=await supabase.from('community_post_comments').select('post_id').in('post_id',ids);if(!commentsError)for(const c of comments||[]){const m=postMetrics.get(c.post_id);if(m)m.comments++;}}
-async function renderPosts(posts){const feed=$('feed');feed.replaceChildren();if(!posts.length){feed.innerHTML='<div class="no-posts">No stories match this view yet. Share a travel memory or follow other travellers to get started.</div>';return;}for(const post of posts){const profile=postProfiles.get(post.user_id);const author=profile?.display_name||(post.user_id===currentUser?.id?displayName(currentUser):'TravelTaste member');let photos=[];const {data:photoRows,error:photoError}=await supabase.from('community_post_photos').select('photo_url').eq('post_id',post.id).order('created_at',{ascending:true});if(!photoError)photos=(photoRows||[]).map(p=>safeImageUrl(p.photo_url)).filter(Boolean);const mainImage=safeImageUrl(post.image_url);if(mainImage&&!photos.includes(mainImage))photos.unshift(mainImage);const metrics=postMetrics.get(post.id)||{likes:0,reacted:null,comments:0};const isAchievement=String(post.post_type||'').startsWith('achievement')||post.post_type==='challenge_place';const article=document.createElement('article');article.className='post';article.id=`post-${post.id}`;article.innerHTML=`<div class="post-head">${avatarMarkup(author)}<div class="meta"><button class="profile-name-btn" data-open-profile="${post.user_id}">${escapeHtml(author)}</button><div class="post-meta">${escapeHtml(formatDate(post.created_at))}${post.location_name?' · 📍 '+escapeHtml(post.location_name):''}</div></div>${post.user_id===currentUser?.id?`<button class="post-menu" title="Delete this post" aria-label="Delete this post" data-delete-post="${post.id}">⋯</button>`:''}</div>${isAchievement?`<div class="post-badge">🏆 ${post.post_type==='achievement_unlocked'?'GOLDEN ACHIEVEMENT UNLOCKED':'CHALLENGE PROGRESS'}</div>`:''}${post.title?`<h2 class="post-title">${escapeHtml(post.title)}</h2>`:''}${post.caption?`<div class="post-caption">${escapeHtml(post.caption)}</div>`:''}${photos.length?`<div class="post-media ${photos.length>1?'has-more':''}">${photos.slice(0,2).map(url=>`<img src="${escapeHtml(url)}" alt="Photo shared by ${escapeHtml(author)}" loading="lazy">`).join('')}</div>`:''}${post.location_name&&safeHttpUrl(post.location_url)?`<div class="post-location"><a href="${escapeHtml(safeHttpUrl(post.location_url))}" target="_blank" rel="noopener noreferrer">⌖ View ${escapeHtml(post.location_name)} on map ↗</a></div>`:''}<div class="post-actions"><button class="btn ${metrics.reacted==='like'?'active':''}" data-react="${post.id}">${isAchievement?'🏆 Celebrate':'♥ Like'} · ${metrics.likes}</button><button class="btn" data-comments="${post.id}">▢ Comments · ${metrics.comments}</button><button class="btn" data-share="${post.id}">↗ Share</button><span class="spacer"></span><button class="btn ${savedPosts.has(post.id)?'active':''}" data-save="${post.id}">${savedPosts.has(post.id)?'▣ Saved':'▱ Save'}</button></div><div class="post-footer"><div class="counts">${metrics.likes} ${isAchievement?'celebrations':'likes'} · ${metrics.comments} comments</div><section class="comments hidden" id="ttc_comments-${post.id}"><div class="comment-list" id="ttc_comment-list-${post.id}"></div><form class="comment-form" data-comment-form="${post.id}"><input maxlength="500" name="comment" placeholder="Write a comment…" required ${!currentUser?'disabled':''}><button class="btn primary" type="submit" ${!currentUser?'disabled':''}>Send</button></form></section></div>`;feed.append(article);article.querySelector('[data-open-profile]')?.addEventListener('click',()=>openPublicProfile(post.user_id));article.querySelector('[data-react]')?.addEventListener('click',()=>reactToPost(post));article.querySelector('[data-comments]')?.addEventListener('click',()=>toggleComments(post.id));article.querySelector('[data-share]')?.addEventListener('click',()=>sharePost(post));article.querySelector('[data-save]')?.addEventListener('click',()=>toggleSave(post.id));article.querySelector('[data-delete-post]')?.addEventListener('click',()=>deletePost(post));article.querySelector('[data-comment-form]')?.addEventListener('submit',e=>submitComment(e,post.id));}}
+async function renderPosts(posts){
+ const feed=$('feed');feed.replaceChildren();
+ if(!posts.length){feed.innerHTML='<div class="no-posts">No stories match this view yet. Share a travel memory or follow other travellers to get started.</div>';return;}
+ const photoRowsByPost=new Map();
+ const postIds=posts.map(post=>post.id);
+ const allPhotoResult=await supabase.from('community_post_photos').select('post_id,photo_url,created_at').in('post_id',postIds).order('created_at',{ascending:true});
+ if(!allPhotoResult.error){for(const row of allPhotoResult.data||[]){if(!photoRowsByPost.has(row.post_id))photoRowsByPost.set(row.post_id,[]);photoRowsByPost.get(row.post_id).push(row);}}
+ for(const post of posts){
+  const profile=postProfiles.get(post.user_id);
+  const author=profile?.display_name||(post.user_id===currentUser?.id?displayName(currentUser):'TravelTaste member');
+  const photoRows=photoRowsByPost.get(post.id)||[];
+  const photos=[];
+  const mainImage=safeImageUrl(post.image_url);if(mainImage)photos.push(mainImage);
+  for(const row of photoRows){const url=safeImageUrl(row.photo_url);if(url&&!photos.includes(url))photos.push(url);}
+  const metrics=postMetrics.get(post.id)||{likes:0,reacted:null,comments:0};
+  const isAchievement=String(post.post_type||'').startsWith('achievement')||post.post_type==='challenge_place';
+  const own=!!currentUser&&post.user_id===currentUser.id;
+  const article=document.createElement('article');article.className='post';article.id=`post-${post.id}`;
+  article.innerHTML=`
+   <div class="post-head">${avatarMarkup(author,'post-author-avatar',profile?.avatar_url)}<div class="meta"><button class="profile-name-btn" data-open-profile="${escapeHtml(post.user_id)}">${escapeHtml(author)}</button><div class="post-meta">${escapeHtml(formatDate(post.created_at))}${post.location_name?' · 📍 '+escapeHtml(post.location_name):''}</div></div>
+   ${own?`<div class="post-menu-wrap"><button type="button" class="post-menu" data-post-menu aria-label="Post options" title="Post options" aria-expanded="false">⋯</button><div class="post-menu-dropdown" hidden><button type="button" data-edit-post>✎ <span>Edit post</span></button><button type="button" class="delete-option" data-delete-post>⌫ <span>Delete post</span></button></div></div>`:''}</div>
+   ${isAchievement?`<div class="post-badge">🏆 ${post.post_type==='achievement_unlocked'?'GOLDEN ACHIEVEMENT UNLOCKED':'CHALLENGE PROGRESS'}</div>`:''}
+   ${post.title?`<h2 class="post-title">${escapeHtml(post.title)}</h2>`:''}
+   ${post.caption?`<div class="post-caption">${escapeHtml(post.caption)}</div>`:''}
+   ${photos.length?`<div class="post-carousel" data-post-carousel="${escapeHtml(post.id)}"><div class="post-carousel-stage"><img class="post-carousel-image" data-carousel-image src="${escapeHtml(photos[0])}" alt="Photo 1 of ${photos.length} shared by ${escapeHtml(author)}" loading="lazy" decoding="async"><button type="button" class="post-carousel-arrow prev" data-carousel-prev aria-label="Previous photo" title="Previous photo" ${photos.length<2?'hidden':''}>‹</button><button type="button" class="post-carousel-arrow next" data-carousel-next aria-label="Next photo" title="Next photo" ${photos.length<2?'hidden':''}>›</button><span class="post-carousel-count" data-carousel-count ${photos.length<2?'hidden':''}>1 / ${photos.length}</span></div></div>`:''}
+   ${post.location_name&&safeHttpUrl(post.location_url)?`<div class="post-location"><a href="${escapeHtml(safeHttpUrl(post.location_url))}" target="_blank" rel="noopener noreferrer">⌖ View ${escapeHtml(post.location_name)} on map ↗</a></div>`:''}
+   <div class="post-actions" aria-label="Story actions">
+    <button type="button" class="post-action ${metrics.reacted==='like'?'active':''}" data-react title="Celebrate this story" aria-label="Celebrate this story, ${metrics.likes} celebrations" aria-pressed="${metrics.reacted==='like'}"><span class="action-icon" aria-hidden="true">🏆</span><span class="action-count">${metrics.likes}</span></button>
+    <button type="button" class="post-action" data-comments title="Comments" aria-label="Open comments, ${metrics.comments} comments" aria-expanded="false"><span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-5.5A7.5 7.5 0 1 1 20 11.5Z"/></svg></span><span class="action-count">${metrics.comments}</span></button>
+    <button type="button" class="post-action" data-share title="Share story" aria-label="Share story"><span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M18 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/></svg></span></button>
+    <span class="post-action-spacer"></span>
+    <button type="button" class="post-action ${savedPosts.has(post.id)?'active':''}" data-save title="${savedPosts.has(post.id)?'Remove from saved':'Save story'}" aria-label="${savedPosts.has(post.id)?'Remove from saved':'Save story'}" aria-pressed="${savedPosts.has(post.id)}"><span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" class="bookmark-svg"><path d="M6 4.75A1.75 1.75 0 0 1 7.75 3h8.5A1.75 1.75 0 0 1 18 4.75V21l-6-4-6 4V4.75Z"/></svg></span></button>
+   </div>
+   <div class="post-footer"><section class="comments hidden" id="ttc_comments-${escapeHtml(post.id)}"><div class="comment-list" id="ttc_comment-list-${escapeHtml(post.id)}"></div><form class="comment-form" data-comment-form><input maxlength="500" name="comment" placeholder="Write a comment…" required ${!currentUser?'disabled':''}><button type="submit" class="btn primary" title="Post comment" aria-label="Post comment" ${!currentUser?'disabled':''}>➤</button></form></section></div>`;
+  feed.append(article);
+  article.querySelector('[data-open-profile]')?.addEventListener('click',()=>openPublicProfile(post.user_id));
+  article.querySelector('[data-react]')?.addEventListener('click',()=>reactToPost(post));
+  const commentButton=article.querySelector('[data-comments]');
+  commentButton?.addEventListener('click',async()=>{await toggleComments(post.id);commentButton.setAttribute('aria-expanded',String(!article.querySelector('.comments')?.classList.contains('hidden')));});
+  article.querySelector('[data-share]')?.addEventListener('click',()=>sharePost(post));
+  article.querySelector('[data-save]')?.addEventListener('click',()=>toggleSave(post.id));
+  article.querySelector('[data-delete-post]')?.addEventListener('click',()=>deletePost(post));
+  article.querySelector('[data-edit-post]')?.addEventListener('click',()=>openEditPost(post));
+  article.querySelector('[data-post-menu]')?.addEventListener('click',event=>{event.stopPropagation();const btn=event.currentTarget;const menu=btn.parentElement.querySelector('.post-menu-dropdown');const opening=menu.hidden;document.querySelectorAll('#ttCommunityApp .post-menu-dropdown').forEach(m=>m.hidden=true);document.querySelectorAll('#ttCommunityApp [data-post-menu]').forEach(b=>b.setAttribute('aria-expanded','false'));menu.hidden=!opening;btn.setAttribute('aria-expanded',String(opening));});
+  article.querySelector('[data-comment-form]')?.addEventListener('submit',e=>submitComment(e,post.id));
+  if(photos.length>1){
+   const stage=article.querySelector('.post-carousel-stage'),image=article.querySelector('[data-carousel-image]'),count=article.querySelector('[data-carousel-count]');
+   let index=0,startX=null;
+   const show=(next)=>{index=(next+photos.length)%photos.length;image.style.opacity='0.45';image.src=photos[index];image.alt=`Photo ${index+1} of ${photos.length} shared by ${author}`;count.textContent=`${index+1} / ${photos.length}`;image.onload=()=>{image.style.opacity='1';};};
+   article.querySelector('[data-carousel-prev]')?.addEventListener('click',e=>{e.stopPropagation();show(index-1);});
+   article.querySelector('[data-carousel-next]')?.addEventListener('click',e=>{e.stopPropagation();show(index+1);});
+   stage?.addEventListener('touchstart',e=>{startX=e.changedTouches?.[0]?.clientX??null;},{passive:true});
+   stage?.addEventListener('touchend',e=>{const endX=e.changedTouches?.[0]?.clientX;if(startX!==null&&Number.isFinite(endX)){const delta=endX-startX;if(Math.abs(delta)>45)show(index+(delta<0?1:-1));}startX=null;},{passive:true});
+   stage?.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')show(index-1);if(e.key==='ArrowRight')show(index+1);});
+  }
+ }
+}
 async function reactToPost(post){if(!currentUser){notify('Log in to celebrate a story.');return;}if(busyPostIds.has(post.id))return;busyPostIds.add(post.id);try{const {data:existing,error:readError}=await supabase.from('community_post_likes').select('reaction').eq('post_id',post.id).eq('user_id',currentUser.id).maybeSingle();if(readError)throw readError;let result;if(existing?.reaction==='like')result=await supabase.from('community_post_likes').delete().eq('post_id',post.id).eq('user_id',currentUser.id);else if(existing)result=await supabase.from('community_post_likes').update({reaction:'like'}).eq('post_id',post.id).eq('user_id',currentUser.id);else result=await supabase.from('community_post_likes').insert({post_id:post.id,user_id:currentUser.id,reaction:'like'});if(result.error)throw result.error;await loadFeed();await renderProfileStats();}catch(e){say('Could not update reaction: '+e.message);}finally{busyPostIds.delete(post.id);}}
 async function toggleComments(postId){const section=$(`comments-${postId}`);if(!section)return;section.classList.toggle('hidden');if(!section.classList.contains('hidden'))await loadComments(postId);}
 async function loadComments(postId){const host=$(`comment-list-${postId}`);if(!host)return;host.innerHTML='<span class="counts">Loading comments…</span>';try{const {data,error}=await supabase.from('community_post_comments').select('id,user_id,comment,created_at').eq('post_id',postId).order('created_at',{ascending:true}).limit(50);if(error)throw error;const rows=data||[];const profiles=await loadProfileMap(rows.map(r=>r.user_id));host.replaceChildren();if(!rows.length){host.innerHTML='<span class="counts">Be the first to comment.</span>';return;}for(const r of rows){const div=document.createElement('div');div.className='comment';div.innerHTML=`<strong>${escapeHtml(profiles.get(r.user_id)?.display_name||(r.user_id===currentUser?.id?displayName(currentUser):'Traveller'))}</strong>${escapeHtml(r.comment)}`;host.append(div);}}catch(e){host.textContent='Could not load comments: '+e.message;}}
 async function submitComment(event,postId){event.preventDefault();if(!currentUser){notify('Log in to comment.');return;}const form=event.currentTarget;const input=form.elements.comment;const comment=input.value.trim();if(!comment)return;const btn=form.querySelector('button');btn.disabled=true;try{const {error}=await supabase.from('community_post_comments').insert({post_id:postId,user_id:currentUser.id,comment});if(error)throw error;input.value='';await loadFeed();const section=$(`comments-${postId}`);section?.classList.remove('hidden');await loadComments(postId);notify('Comment posted.');}catch(e){say('Could not post comment: '+e.message);}finally{btn.disabled=false;}}
 async function sharePost(post){const url=`${location.origin}${location.pathname}#post-${post.id}`;try{if(navigator.share)await navigator.share({title:post.title||'TravelTaste story',text:post.caption||'See this travel story on TravelTaste',url});else if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(url);notify('Post link copied.');}else{window.prompt('Copy this post link:',url);}}catch(e){if(e.name!=='AbortError')notify('Could not share this link.');}}
 async function toggleSave(postId){if(!currentUser){notify('Log in to save posts.');return;}try{if(savedPosts.has(postId)){const {error}=await supabase.from('community_saved_posts').delete().eq('post_id',postId).eq('user_id',currentUser.id);if(error)throw error;savedPosts.delete(postId);notify('Post removed from Saved.');}else{const {error}=await supabase.from('community_saved_posts').insert({post_id:postId,user_id:currentUser.id});if(error&&error.code!=='23505')throw error;savedPosts.add(postId);notify('Post saved.');}await loadFeed();}catch(e){say('Could not save post: '+e.message);}}
+async function openEditPost(post){
+ if(!currentUser||post.user_id!==currentUser.id)return;
+ const {data:rows,error}=await supabase.from('community_post_photos').select('photo_url').eq('post_id',post.id).order('created_at',{ascending:true});
+ if(error){say('Could not load post photos: '+error.message);return;}
+ const existing=[];const main=safeImageUrl(post.image_url);if(main)existing.push(main);for(const row of rows||[]){const u=safeImageUrl(row.photo_url);if(u&&!existing.includes(u))existing.push(u);}
+ openModal('Edit your story',`<form class="edit-post-form" data-edit-post-form>
+ <label>Title <input name="title" maxlength="120" value="${escapeHtml(post.title||'')}" placeholder="Story title"></label>
+ <label>Your story <textarea name="caption" rows="5" maxlength="2000" placeholder="Share your travel memory…">${escapeHtml(post.caption||'')}</textarea></label>
+ <div class="edit-post-location-grid"><label>Place name <input name="location_name" maxlength="180" value="${escapeHtml(post.location_name||'')}" placeholder="Place or destination"></label><label>Google Maps link <input name="location_url" type="url" value="${escapeHtml(post.location_url||'')}" placeholder="https://maps.google.com/..."></label></div>
+ <p class="counts">${existing.length} photo(s) currently attached. You can add more photos, up to 5 photos total.</p>
+ <label>Add photos <input name="photos" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
+ <div class="edit-post-preview"></div>
+ <button type="submit" class="btn primary">Save changes</button>
+ </form>`);
+ const form=$('modalBody').querySelector('[data-edit-post-form]');const input=form.elements.photos;const preview=form.querySelector('.edit-post-preview');
+ input.addEventListener('change',()=>{try{const files=validateFiles(input.files);if(existing.length+files.length>MAX_PHOTOS)throw new Error(`This post has ${existing.length} photo(s); you can add ${Math.max(0,MAX_PHOTOS-existing.length)} more.`);preview.replaceChildren(...files.map(file=>{const img=document.createElement('img');img.src=URL.createObjectURL(file);img.alt=file.name;img.onload=()=>URL.revokeObjectURL(img.src);return img;}));}catch(e){input.value='';preview.replaceChildren();say(e.message);}});
+ form.addEventListener('submit',async event=>{
+  event.preventDefault();const submit=form.querySelector('[type="submit"]');if(!currentUser||post.user_id!==currentUser.id)return;submit.disabled=true;
+  let uploaded=[];let photoRowsInserted=false;
+  try{
+   const title=form.elements.title.value.trim().slice(0,120),caption=form.elements.caption.value.trim().slice(0,2000),locationName=form.elements.location_name.value.trim().slice(0,180),locationUrl=form.elements.location_url.value.trim();
+   if(locationUrl&&!safeHttpUrl(locationUrl))throw new Error('Enter a valid HTTP or HTTPS map link, or clear the field.');
+   const files=validateFiles(input.files);if(existing.length+files.length>MAX_PHOTOS)throw new Error(`This post can contain at most ${MAX_PHOTOS} photos. It currently has ${existing.length}.`);
+   if(!title&&!caption&&existing.length+files.length===0)throw new Error('Add a title, story or photo before saving.');
+   if(files.length)uploaded=await uploadImages(files,'posts');
+   if(uploaded.length){const {error:insertError}=await supabase.from('community_post_photos').insert(uploaded.map(x=>({post_id:post.id,photo_url:x.url})));if(insertError)throw insertError;photoRowsInserted=true;}
+   const patch={title:title||null,caption:caption||null,location_name:locationName||null,location_url:locationUrl||null};
+   if(!safeImageUrl(post.image_url)&&uploaded[0])patch.image_url=uploaded[0].url;
+   const {error:updateError}=await supabase.from('community_posts').update(patch).eq('id',post.id).eq('user_id',currentUser.id);if(updateError)throw updateError;
+   closeModal();notify('Your post has been updated.');await loadFeed();
+  }catch(error){if(photoRowsInserted&&uploaded.length)await supabase.from('community_post_photos').delete().eq('post_id',post.id).in('photo_url',uploaded.map(x=>x.url));if(uploaded.length)await supabase.storage.from(BUCKET).remove(uploaded.map(x=>x.path));say('Could not update post: '+(error.message||'Unknown error'));}
+  finally{submit.disabled=false;}
+ });
+}
+
 async function deletePost(post){if(!currentUser||post.user_id!==currentUser.id)return; if(!confirm('Delete this post and its photo records? This cannot be undone.'))return;try{const {error:photoReadErr,data:photoRows}=await supabase.from('community_post_photos').select('photo_url').eq('post_id',post.id);if(photoReadErr)throw photoReadErr;const urls=[post.image_url,...(photoRows||[]).map(r=>r.photo_url)].filter(Boolean);const paths=[];for(const value of urls){try{const u=new URL(value);const marker='/community-photos/';const i=u.pathname.indexOf(marker);if(i>=0){const path=decodeURIComponent(u.pathname.slice(i+marker.length));if(path.startsWith(currentUser.id+'/'))paths.push(path);}}catch{}}const {error:photoDeleteErr}=await supabase.from('community_post_photos').delete().eq('post_id',post.id);if(photoDeleteErr)throw photoDeleteErr;const {error:postErr}=await supabase.from('community_posts').delete().eq('id',post.id).eq('user_id',currentUser.id);if(postErr)throw postErr;if(paths.length)await supabase.storage.from(BUCKET).remove([...new Set(paths)]);notify('Post deleted.');await loadFeed();await renderProfileStats();}catch(e){say('Could not delete post: '+e.message);}}
 
 async function loadTravellers(){const host=$('travellersList');try{const {data:profiles,error}=await supabase.from('community_profiles').select('user_id,display_name,avatar_url').neq('user_id',currentUser?.id||'00000000-0000-0000-0000-000000000000').limit(30);if(error)throw error;const search=$('travellerSearch').value.trim().toLowerCase();const rows=(profiles||[]).filter(p=>(p.display_name||'').toLowerCase().includes(search)).slice(0,5);if(!rows.length){host.innerHTML='<div class="empty">No other travellers found yet.</div>';return;}host.innerHTML=rows.map(p=>`<div class="traveller">${p.avatar_url&&safeImageUrl(p.avatar_url)?`<img class="avatar" src="${escapeHtml(safeImageUrl(p.avatar_url))}" alt="" style="object-fit:cover">`:avatarMarkup(p.display_name)}<div class="meta"><button class="profile-name-btn" data-open-profile="${p.user_id}">${escapeHtml(p.display_name||'Traveller')}</button><small>TravelTaste member</small></div><button class="btn ${follows.has(p.user_id)?'secondary':'outline'} follow-btn" data-follow-user="${p.user_id}">${follows.has(p.user_id)?'Following':'Follow'}</button></div>`).join('');host.querySelectorAll('[data-open-profile]').forEach(b=>b.addEventListener('click',()=>openPublicProfile(b.dataset.openProfile)));host.querySelectorAll('[data-follow-user]').forEach(b=>b.addEventListener('click',()=>toggleFollow(b.dataset.followUser)));}catch(e){host.innerHTML=`<div class="empty">Could not load travellers: ${escapeHtml(e.message)}</div>`;}}
 async function toggleFollow(userId){if(!currentUser){notify('Log in to follow travellers.');return;}try{if(follows.has(userId)){const {error}=await supabase.from('community_follows').delete().eq('follower_id',currentUser.id).eq('followed_id',userId);if(error)throw error;follows.delete(userId);}else{const {error}=await supabase.from('community_follows').insert({follower_id:currentUser.id,followed_id:userId});if(error&&error.code!=='23505')throw error;follows.add(userId);}await loadTravellers();notify(follows.has(userId)?'You are now following this traveller.':'You unfollowed this traveller.');if(feedMode==='following')await loadFeed();}catch(e){say('Could not update follow: '+e.message);}}
-async function loadTrending(){try{const {data:posts,error}=await supabase.from('community_posts').select('id,user_id,title,caption,image_url,created_at,post_type,location_name').order('created_at',{ascending:false}).limit(30);if(error)throw error;let rows=posts||[];const ids=rows.map(p=>p.id);let countMap=new Map();if(ids.length){const r=await supabase.from('community_post_likes').select('post_id').in('post_id',ids).eq('reaction','like');if(!r.error)for(const l of r.data||[])countMap.set(l.post_id,(countMap.get(l.post_id)||0)+1);}rows.sort((a,b)=>(countMap.get(b.id)||0)-(countMap.get(a.id)||0)||new Date(b.created_at)-new Date(a.created_at));$('trendingStories').innerHTML=rows.slice(0,4).map(p=>`<div class="trending-row" data-open-post="${p.id}"><div class="trend-thumb">${p.post_type==='achievement_unlocked'?'🏆':'📸'}</div><div><strong>${escapeHtml(p.title||p.location_name||'Travel story')}</strong><small>♥ ${countMap.get(p.id)||0} · ${escapeHtml(formatDate(p.created_at))}</small></div></div>`).join('')||'<div class="empty">No community stories yet.</div>'; $('trendingStories').querySelectorAll('[data-open-post]').forEach(el=>el.addEventListener('click',()=>openTrendingPost(el.dataset.openPost)));}catch(e){$('trendingStories').innerHTML=`<div class="empty">Could not load trending stories.</div>`;}}
+async function loadTrending(){try{const {data:posts,error}=await supabase.from('community_posts').select('id,user_id,title,caption,image_url,created_at,post_type,location_name').order('created_at',{ascending:false}).limit(30);if(error)throw error;let rows=posts||[];const ids=rows.map(p=>p.id);let countMap=new Map();if(ids.length){const r=await supabase.from('community_post_likes').select('post_id').in('post_id',ids).eq('reaction','like');if(!r.error)for(const l of r.data||[])countMap.set(l.post_id,(countMap.get(l.post_id)||0)+1);}rows.sort((a,b)=>(countMap.get(b.id)||0)-(countMap.get(a.id)||0)||new Date(b.created_at)-new Date(a.created_at));$('trendingStories').innerHTML=rows.slice(0,4).map(p=>`<div class="trending-row" data-open-post="${p.id}"><div class="trend-thumb">${p.post_type==='achievement_unlocked'?'🏆':'📸'}</div><div><strong>${escapeHtml(p.title||p.location_name||'Travel story')}</strong><small>🏆 ${countMap.get(p.id)||0} celebrations · ${escapeHtml(formatDate(p.created_at))}</small></div></div>`).join('')||'<div class="empty">No community stories yet.</div>'; $('trendingStories').querySelectorAll('[data-open-post]').forEach(el=>el.addEventListener('click',()=>openTrendingPost(el.dataset.openPost)));}catch(e){$('trendingStories').innerHTML=`<div class="empty">Could not load trending stories.</div>`;}}
 async function renderTrending(){await loadTrending();}
 function openTrendingPost(postId){feedMode='for-you';setActiveFeedTab('for-you');loadFeed().then(()=>{const el=$(`post-${postId}`);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.animate([{outline:'3px solid #ff8a50'},{outline:'0 solid transparent'}],{duration:1600});}});}
 function setActiveFeedTab(value){document.querySelectorAll('[data-feed]').forEach(b=>b.classList.toggle('active',b.dataset.feed===value));}
@@ -8487,13 +8671,35 @@ function setView(value){document.querySelectorAll('[data-view]').forEach(b=>b.cl
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
 $('viewMyAchievementsButton').addEventListener('click',()=>setView('achievements'));
 document.querySelectorAll('[data-feed]').forEach(b=>b.addEventListener('click',()=>{feedMode=b.dataset.feed;setActiveFeedTab(feedMode);$('feedHeading').textContent=({ 'for-you':'Community stories','following':'Stories from travellers you follow','latest':'Latest stories','trending':'Trending stories','most-liked':'Most liked stories'})[feedMode];loadFeed();}));
-$('refreshFeedButton').addEventListener('click',loadFeed);$('refreshTravellersButton').addEventListener('click',loadTravellers);$('travellerSearch').addEventListener('input',()=>loadTravellers());$('globalSearch').addEventListener('input',()=>loadFeed());$('trendingSeeAllButton').addEventListener('click',()=>{document.querySelector('[data-feed="trending"]').click();$('feedHeading').scrollIntoView({behavior:'smooth',block:'start'});});
-$('settingsForm').addEventListener('submit',async e=>{e.preventDefault();if(!currentUser)return;const name=$('settingsNameInput').value.trim().slice(0,40);if(!name){say('Enter a display name.');return;}try{const {error}=await supabase.from('community_profiles').upsert({user_id:currentUser.id,display_name:name,updated_at:new Date().toISOString()},{onConflict:'user_id'});if(error)throw error;currentUser.communityDisplayName=name;showAccountUI(currentUser);await loadTravellers();await loadFeed();notify('Display name updated.');}catch(err){say('Could not save settings: '+err.message);}});
+$('refreshFeedButton').addEventListener('click',loadFeed);document.addEventListener('click',event=>{if(!event.target.closest('#ttCommunityApp .post-menu-wrap')){document.querySelectorAll('#ttCommunityApp .post-menu-dropdown').forEach(menu=>menu.hidden=true);document.querySelectorAll('#ttCommunityApp [data-post-menu]').forEach(button=>button.setAttribute('aria-expanded','false'));}});$('refreshTravellersButton').addEventListener('click',loadTravellers);$('travellerSearch').addEventListener('input',()=>loadTravellers());$('globalSearch').addEventListener('input',()=>loadFeed());$('trendingSeeAllButton').addEventListener('click',()=>{document.querySelector('[data-feed="trending"]').click();$('feedHeading').scrollIntoView({behavior:'smooth',block:'start'});});
+function previewProfilePhotoInputs(){const host=$('settingsPhotoPreview');if(!host)return;host.replaceChildren();const files=[['Profile picture',$('settingsAvatarInput')?.files?.[0]],['Cover photo',$('settingsCoverInput')?.files?.[0]]].filter(x=>x[1]);host.hidden=!files.length;for(const [label,file] of files){const wrap=document.createElement('div');wrap.className='profile-photo-preview-item';const img=document.createElement('img');img.src=URL.createObjectURL(file);img.alt=label+' preview';img.onload=()=>URL.revokeObjectURL(img.src);const text=document.createElement('span');text.textContent=label;wrap.append(img,text);host.append(wrap);}}
+$('settingsAvatarInput').addEventListener('change',()=>{try{validateFiles($('settingsAvatarInput').files);previewProfilePhotoInputs();}catch(e){$('settingsAvatarInput').value='';previewProfilePhotoInputs();say(e.message);}});
+$('settingsCoverInput').addEventListener('change',()=>{try{validateFiles($('settingsCoverInput').files);previewProfilePhotoInputs();}catch(e){$('settingsCoverInput').value='';previewProfilePhotoInputs();say(e.message);}});
+$('editProfileAvatarButton').addEventListener('click',()=>{setView('settings');$('settingsAvatarInput').click();});
+$('editProfileCoverButton').addEventListener('click',()=>{setView('settings');$('settingsCoverInput').click();});
+function pathFromCommunityPhotoUrl(value){try{const u=new URL(value);const marker=`/storage/v1/object/public/${BUCKET}/`;const i=u.pathname.indexOf(marker);if(i<0)return null;const path=decodeURIComponent(u.pathname.slice(i+marker.length));return currentUser&&path.startsWith(currentUser.id+'/')?path:null;}catch{return null;}}
+$('settingsForm').addEventListener('submit',async e=>{
+ e.preventDefault();if(!currentUser)return;const name=$('settingsNameInput').value.trim().slice(0,40);if(!name){say('Enter a display name.');return;}
+ const avatarFile=$('settingsAvatarInput').files?.[0]||null,coverFile=$('settingsCoverInput').files?.[0]||null;const saveButton=$('settingsForm').querySelector('[type="submit"]');saveButton.disabled=true;let uploaded=[];
+ try{
+  if(avatarFile)validateFiles([avatarFile]);if(coverFile)validateFiles([coverFile]);
+  const oldAvatar=currentProfile.avatar_url||null,oldCover=currentProfile.cover_url||null;
+  const toUpload=[...(avatarFile?[{kind:'avatar',file:avatarFile}]:[]),...(coverFile?[{kind:'cover',file:coverFile}]:[])];
+  if(toUpload.length){const result=await uploadImages(toUpload.map(x=>x.file),'profile');uploaded=result;}
+  let nextAvatar=oldAvatar,nextCover=oldCover;let cursor=0;if(avatarFile)nextAvatar=uploaded[cursor++].url;if(coverFile)nextCover=uploaded[cursor++].url;
+  const {error}=await supabase.from('community_profiles').upsert({user_id:currentUser.id,display_name:name,avatar_url:nextAvatar,cover_url:nextCover,updated_at:new Date().toISOString()},{onConflict:'user_id'});if(error)throw error;
+  currentUser.communityDisplayName=name;currentProfile={...currentProfile,display_name:name,avatar_url:nextAvatar,cover_url:nextCover};currentUser.communityProfile={...currentProfile};
+  showAccountUI(currentUser);$('settingsAvatarInput').value='';$('settingsCoverInput').value='';$('settingsPhotoPreview').replaceChildren();$('settingsPhotoPreview').hidden=true;
+  const stillUsed=new Set([nextAvatar,nextCover].filter(Boolean));const oldPaths=[oldAvatar,oldCover].filter(url=>url&&!stillUsed.has(url)).map(pathFromCommunityPhotoUrl).filter(Boolean);if(oldPaths.length)await supabase.storage.from(BUCKET).remove([...new Set(oldPaths)]);
+  await loadTravellers();await loadFeed();notify('Your profile has been updated.');
+ }catch(err){if(uploaded.length)await supabase.storage.from(BUCKET).remove(uploaded.map(x=>x.path));say('Could not save your profile: '+err.message);}
+ finally{saveButton.disabled=false;}
+});
 
 async function openPublicProfile(userId){
   try{
     const [{data:profile,error:profileError},{data:earned,error:earnedError},{count:postCount,error:postError}]=await Promise.all([
-      supabase.from('community_profiles').select('user_id,display_name,avatar_url').eq('user_id',userId).maybeSingle(),
+      supabase.from('community_profiles').select('user_id,display_name,avatar_url,cover_url').eq('user_id',userId).maybeSingle(),
       supabase.from('community_user_achievements').select('challenge_id,completed_at').eq('user_id',userId).order('completed_at',{ascending:false}),
       supabase.from('community_posts').select('id',{count:'exact',head:true}).eq('user_id',userId)
     ]);
@@ -8501,7 +8707,7 @@ async function openPublicProfile(userId){
     const name=profile?.display_name||(userId===currentUser?.id?displayName(currentUser):'TravelTaste member');
     const badges=(earned||[]).map(e=>{const c=challenges.find(x=>x.id===e.challenge_id);return `<div class="profile-earned"><div class="badge-icon">${escapeHtml(challengeIcon(c))}</div><div><strong class="gold-text">${escapeHtml(challengeTitle(c))}</strong><div style="font-size:12px;color:var(--muted)">Golden Achievement · ${escapeHtml(formatDate(e.completed_at))}</div></div></div>`;}).join('');
     const following=userId!==currentUser?.id;
-    openModal(name,`${avatarMarkup(name)}<p style="margin:10px 0 4px;color:var(--muted)">${postCount||0} community posts · ${(earned||[]).length} Golden Achievements</p>${following?`<button class="btn ${follows.has(userId)?'secondary':'primary'}" id="ttc_profileFollowButton">${follows.has(userId)?'Following ✓':'＋ Follow traveller'}</button>`:''}<h3 style="margin:20px 0 8px">Golden Achievements</h3>${badges||'<div class="empty">No Golden Achievements earned yet. Their completed badges will appear here.</div>'}`);
+    openModal(name,`${profile?.cover_url&&safeImageUrl(profile.cover_url)?`<div class="public-profile-cover" style="background-image:url('${escapeHtml(safeImageUrl(profile.cover_url))}')"></div>`:''}${avatarMarkup(name,'public-profile-avatar',profile?.avatar_url)}<p style="margin:10px 0 4px;color:var(--muted)">${postCount||0} community posts · ${(earned||[]).length} Golden Achievements</p>${following?`<button class="btn ${follows.has(userId)?'secondary':'primary'}" id="ttc_profileFollowButton">${follows.has(userId)?'Following ✓':'＋ Follow traveller'}</button>`:''}<h3 style="margin:20px 0 8px">Golden Achievements</h3>${badges||'<div class="empty">No Golden Achievements earned yet. Their completed badges will appear here.</div>'}`);
     if(following)$('profileFollowButton')?.addEventListener('click',async()=>{await toggleFollow(userId);if($('modalBackdrop').classList.contains('open'))await openPublicProfile(userId);});
   }catch(e){notify('Could not load traveller profile: '+e.message);}
 }
