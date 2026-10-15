@@ -6463,9 +6463,8 @@ document.querySelectorAll('.category').forEach(button => {
 });
 
 
-// Resolve coordinates for new place submissions. First parse coordinates already
-// present in the Google Maps URL; then ask the Supabase Edge Function to resolve
-// shortened/other supported links. No existing published listings are modified.
+// Resolve coordinates only from the supplied Google Maps link. Short links may
+// be followed by the Supabase Edge Function. Never geocode names or addresses.
 function extractCoordinatesFromMapUrl(rawUrl) {
   if (!rawUrl) return null;
   const valid = (lat, lon) => Number.isFinite(lat) && Number.isFinite(lon) &&
@@ -6477,7 +6476,7 @@ function extractCoordinatesFromMapUrl(rawUrl) {
     const patterns = [
       /!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/i,
       /!2d(-?\d+(?:\.\d+)?)!3d(-?\d+(?:\.\d+)?)/i,
-      /(?:[?&](?:query|q|ll|center|destination)=)(-?\d{1,2}(?:\.\d+)?)\s*(?:%2C|,|%252C)\s*(-?\d{1,3}(?:\.\d+)?)/i
+      /(?:[?&](?:query|q|destination)=)(-?\d{1,2}(?:\.\d+)?)\s*(?:%2C|,|%252C)\s*(-?\d{1,3}(?:\.\d+)?)/i
     ];
     for (let i = 0; i < patterns.length; i++) {
       const match = text.match(patterns[i]);
@@ -6491,10 +6490,11 @@ function extractCoordinatesFromMapUrl(rawUrl) {
   };
   try {
     const url = new URL(rawUrl);
-    const allowedHost = /(^|\.)google\.[a-z.]+$/i.test(url.hostname) ||
-      /(^|\.)goo\.gl$/i.test(url.hostname);
+    const host = url.hostname.toLowerCase();
+    const allowedHost = /(^|\.)google\.[a-z.]+$/i.test(host) ||
+      /(^|\.)goo\.gl$/i.test(host) || host === 'share.google';
     if (!allowedHost) return null;
-    for (const key of ['query', 'q', 'll', 'center', 'destination']) {
+    for (const key of ['query', 'q', 'destination']) {
       const value = url.searchParams.get(key);
       if (value) {
         const found = pairFromText(`${key}=${encodeURIComponent(value)}`) || pairFromText(value);
@@ -6510,35 +6510,29 @@ function extractCoordinatesFromMapUrl(rawUrl) {
   return null;
 }
 
-async function resolveNewSubmissionCoordinates(mapUrl, placeName = '', cityName = '', stateName = '', countryName = '') {
+async function resolveNewSubmissionCoordinates(mapUrl) {
   const cleanMapUrl = String(mapUrl || '').trim();
-  if (cleanMapUrl) {
-    const direct = extractCoordinatesFromMapUrl(cleanMapUrl);
-    if (direct) return { ...direct, resolved: true, source: 'google_maps_link' };
-  }
+  if (!cleanMapUrl) return { latitude: null, longitude: null, resolved: false };
 
-  // Fallback: the Edge Function tries the map link first, then geocodes the
-  // place name plus city/state/country. The API key stays on the server.
+  // Google Maps link is the only source of coordinates. Do not geocode a place
+  // name/address when the link does not expose its exact pin. The server may
+  // follow a short link and inspect the final Google Maps place URL/page.
+  const direct = extractCoordinatesFromMapUrl(cleanMapUrl);
+  if (direct) return { ...direct, resolved: true, source: 'google_maps_link' };
   try {
     const { data, error } = await supabase.functions.invoke('resolve-map-coordinates', {
-      body: {
-        google_maps_url: cleanMapUrl,
-        place_name: String(placeName || '').trim(),
-        city_name: String(cityName || '').trim(),
-        state_name: String(stateName || '').trim(),
-        country_name: String(countryName || '').trim()
-      }
+      body: { google_maps_url: cleanMapUrl }
     });
-    if (!error && data && data.verified === true &&
+    if (!error && data && data.verified === true && data.source === 'google_maps_link' &&
         Number.isFinite(Number(data.latitude)) && Number.isFinite(Number(data.longitude)) &&
         Number(data.latitude) >= -90 && Number(data.latitude) <= 90 &&
         Number(data.longitude) >= -180 && Number(data.longitude) <= 180) {
-      return { latitude: Number(data.latitude), longitude: Number(data.longitude), resolved: true, source: data.source || 'resolver' };
+      return { latitude: Number(data.latitude), longitude: Number(data.longitude), resolved: true, source: 'google_maps_link' };
     }
-    if (error) console.warn('Location resolver returned an error:', error.message || error);
-    else if (data?.error) console.info('Location could not be verified automatically:', data.error);
+    if (error) console.warn('Google Maps link resolver returned an error:', error.message || error);
+    else if (data?.error) console.info('Google Maps link did not expose verifiable pin coordinates:', data.error);
   } catch (error) {
-    console.warn('Location resolver unavailable; submission can still be reviewed.', error);
+    console.warn('Google Maps link resolver unavailable; location remains unresolved.', error);
   }
   return { latitude: null, longitude: null, resolved: false };
 }
@@ -6631,13 +6625,7 @@ $('placeSubmissionForm').addEventListener('submit', async (event) => {
   button.disabled = true;
   const submittedMapUrl = String(formData.get('google_maps_url') || '').trim();
   message.textContent = submittedMapUrl ? 'Checking map location…' : 'Uploading photos…';
-  const resolvedCoordinates = await resolveNewSubmissionCoordinates(
-    submittedMapUrl,
-    String(formData.get('name') || '').trim(),
-    selectedCity.name || '',
-    selectedCity.state || '',
-    selectedCity.country || ''
-  );
+  const resolvedCoordinates = await resolveNewSubmissionCoordinates(submittedMapUrl);
   if (submittedMapUrl && !resolvedCoordinates.resolved) {
     message.textContent = 'We could not verify coordinates from this map link yet. Your submission can still be reviewed; Nearby Discoveries will use it once its coordinates are verified.';
   } else {
@@ -7199,7 +7187,7 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
   <div class="nearby-content">
     <div class="nearby-location-prompt"><span aria-hidden="true" style="font-size:24px">📍</span><div class="nearby-prompt-copy"><strong>Find what's around you</strong><small>Use your current location for recommendations from places already listed on TravelTaste. Location sharing is optional.</small></div><button type="button" id="useNearbyLocation">◎ Use My Current Location</button></div>
     <p class="nearby-status" id="nearbyStatus" aria-live="polite">Your location is not being accessed yet. Select “Use My Current Location” to begin.</p>
-    <p class="nearby-attribution">Location lookup powered by <a href="https://www.geoapify.com/" target="_blank" rel="noopener noreferrer">Geoapify</a>. Map data may include <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>.</p>
+    <p class="nearby-attribution">Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>.</p>
     <div class="nearby-filters" id="nearbyFilters" aria-label="Filter nearby recommendations">
       <button type="button" class="nearby-filter" data-nearby-filter="all" aria-pressed="true">✨ All</button>
       <button type="button" class="nearby-filter" data-nearby-filter="places" aria-pressed="false">📍 Places</button>
@@ -7256,6 +7244,13 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
   }
   function coordinatesFromMapUrl(url){
     if(!url)return null;
+    let parsed;
+    try{
+      parsed=new URL(String(url));
+      const host=parsed.hostname.toLowerCase();
+      const googleHost=/(^|\.)google\.[a-z.]+$/i.test(host)||/(^|\.)goo\.gl$/i.test(host)||host==='share.google';
+      if(!googleHost||!['https:','http:'].includes(parsed.protocol))return null;
+    }catch(_){return null;}
     let text=String(url);
     try{for(let i=0;i<2;i++){const decoded=decodeURIComponent(text.replace(/\+/g,' '));if(decoded===text)break;text=decoded;}}catch(_){}
     // Pin coordinates must win over @lat,lon because @ often identifies the
@@ -7263,7 +7258,7 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
     const patterns=[
       {re:/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/i,swap:false},
       {re:/!2d(-?\d+(?:\.\d+)?)!3d(-?\d+(?:\.\d+)?)/i,swap:true},
-      {re:/(?:geo:|[?&](?:q|query|destination|ll|center)=)(-?\d{1,2}(?:\.\d+)?)\s*(?:%2C|,|%252C|\s)\s*(-?\d{1,3}(?:\.\d+)?)/i,swap:false}
+      {re:/(?:geo:|[?&](?:q|query|destination)=)(-?\d{1,2}(?:\.\d+)?)\s*(?:%2C|,|%252C|\s)\s*(-?\d{1,3}(?:\.\d+)?)/i,swap:false}
     ];
     for(const {re,swap} of patterns){
       const m=text.match(re);if(!m)continue;
@@ -7275,23 +7270,28 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
   function withCoordinates(item){
     const mapUrl=mapUrlFor(item);
     const fromUrl=coordinatesFromMapUrl(mapUrl);
-    // Preserve the coordinates actually stored in Supabase separately from
-    // coordinates embedded in a precise Google Maps pin URL. If both exist,
-    // the pin coordinates win for display, and any mismatch is repaired below.
-    const existingSaved=item._travelTasteDatabaseCoords || null;
-    const pairs=[[item.latitude,item.longitude],[item.lat,item.lng],[item.lat,item.lon],[item.lat,item.long]];
-    let saved=existingSaved;
+    const rawPairs=[[item.latitude,item.longitude],[item.lat,item.lng],[item.lat,item.lon],[item.lat,item.long]];
+    let saved=item._travelTasteDatabaseCoords||null;
     if(!saved){
-      for(const pair of pairs){if(validLatLon(pair[0],pair[1])){saved={latitude:Number(pair[0]),longitude:Number(pair[1])};break;}}
+      for(const pair of rawPairs){if(validLatLon(pair[0],pair[1])){saved={latitude:Number(pair[0]),longitude:Number(pair[1])};break;}}
     }
-    const coords=fromUrl||saved;
+    const verifiedCached=item._travelTasteLinkVerified && item._travelTasteLinkCoords &&
+      validLatLon(item._travelTasteLinkCoords.latitude,item._travelTasteLinkCoords.longitude)
+      ? {latitude:Number(item._travelTasteLinkCoords.latitude),longitude:Number(item._travelTasteLinkCoords.longitude)} : null;
+    // Only exact pin coordinates parsed from the supplied Maps link, or results
+    // previously verified by the server from that exact same link, may drive distance.
+    // Existing database numbers are kept only for comparison. They cannot drive
+    // nearby distance unless this exact saved link independently verifies them.
+    const coords=fromUrl||verifiedCached;
     return {
       ...item,
       google_maps_url:mapUrl||item.google_maps_url||null,
       latitude:coords?.latitude??null,
       longitude:coords?.longitude??null,
       _travelTasteDatabaseCoords:saved,
-      _travelTasteUrlCoords:fromUrl
+      _travelTasteUrlCoords:fromUrl,
+      _travelTasteLinkVerified:Boolean(fromUrl||verifiedCached),
+      _travelTasteLinkCoords:fromUrl||verifiedCached
     };
   }
   function typeOf(item){
@@ -7307,13 +7307,11 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
     const source=Array.isArray(window.travelTasteNearbyListings)?window.travelTasteNearbyListings:[];
     return source.filter(item=>item && (item.is_published===true || item.is_published==='true' || item.is_published===1 || item.is_published==='1')).map(withCoordinates);
   }
-  // Reconcile coordinates before distance filtering. Many earlier records were
-  // geocoded from a name and may have valid-but-wrong coordinates. We now check
-  // each saved Google Maps URL once per browser against the server resolver, which
-  // tries the pin/link first and only then uses guarded Geoapify matching. Successful
-  // results are written to Supabase, not just held in a browser-only cache.
-  const coordinateRecheckStorageKey='traveltaste-coordinate-recheck-v3';
-  const COORDINATE_RECHECK_RETRY_MS=24*60*60*1000;
+  // Google Maps link is the only source of coordinates for Nearby Discoveries.
+  // This cache stores only successful link-derived coordinates, keyed by listing ID
+  // AND the exact saved link. Old address-geocoder cache entries are ignored.
+  const coordinateRecheckStorageKey='traveltaste-google-link-only-v4';
+  const COORDINATE_RECHECK_RETRY_MS=6*60*60*1000;
   function readCoordinateRecheckState(){
     try{return JSON.parse(localStorage.getItem(coordinateRecheckStorageKey)||'{}')||{};}catch(_){return {};}
   }
@@ -7332,27 +7330,46 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
     let source=(Array.isArray(fetched)?fetched:[])
       .filter(item=>item&&(item.is_published===true||item.is_published==='true'||item.is_published===1||item.is_published==='1'))
       .map(withCoordinates);
-    window.travelTasteNearbyListings=source;
-
     const checked=readCoordinateRecheckState();
     const now=Date.now();
+
+    // Restore only previously verified results produced from this same exact link.
+    source=source.map(item=>{
+      if(item._travelTasteUrlCoords)return item;
+      const state=checked[coordinateRecheckKey(item)];
+      if(state?.ok===true && state.source==='google_maps_link' &&
+         validLatLon(state.latitude,state.longitude)){
+        const coords={latitude:Number(state.latitude),longitude:Number(state.longitude)};
+        return {...item,latitude:coords.latitude,longitude:coords.longitude,
+          _travelTasteLinkVerified:true,_travelTasteLinkCoords:coords};
+      }
+      return item;
+    });
+    window.travelTasteNearbyListings=source;
+
     const tasks=[];
     for(const item of source){
-      if(!item.id||!mapUrlFor(item))continue;
+      const mapUrl=mapUrlFor(item);
+      if(!item.id||!mapUrl)continue;
       const key=coordinateRecheckKey(item);
       const prior=checked[key];
-      if(prior?.ok)continue;
-      if(prior?.attemptedAt && now-Number(prior.attemptedAt)<COORDINATE_RECHECK_RETRY_MS)continue;
       const saved=item._travelTasteDatabaseCoords;
       const urlCoords=item._travelTasteUrlCoords;
-      if(urlCoords){
-        const delta=saved?distanceKm(saved.latitude,saved.longitude,urlCoords.latitude,urlCoords.longitude):Infinity;
-        if(delta<=0.05)continue;
+
+      // If the exact pin is present in the link and matches the database, use it;
+      // record that the link verified the current coordinate pair.
+      if(urlCoords && saved && distanceKm(saved.latitude,saved.longitude,urlCoords.latitude,urlCoords.longitude)<=0.001){
+        checked[key]={ok:true,source:'google_maps_link',latitude:urlCoords.latitude,longitude:urlCoords.longitude,verifiedAt:now};
+        continue;
       }
-      // Force a one-time recheck even when DB coordinates already exist, because
-      // those coordinates may have come from a previous inaccurate geocoder result.
+      // A result without direct URL coordinates is accepted only if this exact link
+      // was already verified by the server. Otherwise verify it through the Edge Function.
+      if(!urlCoords && prior?.ok===true && prior.source==='google_maps_link' &&
+         validLatLon(prior.latitude,prior.longitude))continue;
+      if(prior?.attemptedAt && now-Number(prior.attemptedAt)<COORDINATE_RECHECK_RETRY_MS && prior.ok!==true)continue;
       tasks.push({item,key,forceRecheck:Boolean(saved)});
     }
+    writeCoordinateRecheckState(checked);
 
     if(tasks.length){
       let nextIndex=0, savedCount=0, failedCount=0;
@@ -7362,33 +7379,38 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
           const item=task.item;
           try{
             const result=await window.travelTasteResolveNearbyListingCoordinates(item.id,{forceRecheck:task.forceRecheck});
-            if(result&&result.resolved&&validLatLon(result.latitude,result.longitude)){
+            if(result&&result.resolved&&result.source==='google_maps_link'&&validLatLon(result.latitude,result.longitude)){
               const coords={latitude:Number(result.latitude),longitude:Number(result.longitude)};
               source=source.map(row=>String(row.id)===String(item.id)?{
-                ...row, ...coords,
+                ...row,latitude:coords.latitude,longitude:coords.longitude,
                 _travelTasteDatabaseCoords:coords,
-                _travelTasteUrlCoords:row._travelTasteUrlCoords || null
+                _travelTasteLinkVerified:true,_travelTasteLinkCoords:coords,
+                _travelTasteUrlCoords:row._travelTasteUrlCoords||null
               }:row);
-              checked[task.key]={ok:true,attemptedAt:Date.now(),source:result.source||null,precision:result.precision||null};
+              checked[task.key]={ok:true,source:'google_maps_link',latitude:coords.latitude,longitude:coords.longitude,verifiedAt:Date.now()};
               writeCoordinateRecheckState(checked);
               window.travelTasteNearbyListings=source;
               if(result.saved)savedCount++;
             }else{
               failedCount++;
-              checked[task.key]={ok:false,attemptedAt:Date.now()};
+              checked[task.key]={ok:false,attemptedAt:Date.now(),error:'Google Maps link did not expose exact pin coordinates'};
               writeCoordinateRecheckState(checked);
-              console.warn('Could not verify listing coordinates:',item.name,result);
+              console.warn('Listing excluded from Nearby Discoveries because its own Google Maps link could not verify coordinates:',item.name,result);
+              // Never fall back to stale database coordinates that may have been geocoded incorrectly.
+              source=source.map(row=>String(row.id)===String(item.id)?{...row,latitude:null,longitude:null,_travelTasteLinkVerified:false,_travelTasteLinkCoords:null}:row);
+              window.travelTasteNearbyListings=source;
             }
           }catch(error){
             failedCount++;
-            checked[task.key]={ok:false,attemptedAt:Date.now()};
+            checked[task.key]={ok:false,attemptedAt:Date.now(),error:String(error?.message||error)};
             writeCoordinateRecheckState(checked);
-            console.warn('Could not recheck existing listing coordinates:',item.name,error);
+            source=source.map(row=>String(row.id)===String(item.id)?{...row,latitude:null,longitude:null,_travelTasteLinkVerified:false,_travelTasteLinkCoords:null}:row);
+            window.travelTasteNearbyListings=source;
+            console.warn('Listing excluded from Nearby Discoveries because link-only coordinate verification failed:',item.name,error);
           }
-          status.textContent=`Checking saved map links… ${Math.min(nextIndex,tasks.length)} of ${tasks.length} listings checked${savedCount?`; ${savedCount} corrected/saved`:''}${failedCount?`; ${failedCount} could not be verified`:''}.`;
+          status.textContent=`Checking exact Google Maps pins… ${Math.min(nextIndex,tasks.length)} of ${tasks.length} listings checked${savedCount?`; ${savedCount} coordinate pairs saved`:''}${failedCount?`; ${failedCount} links could not verify exact pin coordinates`:''}.`;
         }
       };
-      // Keep requests below free-geocoder service burst limits.
       await Promise.all(Array.from({length:Math.min(2,tasks.length)},()=>worker()));
     }
     window.travelTasteNearbyListings=source;
@@ -7575,10 +7597,10 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
         const allNearbyListings=publishedItems();
         const coordCount=allNearbyListings.filter(item=>validLatLon(item.latitude,item.longitude)).length;
         const totalCount=allNearbyListings.length;
-        const savedWithoutPinCoords=allNearbyListings.filter(item=>item._travelTasteDatabaseCoords&&!item._travelTasteUrlCoords).length;
+        const unresolvedLinks=allNearbyListings.filter(item=>!validLatLon(item.latitude,item.longitude)&&mapUrlFor(item)).length;
         render();
         if(coordCount){
-          status.textContent=`Browser location: ${lat.toFixed(5)}, ${lon.toFixed(5)}${accuracyKm!==null?` (reported accuracy ±${accuracyKm.toFixed(1)} km)`:''}. ${coordCount} of ${totalCount} published places have usable coordinates. Distances are straight-line estimates.${savedWithoutPinCoords?` ${savedWithoutPinCoords} saved locations use links without extractable pin coordinates; their existing coordinates cannot be independently verified from the link yet.`:''}${locationQuality}`;
+          status.textContent=`Browser location: ${lat.toFixed(5)}, ${lon.toFixed(5)}${accuracyKm!==null?` (reported accuracy ±${accuracyKm.toFixed(1)} km)`:''}. ${coordCount} of ${totalCount} published places have usable coordinates. Distances are straight-line estimates.${unresolvedLinks?` ${unresolvedLinks} listings are excluded because their exact pin coordinates could not be verified from their own Google Maps links.`:''}${locationQuality}`;
         }else{
           status.textContent=`Browser location: ${lat.toFixed(5)}, ${lon.toFixed(5)}. ${totalCount} published places loaded, but none has usable coordinates yet.${locationQuality}`;
         }
