@@ -1512,6 +1512,7 @@ body.seasonal-drawer-open{overflow:hidden}
 #useNearbyLocation{border:0;border-radius:10px;background:#f04408;color:#fff;font-weight:800;font-size:13px;padding:12px 15px;white-space:nowrap}
 #useNearbyLocation:disabled{opacity:.65;cursor:wait}
 .nearby-status{margin:8px 2px 12px;font-size:12px;color:#687a91;line-height:1.5;min-height:18px}
+.nearby-attribution{margin:-6px 2px 12px;font-size:11px;line-height:1.45;color:#748096}.nearby-attribution a{color:#a94b2a;text-decoration:underline}
 .nearby-filters{display:flex;gap:8px;overflow-x:auto;padding:1px 1px 12px;scrollbar-width:thin}
 .nearby-filter{border:1px solid #e4e8ee;border-radius:10px;padding:10px 13px;background:#fff;color:#233b58;font-size:12px;font-weight:750;white-space:nowrap}
 .nearby-filter[aria-pressed="true"]{background:#f04408;border-color:#f04408;color:#fff}
@@ -6509,23 +6510,35 @@ function extractCoordinatesFromMapUrl(rawUrl) {
   return null;
 }
 
-async function resolveNewSubmissionCoordinates(mapUrl) {
-  if (!mapUrl) return { latitude: null, longitude: null, resolved: false };
-  const direct = extractCoordinatesFromMapUrl(mapUrl);
-  if (direct) return { ...direct, resolved: true };
-  // This Edge Function must be deployed in Supabase as `resolve-map-coordinates`.
+async function resolveNewSubmissionCoordinates(mapUrl, placeName = '', cityName = '', stateName = '', countryName = '') {
+  const cleanMapUrl = String(mapUrl || '').trim();
+  if (cleanMapUrl) {
+    const direct = extractCoordinatesFromMapUrl(cleanMapUrl);
+    if (direct) return { ...direct, resolved: true, source: 'google_maps_link' };
+  }
+
+  // Fallback: the Edge Function tries the map link first, then geocodes the
+  // place name plus city/state/country. The API key stays on the server.
   try {
     const { data, error } = await supabase.functions.invoke('resolve-map-coordinates', {
-      body: { google_maps_url: mapUrl }
+      body: {
+        google_maps_url: cleanMapUrl,
+        place_name: String(placeName || '').trim(),
+        city_name: String(cityName || '').trim(),
+        state_name: String(stateName || '').trim(),
+        country_name: String(countryName || '').trim()
+      }
     });
     if (!error && data && data.verified === true &&
         Number.isFinite(Number(data.latitude)) && Number.isFinite(Number(data.longitude)) &&
         Number(data.latitude) >= -90 && Number(data.latitude) <= 90 &&
         Number(data.longitude) >= -180 && Number(data.longitude) <= 180) {
-      return { latitude: Number(data.latitude), longitude: Number(data.longitude), resolved: true };
+      return { latitude: Number(data.latitude), longitude: Number(data.longitude), resolved: true, source: data.source || 'resolver' };
     }
+    if (error) console.warn('Location resolver returned an error:', error.message || error);
+    else if (data?.error) console.info('Location could not be verified automatically:', data.error);
   } catch (error) {
-    console.warn('Map URL resolver unavailable; submission can still be reviewed.', error);
+    console.warn('Location resolver unavailable; submission can still be reviewed.', error);
   }
   return { latitude: null, longitude: null, resolved: false };
 }
@@ -6618,7 +6631,13 @@ $('placeSubmissionForm').addEventListener('submit', async (event) => {
   button.disabled = true;
   const submittedMapUrl = String(formData.get('google_maps_url') || '').trim();
   message.textContent = submittedMapUrl ? 'Checking map location…' : 'Uploading photos…';
-  const resolvedCoordinates = await resolveNewSubmissionCoordinates(submittedMapUrl);
+  const resolvedCoordinates = await resolveNewSubmissionCoordinates(
+    submittedMapUrl,
+    String(formData.get('name') || '').trim(),
+    selectedCity.name || '',
+    selectedCity.state || '',
+    selectedCity.country || ''
+  );
   if (submittedMapUrl && !resolvedCoordinates.resolved) {
     message.textContent = 'We could not verify coordinates from this map link yet. Your submission can still be reviewed; Nearby Discoveries will use it once its coordinates are verified.';
   } else {
@@ -7170,6 +7189,7 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
   <div class="nearby-content">
     <div class="nearby-location-prompt"><span aria-hidden="true" style="font-size:24px">📍</span><div class="nearby-prompt-copy"><strong>Find what's around you</strong><small>Use your current location for recommendations from places already listed on TravelTaste. Location sharing is optional.</small></div><button type="button" id="useNearbyLocation">◎ Use My Current Location</button></div>
     <p class="nearby-status" id="nearbyStatus" aria-live="polite">Your location is not being accessed yet. Select “Use My Current Location” to begin.</p>
+    <p class="nearby-attribution">Location lookup powered by <a href="https://www.geoapify.com/" target="_blank" rel="noopener noreferrer">Geoapify</a>. Map data may include <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>.</p>
     <div class="nearby-filters" id="nearbyFilters" aria-label="Filter nearby recommendations">
       <button type="button" class="nearby-filter" data-nearby-filter="all" aria-pressed="true">✨ All</button>
       <button type="button" class="nearby-filter" data-nearby-filter="places" aria-pressed="false">📍 Places</button>
