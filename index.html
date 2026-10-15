@@ -6467,32 +6467,44 @@ document.querySelectorAll('.category').forEach(button => {
 // shortened/other supported links. No existing published listings are modified.
 function extractCoordinatesFromMapUrl(rawUrl) {
   if (!rawUrl) return null;
+  const valid = (lat, lon) => Number.isFinite(lat) && Number.isFinite(lon) &&
+    lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180;
+  const pairFromText = (text) => {
+    if (!text) return null;
+    // Prefer the actual place/pin coordinates (!3d latitude !4d longitude)
+    // over @latitude,longitude, which is commonly only the map viewport centre.
+    const patterns = [
+      /!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/i,
+      /!2d(-?\d+(?:\.\d+)?)!3d(-?\d+(?:\.\d+)?)/i,
+      /(?:[?&](?:query|q|ll|center|destination)=)(-?\d{1,2}(?:\.\d+)?)\s*(?:%2C|,|%252C)\s*(-?\d{1,3}(?:\.\d+)?)/i
+    ];
+    for (let i = 0; i < patterns.length; i++) {
+      const match = text.match(patterns[i]);
+      if (!match) continue;
+      let latitude = Number(match[1]);
+      let longitude = Number(match[2]);
+      if (i === 1) { latitude = Number(match[2]); longitude = Number(match[1]); }
+      if (valid(latitude, longitude)) return { latitude, longitude };
+    }
+    return null;
+  };
   try {
     const url = new URL(rawUrl);
-    const candidates = [
-      url.searchParams.get('query'), url.searchParams.get('q'),
-      url.searchParams.get('ll'), url.searchParams.get('center'),
-      url.searchParams.get('destination')
-    ].filter(Boolean);
-    const decoded = decodeURIComponent(rawUrl.replace(/\+/g, ' '));
-    const patterns = [
-      /@(-?\d{1,2}\.\d{3,}),\s*(-?\d{1,3}\.\d{3,})/,
-      /!3d(-?\d{1,2}\.\d+)!4d(-?\d{1,3}\.\d+)/,
-      /(?:^|[?&])(?:query|q|ll|center)=(-?\d{1,2}\.\d+)%2C\s*(-?\d{1,3}\.\d+)/i,
-      /(-?\d{1,2}\.\d{3,})\s*,\s*(-?\d{1,3}\.\d{3,})/
-    ];
-    for (const value of [...candidates, decoded]) {
-      for (const pattern of patterns) {
-        const match = value.match(pattern);
-        if (!match) continue;
-        const latitude = Number(match[1]);
-        const longitude = Number(match[2]);
-        if (Number.isFinite(latitude) && Number.isFinite(longitude) &&
-            latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180) {
-          return { latitude, longitude };
-        }
+    const allowedHost = /(^|\.)google\.[a-z.]+$/i.test(url.hostname) ||
+      /(^|\.)goo\.gl$/i.test(url.hostname);
+    if (!allowedHost) return null;
+    for (const key of ['query', 'q', 'll', 'center', 'destination']) {
+      const value = url.searchParams.get(key);
+      if (value) {
+        const found = pairFromText(`${key}=${encodeURIComponent(value)}`) || pairFromText(value);
+        if (found) return found;
       }
     }
+    let decoded = rawUrl;
+    for (let i = 0; i < 2; i++) {
+      try { const next = decodeURIComponent(decoded.replace(/\+/g, ' ')); if (next === decoded) break; decoded = next; } catch (_) { break; }
+    }
+    return pairFromText(decoded);
   } catch (_) { /* invalid or unsupported URL; try server resolver */ }
   return null;
 }
@@ -6704,6 +6716,25 @@ window.travelTasteFetchPublishedNearbyListings = async function () {
 };
 window.travelTasteResolveNearbyCoordinates = async function (mapUrl) {
   return resolveNewSubmissionCoordinates(mapUrl);
+};
+// For older published rows, resolve coordinates from the Google Maps URL saved
+// on that row and persist the recovered coordinates in public.listings.
+window.travelTasteResolveNearbyListingCoordinates = async function (listingId) {
+  if (!listingId) return { latitude: null, longitude: null, resolved: false };
+  try {
+    const { data, error } = await supabase.functions.invoke('resolve-map-coordinates', {
+      body: { listing_id: String(listingId) }
+    });
+    if (!error && data && data.verified === true &&
+        Number.isFinite(Number(data.latitude)) && Number.isFinite(Number(data.longitude)) &&
+        Number(data.latitude) >= -90 && Number(data.latitude) <= 90 &&
+        Number(data.longitude) >= -180 && Number(data.longitude) <= 180) {
+      return { latitude: Number(data.latitude), longitude: Number(data.longitude), resolved: true, saved: data.saved === true };
+    }
+  } catch (error) {
+    console.warn('Could not save coordinates for the existing listing:', error);
+  }
+  return { latitude: null, longitude: null, resolved: false };
 };
 
   start();
@@ -7196,18 +7227,17 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
   function coordinatesFromMapUrl(url){
     if(!url)return null;
     let text=String(url);
-    try{text += ' ' + decodeURIComponent(text.replace(/\+/g,' '));}catch(_){}
+    try{for(let i=0;i<2;i++){const decoded=decodeURIComponent(text.replace(/\+/g,' '));if(decoded===text)break;text=decoded;}}catch(_){}
+    // Pin coordinates must win over @lat,lon because @ often identifies the
+    // visible map centre, not the actual place marker.
     const patterns=[
-      /@(-?\d{1,2}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/,
-      /!3d(-?\d{1,2}\.\d+)!4d(-?\d{1,3}\.\d+)/,
-      /!2d(-?\d{1,3}\.\d+)!3d(-?\d{1,2}\.\d+)/,
-      /(?:geo:|[?&](?:q|query|destination|ll|center)=)(-?\d{1,2}\.\d+)\s*(?:%2C|,|\s)\s*(-?\d{1,3}\.\d+)/i,
-      /(-?\d{1,2}\.\d{3,})\s*,\s*(-?\d{1,3}\.\d{3,})/
+      {re:/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/i,swap:false},
+      {re:/!2d(-?\d+(?:\.\d+)?)!3d(-?\d+(?:\.\d+)?)/i,swap:true},
+      {re:/(?:geo:|[?&](?:q|query|destination|ll|center)=)(-?\d{1,2}(?:\.\d+)?)\s*(?:%2C|,|%252C|\s)\s*(-?\d{1,3}(?:\.\d+)?)/i,swap:false}
     ];
-    for(const re of patterns){
+    for(const {re,swap} of patterns){
       const m=text.match(re);if(!m)continue;
-      let lat=Number(m[1]),lon=Number(m[2]);
-      if(re.source.startsWith('!2d')){lat=Number(m[2]);lon=Number(m[1]);}
+      const lat=Number(swap?m[2]:m[1]),lon=Number(swap?m[1]:m[2]);
       if(validLatLon(lat,lon))return {latitude:lat,longitude:lon};
     }
     return null;
@@ -7267,7 +7297,12 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
         while(nextIndex<unresolved.length){
           const index=nextIndex++;const item=unresolved[index];
           try{
-            const result=await window.travelTasteResolveNearbyCoordinates(mapUrlFor(item));
+            // Existing rows are resolved through the Edge Function by listing ID,
+            // which reads the URL already saved in Supabase and writes recovered
+            // coordinates back to the same row. This makes them available to every visitor.
+            const result = item.id && typeof window.travelTasteResolveNearbyListingCoordinates === 'function'
+              ? await window.travelTasteResolveNearbyListingCoordinates(item.id)
+              : await window.travelTasteResolveNearbyCoordinates(mapUrlFor(item));
             if(result&&result.resolved&&validLatLon(result.latitude,result.longitude)){
               const coords={latitude:Number(result.latitude),longitude:Number(result.longitude)};
               cache[coordinateCacheId(item)]=coords;
