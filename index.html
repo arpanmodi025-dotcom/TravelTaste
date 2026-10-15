@@ -6738,20 +6738,30 @@ window.travelTasteResolveNearbyCoordinates = async function (mapUrl) {
 };
 // For older published rows, resolve coordinates from the Google Maps URL saved
 // on that row and persist the recovered coordinates in public.listings.
-window.travelTasteResolveNearbyListingCoordinates = async function (listingId) {
+window.travelTasteResolveNearbyListingCoordinates = async function (listingId, options = {}) {
   if (!listingId) return { latitude: null, longitude: null, resolved: false };
   try {
     const { data, error } = await supabase.functions.invoke('resolve-map-coordinates', {
-      body: { listing_id: String(listingId) }
+      body: {
+        listing_id: String(listingId),
+        force_recheck: options.forceRecheck === true
+      }
     });
     if (!error && data && data.verified === true &&
         Number.isFinite(Number(data.latitude)) && Number.isFinite(Number(data.longitude)) &&
         Number(data.latitude) >= -90 && Number(data.latitude) <= 90 &&
         Number(data.longitude) >= -180 && Number(data.longitude) <= 180) {
-      return { latitude: Number(data.latitude), longitude: Number(data.longitude), resolved: true, saved: data.saved === true };
+      return {
+        latitude: Number(data.latitude), longitude: Number(data.longitude),
+        resolved: true, saved: data.saved === true, source: data.source || null,
+        precision: data.precision || null, matchedLabel: data.matched_label || null,
+        alreadySaved: data.already_saved === true
+      };
     }
+    if (error) console.warn('Coordinate resolver returned an error:', error.message || error);
+    else if (data?.error) console.warn('Coordinate resolver could not verify listing:', data.error);
   } catch (error) {
-    console.warn('Could not save coordinates for the existing listing:', error);
+    console.warn('Could not resolve coordinates for the existing listing:', error);
   }
   return { latitude: null, longitude: null, resolved: false };
 };
@@ -7265,11 +7275,24 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
   function withCoordinates(item){
     const mapUrl=mapUrlFor(item);
     const fromUrl=coordinatesFromMapUrl(mapUrl);
+    // Preserve the coordinates actually stored in Supabase separately from
+    // coordinates embedded in a precise Google Maps pin URL. If both exist,
+    // the pin coordinates win for display, and any mismatch is repaired below.
+    const existingSaved=item._travelTasteDatabaseCoords || null;
     const pairs=[[item.latitude,item.longitude],[item.lat,item.lng],[item.lat,item.lon],[item.lat,item.long]];
-    let saved=null;
-    for(const pair of pairs){if(validLatLon(pair[0],pair[1])){saved={latitude:Number(pair[0]),longitude:Number(pair[1])};break;}}
-    const coords=saved||fromUrl;
-    return {...item,google_maps_url:mapUrl||item.google_maps_url||null,latitude:coords?.latitude??null,longitude:coords?.longitude??null};
+    let saved=existingSaved;
+    if(!saved){
+      for(const pair of pairs){if(validLatLon(pair[0],pair[1])){saved={latitude:Number(pair[0]),longitude:Number(pair[1])};break;}}
+    }
+    const coords=fromUrl||saved;
+    return {
+      ...item,
+      google_maps_url:mapUrl||item.google_maps_url||null,
+      latitude:coords?.latitude??null,
+      longitude:coords?.longitude??null,
+      _travelTasteDatabaseCoords:saved,
+      _travelTasteUrlCoords:fromUrl
+    };
   }
   function typeOf(item){
     const t=String(item.type||'').toLowerCase();
@@ -7284,57 +7307,69 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
     const source=Array.isArray(window.travelTasteNearbyListings)?window.travelTasteNearbyListings:[];
     return source.filter(item=>item && (item.is_published===true || item.is_published==='true' || item.is_published===1 || item.is_published==='1')).map(withCoordinates);
   }
-  const resolvedCoordinateCacheKey='traveltaste-nearby-coordinate-cache-v1';
-  function readResolvedCoordinateCache(){
-    try{return JSON.parse(localStorage.getItem(resolvedCoordinateCacheKey)||'{}')||{};}catch(_){return {};}
-  }
-  function writeResolvedCoordinateCache(cache){
-    try{localStorage.setItem(resolvedCoordinateCacheKey,JSON.stringify(cache));}catch(_){}
-  }
-  function coordinateCacheId(item){return `${String(item.id||item.name||'unknown')}|${mapUrlFor(item)}`;}
+  // Reconcile listing coordinates before distance filtering:
+  // - if the saved Google Maps URL contains explicit pin coordinates, prefer those;
+  // - persist them if missing or if they differ from the database by >50 metres;
+  // - if coordinates are missing and the URL is shortened, ask the resolver to
+  //   resolve the saved row and persist the result;
+  // - never geocode every already-populated shortened link on every page visit.
   async function refreshAndResolvePublishedListings(){
-    let source=[];
+    let fetched=[];
     if(typeof window.travelTasteFetchPublishedNearbyListings==='function'){
-      source=await window.travelTasteFetchPublishedNearbyListings();
+      fetched=await window.travelTasteFetchPublishedNearbyListings();
     }else if(Array.isArray(window.travelTasteNearbyListings)){
-      source=window.travelTasteNearbyListings;
+      fetched=window.travelTasteNearbyListings;
     }
-    source=(Array.isArray(source)?source:[]).filter(item=>item&&(item.is_published===true||item.is_published==='true'||item.is_published===1||item.is_published==='1')).map(withCoordinates);
+
+    let source=(Array.isArray(fetched)?fetched:[])
+      .filter(item=>item&&(item.is_published===true||item.is_published==='true'||item.is_published===1||item.is_published==='1'))
+      .map(withCoordinates);
     window.travelTasteNearbyListings=source;
 
-    const cache=readResolvedCoordinateCache();
-    source=source.map(item=>{
-      if(validLatLon(item.latitude,item.longitude))return item;
-      const cached=cache[coordinateCacheId(item)];
-      return cached&&validLatLon(cached.latitude,cached.longitude)?{...item,latitude:Number(cached.latitude),longitude:Number(cached.longitude)}:item;
+    const exactPinNeedsSave=source.filter(item=>{
+      if(!item.id||!item._travelTasteUrlCoords)return false;
+      const saved=item._travelTasteDatabaseCoords;
+      if(!saved)return true;
+      const delta=distanceKm(saved.latitude,saved.longitude,item._travelTasteUrlCoords.latitude,item._travelTasteUrlCoords.longitude);
+      return delta>0.05;
     });
-    window.travelTasteNearbyListings=source;
+    const unresolvedRows=source.filter(item=>item.id&&!item._travelTasteDatabaseCoords&&!item._travelTasteUrlCoords&&mapUrlFor(item));
+    const tasks=[
+      ...exactPinNeedsSave.map(item=>({item,forceRecheck:true})),
+      ...unresolvedRows.map(item=>({item,forceRecheck:false}))
+    ];
 
-    const unresolved=source.filter(item=>!validLatLon(item.latitude,item.longitude)&&mapUrlFor(item));
-    if(unresolved.length&&typeof window.travelTasteResolveNearbyCoordinates==='function'){
-      let nextIndex=0, resolvedCount=0;
+    if(tasks.length){
+      let nextIndex=0, savedCount=0, failedCount=0;
       const worker=async()=>{
-        while(nextIndex<unresolved.length){
-          const index=nextIndex++;const item=unresolved[index];
+        while(nextIndex<tasks.length){
+          const task=tasks[nextIndex++];
+          const item=task.item;
           try{
-            // Existing rows are resolved through the Edge Function by listing ID,
-            // which reads the URL already saved in Supabase and writes recovered
-            // coordinates back to the same row. This makes them available to every visitor.
-            const result = item.id && typeof window.travelTasteResolveNearbyListingCoordinates === 'function'
-              ? await window.travelTasteResolveNearbyListingCoordinates(item.id)
-              : await window.travelTasteResolveNearbyCoordinates(mapUrlFor(item));
+            const result=await window.travelTasteResolveNearbyListingCoordinates(item.id,{forceRecheck:task.forceRecheck});
             if(result&&result.resolved&&validLatLon(result.latitude,result.longitude)){
               const coords={latitude:Number(result.latitude),longitude:Number(result.longitude)};
-              cache[coordinateCacheId(item)]=coords;
-              source=source.map(row=>String(row.id)===String(item.id)?{...row,...coords}:row);
-              window.travelTasteNearbyListings=source;resolvedCount++;
-              writeResolvedCoordinateCache(cache);
+              source=source.map(row=>String(row.id)===String(item.id)?{
+                ...row, ...coords,
+                _travelTasteDatabaseCoords:coords,
+                // Keep URL coordinates if the link contains exact pin data;
+                // they should agree with the verified server result.
+                _travelTasteUrlCoords:row._travelTasteUrlCoords || null
+              }:row);
+              window.travelTasteNearbyListings=source;
+              if(result.saved)savedCount++;
+            }else{
+              failedCount++;
+              console.warn('Could not verify listing coordinates:',item.name,result);
             }
-          }catch(error){console.warn('Could not resolve existing listing coordinates:',item.name,error);}
-          status.textContent=`Checking saved map links for existing places… ${Math.min(index+1,unresolved.length)} of ${unresolved.length} checked${resolvedCount?`; ${resolvedCount} coordinates recovered`:''}.`;
+          }catch(error){
+            failedCount++;
+            console.warn('Could not recheck existing listing coordinates:',item.name,error);
+          }
+          status.textContent=`Checking saved map links… ${Math.min(nextIndex,tasks.length)} of ${tasks.length} listings checked${savedCount?`; ${savedCount} corrected/saved`:''}${failedCount?`; ${failedCount} need manual review`:''}.`;
         }
       };
-      await Promise.all(Array.from({length:Math.min(3,unresolved.length)},()=>worker()));
+      await Promise.all(Array.from({length:Math.min(2,tasks.length)},()=>worker()));
     }
     window.travelTasteNearbyListings=source;
     return source;
@@ -7500,24 +7535,39 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
     if(!window.isSecureContext){status.textContent='Location access requires a secure HTTPS website. Open TravelTaste using its HTTPS address.';return;}
     const btn=$('useNearbyLocation');btn.disabled=true;status.textContent='Requesting permission to access your current location…';
     navigator.geolocation.getCurrentPosition(async pos=>{
-      userPosition={lat:pos.coords.latitude,lon:pos.coords.longitude};btn.disabled=true;
-      status.textContent='Location found. Loading all published TravelTaste places…';
+      // Never substitute Ahmedabad or any fixed city for a device location.
+      // Request a fresh reading and show the accuracy the browser actually reports.
+      const lat=Number(pos.coords.latitude), lon=Number(pos.coords.longitude);
+      const accuracyMeters=Number(pos.coords.accuracy);
+      if(!Number.isFinite(lat)||!Number.isFinite(lon)||lat < -90||lat > 90||lon < -180||lon > 180){
+        btn.disabled=false;status.textContent='Your browser returned invalid location coordinates. Check device Location Services and try again.';return;
+      }
+      userPosition={lat,lon};
+      const accuracyKm=Number.isFinite(accuracyMeters)&&accuracyMeters>=0?accuracyMeters/1000:null;
+      const locationQuality=accuracyKm!==null&&accuracyKm>5
+        ? ` Warning: your device reports only approximate accuracy (about ±${accuracyKm.toFixed(1)} km), so distances may be wrong. Turn on Windows Location Services or try your phone for a more accurate fix.`
+        : accuracyKm!==null&&accuracyKm>1
+          ? ` Your device reports location accuracy of about ±${accuracyKm.toFixed(1)} km.`
+          : '';
+      status.textContent='Location received. Loading published TravelTaste places…';
       try{
         await refreshAndResolvePublishedListings();
-        const coordCount=publishedItems().filter(item=>validLatLon(item.latitude,item.longitude)).length;
-        const totalCount=publishedItems().length;
+        const allNearbyListings=publishedItems();
+        const coordCount=allNearbyListings.filter(item=>validLatLon(item.latitude,item.longitude)).length;
+        const totalCount=allNearbyListings.length;
+        const savedWithoutPinCoords=allNearbyListings.filter(item=>item._travelTasteDatabaseCoords&&!item._travelTasteUrlCoords).length;
         render();
         if(coordCount){
-          status.textContent=`Location found. ${coordCount} of ${totalCount} published places have usable coordinates. Showing results within ${nearbyRadiusKm} km; distances are straight-line estimates.`;
+          status.textContent=`Browser location: ${lat.toFixed(5)}, ${lon.toFixed(5)}${accuracyKm!==null?` (reported accuracy ±${accuracyKm.toFixed(1)} km)`:''}. ${coordCount} of ${totalCount} published places have usable coordinates. Distances are straight-line estimates.${savedWithoutPinCoords?` ${savedWithoutPinCoords} saved locations use links without extractable pin coordinates; their existing coordinates cannot be independently verified from the link yet.`:''}${locationQuality}`;
         }else{
-          status.textContent=`Location found and ${totalCount} published places loaded, but their saved map links did not provide usable coordinates. Add coordinates to those listings or ensure the Supabase “resolve-map-coordinates” function is deployed.`;
+          status.textContent=`Browser location: ${lat.toFixed(5)}, ${lon.toFixed(5)}. ${totalCount} published places loaded, but none has usable coordinates yet.${locationQuality}`;
         }
       }catch(error){
         console.error('Nearby published listings could not be refreshed:',error);
         render();
-        status.textContent='Your location was found, but TravelTaste could not refresh published places from Supabase. Please check the database connection and try again.';
+        status.textContent=`Browser location received (${lat.toFixed(5)}, ${lon.toFixed(5)}), but TravelTaste could not refresh published places. Check the database connection and try again.${locationQuality}`;
       }finally{btn.disabled=false;}
-    },err=>{btn.disabled=false;const messages={1:'Location permission was denied. Allow location access in your browser settings and try again.',2:'Your location could not be determined. Check device location services and try again.',3:'Location request timed out. Please try again.'};status.textContent=messages[err.code]||'Could not access your location. Please try again.';},{enableHighAccuracy:true,timeout:15000,maximumAge:60000});
+    },err=>{btn.disabled=false;const messages={1:'Location permission was denied. Allow location access for TravelTaste in Chrome site settings and try again.',2:'Your device/browser could not determine a location. Turn on Windows Location Services and try again.',3:'Location request timed out. Try again or use a phone for a more precise location.'};status.textContent=messages[err.code]||'Could not access your location. Please try again.';},{enableHighAccuracy:true,timeout:30000,maximumAge:0});
   });
   $('nearbyFilters').addEventListener('click',event=>{const button=event.target.closest('[data-nearby-filter]');if(!button)return;activeFilter=button.dataset.nearbyFilter;$('nearbyFilters').querySelectorAll('[data-nearby-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));if(userPosition)render();});
   const radiusSlider=$('nearbyRadiusSlider');
