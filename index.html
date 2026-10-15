@@ -4091,16 +4091,21 @@ async function start() {
   const requestedCity = requestedCityId
     ? cities.find(city => String(city.id) === String(requestedCityId))
     : null;
-  const ahmedabad = cities.find(city =>
-    String(city.name).trim().toLowerCase() === 'ahmedabad'
-  );
-  const initialCity = requestedCity || ahmedabad;
-  if (initialCity) {
-    $('citySearch').value = cityLabel(initialCity);
-    await loadDestination(initialCity.id);
+  // Only select a destination when the URL explicitly requests one.
+  // A fresh homepage visit should let visitors choose their own city.
+  if (requestedCity) {
+    $('citySearch').value = cityLabel(requestedCity);
+    await loadDestination(requestedCity.id);
+  } else {
+    $('citySearch').value = '';
+    selectedCity = null;
+    listings = [];
+    $('destinationBanner').innerHTML =
+      '📍 Choose a destination above to discover recommendations.';
   }
   restoreTravelTasteControlsFromUrl();
-  if (selectedCity) { renderListings(); syncTravelTasteUrlState({ replace: true }); }
+  renderListings();
+  if (selectedCity) syncTravelTasteUrlState({ replace: true });
 
   const requestedPlaceId = new URL(window.location.href).searchParams.get('place');
   if (requestedPlaceId) {
@@ -5794,8 +5799,10 @@ window.openListingDetails = async function(listingId, { fromHistory = false } = 
         selectedTripDuration !== 'any' && missingDuration ? `${missingDuration} place${missingDuration === 1 ? '' : 's'} need a visit duration` : ''
       ].filter(Boolean).join(' and ');
       $('list').innerHTML = `<div class="empty"><div style="font-size:38px">🧭</div><strong>No places match these filters yet.</strong><p>${missingText ? `Some existing places are missing filter data: ${escapeHtml(missingText)}. Add these details in Supabase, or submit them with Suggest a Place. ` : ''}Try another budget or duration, or add the missing cost and duration details to published places.</p></div>`;
+    } else if (!selectedCity) {
+      $('list').innerHTML = '<div class="empty"><div style="font-size:38px">🧭</div><strong>Choose your destination.</strong><p>Search for any city above and select Explore to see places, food and hidden gems for that location.</p></div>';
     } else {
-      $('list').innerHTML = `<div class="empty"><div style="font-size:38px">🧭</div><strong>No recommendations in this category yet.</strong><p>Add published recommendations for ${escapeHtml(selectedCity?.name || 'this destination')} in Supabase to fill this section.</p></div>`;
+      $('list').innerHTML = `<div class="empty"><div style="font-size:38px">🧭</div><strong>No recommendations in this category yet.</strong><p>Add published recommendations for ${escapeHtml(selectedCity.name)} in Supabase to fill this section.</p></div>`;
     }
     return;
   }
@@ -5996,6 +6003,18 @@ function normalizedCityKey(value) {
     .trim().replace(/\s+/g, ' ');
 }
 
+// The current Supabase cities table requires a non-null slug.
+// Generate it locally so city creation does not need a paid API or SQL change.
+function makeSubmissionCitySlug(value) {
+  return String(value || '').normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase('en-IN')
+    .trim()
+    .replace(/&/g, ' and ')
+    .replace(/[^\p{L}\p{N}]+/gu, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 function cityEditDistance(a, b) {
   const left = Array.from(a), right = Array.from(b);
   let previous = right.map((_, index) => index + 1);
@@ -6039,7 +6058,7 @@ function setSubmissionCityStatus(message, type = '') {
 function selectSubmissionCity(city, message = '') {
   if (!city) return;
   $('submissionCity').value = String(city.id);
-  $('submissionCitySearch').value = String(city.name || '');
+  $('submissionCitySearch').value = formatSubmissionCityName(city.name || '');
   $('submissionCityClearButton').hidden = false;
   closeSubmissionCitySuggestions();
   setSubmissionCityStatus(message, message ? 'success' : '');
@@ -6055,7 +6074,7 @@ function closeSubmissionCitySuggestions() {
 function submissionCityOptionMarkup(city, meta = '') {
   return `<button type="button" class="submission-city-option" role="option" data-submission-city-id="${escapeHtml(city.id)}">` +
     `<span class="submission-city-option-icon" aria-hidden="true">♧</span>` +
-    `<span class="submission-city-option-copy"><span class="submission-city-option-name">${escapeHtml(city.name)}</span>` +
+    `<span class="submission-city-option-copy"><span class="submission-city-option-name">${escapeHtml(formatSubmissionCityName(city.name))}</span>` +
     `<span class="submission-city-option-meta">${escapeHtml(meta || city.state || 'India')}</span></span></button>`;
 }
 
@@ -6089,7 +6108,9 @@ function renderSubmissionCitySuggestions(query) {
   // Fuzzy spelling comparison is the expensive part of the picker. Only run it
   // when the normal search returns no matches, and reuse the result below rather
   // than scanning the complete city list more than once on each keystroke.
-  const likely = !matching.length && !exact && !aliasCity
+  // Fuzzy spelling checks need enough characters to be meaningful.
+  // Skipping them for short prefixes keeps typing responsive on larger city lists.
+  const likely = !matching.length && !exact && !aliasCity && normalizedInput.length >= 5
     ? findLikelyExistingCityMatch(raw)
     : null;
 
@@ -6159,8 +6180,13 @@ async function addSubmissionCity(rawValue) {
   setSubmissionCityStatus(`Adding ${cityName}…`);
 
   try {
+    const citySlug = makeSubmissionCitySlug(cityName);
+    if (!citySlug) {
+      throw new Error('Please enter a city name using letters or numbers.');
+    }
+
     const { data, error } = await supabase.from('cities')
-      .insert({ name: cityName })
+      .insert({ name: cityName, slug: citySlug })
       .select('*')
       .single();
 
