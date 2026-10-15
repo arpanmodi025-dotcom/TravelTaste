@@ -6086,8 +6086,14 @@ function renderSubmissionCitySuggestions(query) {
   const aliasCity = aliasTarget ? (cities || []).find(city => normalizedCityKey(city.name) === normalizedCityKey(aliasTarget)) : null;
   let html = matching.map(city => submissionCityOptionMarkup(city, city.state ? `${city.state}, India` : 'India')).join('');
 
+  // Fuzzy spelling comparison is the expensive part of the picker. Only run it
+  // when the normal search returns no matches, and reuse the result below rather
+  // than scanning the complete city list more than once on each keystroke.
+  const likely = !matching.length && !exact && !aliasCity
+    ? findLikelyExistingCityMatch(raw)
+    : null;
+
   if (!matching.length) {
-    const likely = findLikelyExistingCityMatch(raw);
     if (likely) {
       html += `<div class="submission-city-empty">Did you mean <strong>${escapeHtml(likely.city.name)}</strong>? Select it below if that is your city.</div>`;
       html += submissionCityOptionMarkup(likely.city, `Possible spelling match${likely.city.state ? ' · ' + likely.city.state : ''}`);
@@ -6096,7 +6102,7 @@ function renderSubmissionCitySuggestions(query) {
     }
   }
 
-  if (!exact && !aliasCity && !findLikelyExistingCityMatch(raw)) {
+  if (!exact && !aliasCity && !likely) {
     html += `<button type="button" class="submission-city-option submission-city-add" data-add-submission-city="true">` +
       `<span class="submission-city-option-icon" aria-hidden="true">＋</span>` +
       `<span class="submission-city-option-copy"><span class="submission-city-option-name">Add a new city: “${escapeHtml(cleanName)}”</span>` +
@@ -6190,10 +6196,16 @@ async function addSubmissionCity(rawValue) {
   const box = $('submissionCitySuggestions');
   if (!input || !clear || !box) return;
 
+  let suggestionRenderTimer = null;
   input.addEventListener('input', () => {
+    // Clear the selected city immediately; keep text entry responsive by waiting
+    // briefly for typing to pause before rebuilding the suggestion menu.
     $('submissionCity').value = '';
     setSubmissionCityStatus('');
-    renderSubmissionCitySuggestions(input.value);
+    clearTimeout(suggestionRenderTimer);
+    suggestionRenderTimer = setTimeout(() => {
+      if (document.activeElement === input) renderSubmissionCitySuggestions(input.value);
+    }, 100);
   });
   input.addEventListener('focus', () => {
     if (input.value.trim()) renderSubmissionCitySuggestions(input.value);
