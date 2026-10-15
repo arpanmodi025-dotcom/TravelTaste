@@ -7307,12 +7307,20 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
     const source=Array.isArray(window.travelTasteNearbyListings)?window.travelTasteNearbyListings:[];
     return source.filter(item=>item && (item.is_published===true || item.is_published==='true' || item.is_published===1 || item.is_published==='1')).map(withCoordinates);
   }
-  // Reconcile listing coordinates before distance filtering:
-  // - if the saved Google Maps URL contains explicit pin coordinates, prefer those;
-  // - persist them if missing or if they differ from the database by >50 metres;
-  // - if coordinates are missing and the URL is shortened, ask the resolver to
-  //   resolve the saved row and persist the result;
-  // - never geocode every already-populated shortened link on every page visit.
+  // Reconcile coordinates before distance filtering. Many earlier records were
+  // geocoded from a name and may have valid-but-wrong coordinates. We now check
+  // each saved Google Maps URL once per browser against the server resolver, which
+  // tries the pin/link first and only then uses guarded Geoapify matching. Successful
+  // results are written to Supabase, not just held in a browser-only cache.
+  const coordinateRecheckStorageKey='traveltaste-coordinate-recheck-v3';
+  const COORDINATE_RECHECK_RETRY_MS=24*60*60*1000;
+  function readCoordinateRecheckState(){
+    try{return JSON.parse(localStorage.getItem(coordinateRecheckStorageKey)||'{}')||{};}catch(_){return {};}
+  }
+  function writeCoordinateRecheckState(state){
+    try{localStorage.setItem(coordinateRecheckStorageKey,JSON.stringify(state));}catch(_){}
+  }
+  function coordinateRecheckKey(item){return `${String(item.id||'')}|${mapUrlFor(item)}`;}
   async function refreshAndResolvePublishedListings(){
     let fetched=[];
     if(typeof window.travelTasteFetchPublishedNearbyListings==='function'){
@@ -7326,18 +7334,25 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
       .map(withCoordinates);
     window.travelTasteNearbyListings=source;
 
-    const exactPinNeedsSave=source.filter(item=>{
-      if(!item.id||!item._travelTasteUrlCoords)return false;
+    const checked=readCoordinateRecheckState();
+    const now=Date.now();
+    const tasks=[];
+    for(const item of source){
+      if(!item.id||!mapUrlFor(item))continue;
+      const key=coordinateRecheckKey(item);
+      const prior=checked[key];
+      if(prior?.ok)continue;
+      if(prior?.attemptedAt && now-Number(prior.attemptedAt)<COORDINATE_RECHECK_RETRY_MS)continue;
       const saved=item._travelTasteDatabaseCoords;
-      if(!saved)return true;
-      const delta=distanceKm(saved.latitude,saved.longitude,item._travelTasteUrlCoords.latitude,item._travelTasteUrlCoords.longitude);
-      return delta>0.05;
-    });
-    const unresolvedRows=source.filter(item=>item.id&&!item._travelTasteDatabaseCoords&&!item._travelTasteUrlCoords&&mapUrlFor(item));
-    const tasks=[
-      ...exactPinNeedsSave.map(item=>({item,forceRecheck:true})),
-      ...unresolvedRows.map(item=>({item,forceRecheck:false}))
-    ];
+      const urlCoords=item._travelTasteUrlCoords;
+      if(urlCoords){
+        const delta=saved?distanceKm(saved.latitude,saved.longitude,urlCoords.latitude,urlCoords.longitude):Infinity;
+        if(delta<=0.05)continue;
+      }
+      // Force a one-time recheck even when DB coordinates already exist, because
+      // those coordinates may have come from a previous inaccurate geocoder result.
+      tasks.push({item,key,forceRecheck:Boolean(saved)});
+    }
 
     if(tasks.length){
       let nextIndex=0, savedCount=0, failedCount=0;
@@ -7352,23 +7367,28 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
               source=source.map(row=>String(row.id)===String(item.id)?{
                 ...row, ...coords,
                 _travelTasteDatabaseCoords:coords,
-                // Keep URL coordinates if the link contains exact pin data;
-                // they should agree with the verified server result.
                 _travelTasteUrlCoords:row._travelTasteUrlCoords || null
               }:row);
+              checked[task.key]={ok:true,attemptedAt:Date.now(),source:result.source||null,precision:result.precision||null};
+              writeCoordinateRecheckState(checked);
               window.travelTasteNearbyListings=source;
               if(result.saved)savedCount++;
             }else{
               failedCount++;
+              checked[task.key]={ok:false,attemptedAt:Date.now()};
+              writeCoordinateRecheckState(checked);
               console.warn('Could not verify listing coordinates:',item.name,result);
             }
           }catch(error){
             failedCount++;
+            checked[task.key]={ok:false,attemptedAt:Date.now()};
+            writeCoordinateRecheckState(checked);
             console.warn('Could not recheck existing listing coordinates:',item.name,error);
           }
-          status.textContent=`Checking saved map links… ${Math.min(nextIndex,tasks.length)} of ${tasks.length} listings checked${savedCount?`; ${savedCount} corrected/saved`:''}${failedCount?`; ${failedCount} need manual review`:''}.`;
+          status.textContent=`Checking saved map links… ${Math.min(nextIndex,tasks.length)} of ${tasks.length} listings checked${savedCount?`; ${savedCount} corrected/saved`:''}${failedCount?`; ${failedCount} could not be verified`:''}.`;
         }
       };
+      // Keep requests below free-geocoder service burst limits.
       await Promise.all(Array.from({length:Math.min(2,tasks.length)},()=>worker()));
     }
     window.travelTasteNearbyListings=source;
