@@ -2121,6 +2121,226 @@ body.detail-view-active .tt-photo-caption { color: #64748b; font-size: 13px; mar
 @media(max-width:520px){.submission-city-suggestions{max-height:235px}.submission-city-option{min-height:49px}}
 
 </style>
+<style id="ttCommunityScopedStyles">
+#ttCommunityApp{--orange:#f04a0a;--orange2:#ffede2;--navy:#152e55;--ink:#24364f;--muted:#718097;--line:#e6eaf0;--cream:#fff8f2;--white:#fff;--gold:#e6a51c;--green:#23834d;--shadow:0 8px 26px rgba(33,48,68,.06)}
+#ttCommunityApp *{box-sizing:border-box}
+#ttCommunityApp{scroll-behavior:smooth}
+#ttCommunityApp{margin:0;background:var(--cream);color:var(--navy);font:15px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+#ttCommunityApp button,#ttCommunityApp input,#ttCommunityApp textarea,#ttCommunityApp select{font:inherit}
+#ttCommunityApp button{cursor:pointer}
+#ttCommunityApp button:disabled{opacity:.55;cursor:not-allowed}
+#ttCommunityApp a{color:inherit;text-decoration:none}
+#ttCommunityApp .hidden{display:none!important}
+#ttCommunityApp .topbar{height:68px;display:flex;align-items:center;gap:25px;padding:0 clamp(16px,3vw,48px);background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30}
+#ttCommunityApp .brand{font-size:27px;font-weight:900;letter-spacing:-1px;color:var(--orange);white-space:nowrap}
+#ttCommunityApp .navlinks{display:flex;align-items:center;gap:23px;height:100%}
+#ttCommunityApp .navlinks a{display:grid;place-items:center;height:100%;padding:0 3px;font-weight:750;color:#263c5d;border-bottom:3px solid transparent}
+#ttCommunityApp .navlinks a.active{color:var(--orange);border-color:var(--orange)}
+#ttCommunityApp .grow{flex:1}
+#ttCommunityApp .searchbar{max-width:370px;width:28vw;min-width:140px;display:flex;align-items:center;gap:9px;background:#f7f9fc;border:1px solid var(--line);border-radius:12px;padding:0 12px}
+#ttCommunityApp .searchbar input{width:100%;border:0;outline:0;background:transparent;padding:11px 0;color:var(--navy)}
+#ttCommunityApp .top-icon{border:0;background:transparent;color:var(--navy);font-size:22px;padding:8px}
+#ttCommunityApp .top-avatar,#ttCommunityApp .avatar{border-radius:50%;display:grid;place-items:center;overflow:hidden;background:linear-gradient(145deg,#ffb36c,#ee5018);color:#fff;font-weight:900;flex-shrink:0}
+#ttCommunityApp .top-avatar{width:42px;height:42px}
+#ttCommunityApp .shell{max-width:1500px;margin:0 auto;padding:20px clamp(12px,2.2vw,34px) 48px;display:grid;grid-template-columns:300px minmax(0,1fr) 330px;gap:20px;align-items:start}
+#ttCommunityApp .column{display:grid;gap:15px;min-width:0}
+#ttCommunityApp .panel,#ttCommunityApp .composer,#ttCommunityApp .post,#ttCommunityApp .challenge-card,#ttCommunityApp .sidebar-card{background:#fff;border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow);overflow:hidden}
+#ttCommunityApp .profile-cover{height:140px;background:linear-gradient(120deg,#f9b57d,#fff0dd 55%,#9bd0e0);display:grid;place-items:center;font-size:48px}
+#ttCommunityApp .profile-content{padding:0 18px 18px}
+#ttCommunityApp .profile-avatar{width:82px;height:82px;border:4px solid white;margin-top:-40px;position:relative}
+#ttCommunityApp .avatar{width:44px;height:44px;font-size:18px}
+#ttCommunityApp .profile-content h2{font-size:22px;line-height:1.2;margin:11px 0 3px}
+#ttCommunityApp .handle{color:var(--muted);font-size:13px}
+#ttCommunityApp .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}
+#ttCommunityApp .stat{background:#fff7ef;border:1px solid #f4e6d9;border-radius:12px;padding:12px}
+#ttCommunityApp .stat strong{font-size:23px;color:var(--orange);display:block}
+#ttCommunityApp .stat span{font-size:12px;color:#886e5c}
+#ttCommunityApp .btn{border:1px solid transparent;border-radius:11px;padding:10px 13px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:background .15s,transform .15s;white-space:normal}
+#ttCommunityApp .btn:hover{transform:translateY(-1px)}
+#ttCommunityApp .primary{background:var(--orange);color:#fff}
+#ttCommunityApp .primary:hover{background:#d83e06}
+#ttCommunityApp .secondary{background:#fff5ee;color:#873817;border-color:#f2dfd1}
+#ttCommunityApp .outline{background:white;color:var(--navy);border-color:var(--line)}
+#ttCommunityApp .wide{width:100%}
+#ttCommunityApp .side-nav{padding:10px;display:grid;gap:4px}
+#ttCommunityApp .side-nav button{width:100%;justify-content:flex-start;text-align:left;background:transparent;color:var(--navy);border:0;padding:12px;border-radius:11px;font-weight:750}
+#ttCommunityApp .side-nav button.active,#ttCommunityApp .side-nav button:hover{background:#ffeadb;color:var(--orange)}
+#ttCommunityApp .side-nav .share-statement{margin-top:5px;background:var(--orange);color:white;justify-content:center}
+#ttCommunityApp .composer{padding:17px;margin-bottom:15px}
+#ttCommunityApp .composer-top{display:flex;align-items:center;gap:12px;margin-bottom:13px}
+#ttCommunityApp .composer-top strong{font-size:16px}
+#ttCommunityApp .composer textarea,#ttCommunityApp .modal textarea,#ttCommunityApp .modal input,#ttCommunityApp .auth-card input,#ttCommunityApp .settings-input{border:1px solid var(--line);border-radius:12px;padding:13px;width:100%;resize:vertical;outline-color:#ffab83;background:#fff;color:var(--navy)}
+#ttCommunityApp .composer textarea{min-height:78px;background:#fbfcfe}
+#ttCommunityApp .composer-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}
+#ttCommunityApp .composer-actions .btn{flex:1}
+#ttCommunityApp .composer-actions .post-btn{flex:0 0 115px}
+#ttCommunityApp .composer-extra{display:none;margin-top:11px;grid-template-columns:1fr 1fr;gap:10px}
+#ttCommunityApp .composer-extra.open{display:grid}
+#ttCommunityApp .composer-extra label{font-size:12px;color:var(--muted);display:grid;gap:5px}
+#ttCommunityApp .composer-extra input{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px}
+#ttCommunityApp .photo-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+#ttCommunityApp .photo-preview img{width:76px;height:65px;object-fit:cover;border-radius:9px;border:1px solid var(--line)}
+#ttCommunityApp .tabs{display:flex;gap:6px;padding:6px;background:#fff;border:1px solid var(--line);border-radius:14px;margin:0 0 15px;box-shadow:var(--shadow)}
+#ttCommunityApp .tabs button{flex:1;border:0;border-radius:9px;background:#f7f8fa;color:#435775;font-weight:750;padding:11px 6px}
+#ttCommunityApp .tabs button.active{background:var(--orange);color:white}
+#ttCommunityApp .feed-heading{font-size:17px;margin:4px 0 0}
+#ttCommunityApp .status{font-size:13px;color:#82523b;min-height:18px;white-space:pre-wrap;margin:8px 2px}
+#ttCommunityApp .feed{display:grid;gap:15px}
+#ttCommunityApp .post{scroll-margin-top:90px}
+#ttCommunityApp .post-head{display:flex;align-items:center;gap:10px;padding:14px 16px}
+#ttCommunityApp .post-head .meta{flex:1;min-width:0}
+#ttCommunityApp .post-head strong{display:block;overflow-wrap:anywhere}
+#ttCommunityApp .post-meta{font-size:12px;color:var(--muted);margin-top:2px}
+#ttCommunityApp .post-menu{border:0;background:transparent;color:var(--muted);font-size:23px;padding:6px}
+#ttCommunityApp .post-badge{margin:0 16px 12px;border:1px solid #ffdfbe;background:#fff5e9;color:#a9471b;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:850}
+#ttCommunityApp .post-title{font-size:21px;margin:0 16px 8px;line-height:1.25}
+#ttCommunityApp .post-caption{padding:0 16px 12px;white-space:pre-wrap;overflow-wrap:anywhere;color:#3e526f}
+#ttCommunityApp .post-location{padding:0 16px 12px;font-size:13px;color:var(--muted)}
+#ttCommunityApp .post-media{display:grid;grid-template-columns:1fr 1fr;gap:3px;background:#f3f4f5}
+#ttCommunityApp .post-media img{width:100%;height:260px;object-fit:cover;display:block;background:#f0f3f8}
+#ttCommunityApp .post-media img:first-child:nth-last-child(1){grid-column:1/-1;height:auto;max-height:650px;object-fit:contain}
+#ttCommunityApp .post-media img:nth-child(n/**/+3){display:none}
+#ttCommunityApp .post-media.has-more{position:relative}
+#ttCommunityApp .post-actions{display:flex;align-items:center;gap:7px;padding:12px 15px 8px;flex-wrap:wrap}
+#ttCommunityApp .post-actions .btn{border-radius:10px;background:#fff;border-color:var(--line);color:var(--navy);padding:8px 11px;font-size:13px}
+#ttCommunityApp .post-actions .btn.active{color:var(--orange);background:#fff0e5;border-color:#ffceb1}
+#ttCommunityApp .post-actions .spacer{flex:1}
+#ttCommunityApp .post-footer{padding:0 16px 15px}
+#ttCommunityApp .counts{font-size:12px;color:var(--muted)}
+#ttCommunityApp .comments{padding-top:12px;margin-top:8px;border-top:1px solid #edf0f5}
+#ttCommunityApp .comment-list{display:grid;gap:7px;margin:9px 0}
+#ttCommunityApp .comment{font-size:13px;background:#f8fafc;border-radius:9px;padding:8px 10px;overflow-wrap:anywhere}
+#ttCommunityApp .comment strong{margin-right:5px}
+#ttCommunityApp .comment-form{display:flex;gap:7px}
+#ttCommunityApp .comment-form input{flex:1;min-width:0;border:1px solid var(--line);border-radius:10px;padding:10px}
+#ttCommunityApp .comment-form button{padding:9px 12px}
+#ttCommunityApp .sidebar-card{padding:16px}
+#ttCommunityApp .sidebar-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+#ttCommunityApp .sidebar-heading h3{margin:0;font-size:17px}
+#ttCommunityApp .text-btn{border:0;background:transparent;color:var(--orange);font-weight:800;padding:5px}
+#ttCommunityApp .traveller{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f0f2f6}
+#ttCommunityApp .traveller:last-child{border-bottom:0}
+#ttCommunityApp .traveller .meta{flex:1;min-width:0}
+#ttCommunityApp .traveller strong{display:block;overflow-wrap:anywhere}
+#ttCommunityApp .profile-name-btn{border:0;background:transparent;padding:0;color:var(--navy);font-weight:850;text-align:left;cursor:pointer}
+#ttCommunityApp .profile-name-btn:hover{color:var(--orange)}
+#ttCommunityApp .traveller small{font-size:12px;color:var(--muted)}
+#ttCommunityApp .follow-btn{padding:7px 9px;font-size:12px}
+#ttCommunityApp .challenge-mini-list{display:grid;gap:10px}
+#ttCommunityApp .challenge-mini{display:grid;grid-template-columns:68px minmax(0,1fr);gap:10px;width:100%;padding:8px;border:1px solid var(--line);border-radius:13px;background:white;text-align:left;color:var(--navy)}
+#ttCommunityApp .challenge-mini:hover{border-color:#ffb48d;background:#fffaf6}
+#ttCommunityApp .challenge-art{display:grid;place-items:center;border-radius:10px;min-height:70px;background:linear-gradient(140deg,#fff1d8,#ffdbb4);font-size:32px}
+#ttCommunityApp .challenge-mini strong{display:block;font-size:13px;line-height:1.25;margin:4px 0}
+#ttCommunityApp .challenge-mini small{display:block;color:var(--muted);font-size:11px}
+#ttCommunityApp .progress{height:7px;border-radius:999px;background:#e9edf2;overflow:hidden;margin-top:7px}
+#ttCommunityApp .progress span{display:block;height:100%;background:var(--orange);border-radius:999px}
+#ttCommunityApp .progress-label{display:flex;justify-content:space-between;gap:8px;margin-top:5px;font-size:11px;color:var(--muted)}
+#ttCommunityApp .trending-row{display:grid;grid-template-columns:60px minmax(0,1fr);gap:10px;padding:8px 0;border-bottom:1px solid #f0f2f6;cursor:pointer}
+#ttCommunityApp .trending-row:last-child{border-bottom:0}
+#ttCommunityApp .trend-thumb{display:grid;place-items:center;min-height:52px;border-radius:9px;background:linear-gradient(135deg,#d7edf5,#ffe0bd);font-size:24px}
+#ttCommunityApp .trending-row strong{display:block;font-size:13px;line-height:1.25}
+#ttCommunityApp .trending-row small{color:var(--muted);font-size:11px}
+#ttCommunityApp .achievements-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+#ttCommunityApp .badge-card{border:1px solid #f0e2d7;border-radius:13px;padding:10px 7px;text-align:center;background:#fffaf5}
+#ttCommunityApp .badge-icon{width:56px;height:56px;margin:0 auto 7px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#fff7b8,#ebac2d 58%,#a66810);font-size:27px;border:2px solid #f6d879;box-shadow:0 3px 8px #a66b1620}
+#ttCommunityApp .badge-card strong{font-size:11px;display:block;line-height:1.25}
+#ttCommunityApp .badge-card small{display:block;color:var(--muted);font-size:10px;margin-top:5px}
+#ttCommunityApp .modal-backdrop{position:fixed;inset:0;background:#13233a88;z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+#ttCommunityApp .modal-backdrop.open{display:flex}
+#ttCommunityApp .modal{width:min(760px,100%);max-height:min(88vh,900px);overflow:auto;background:white;border-radius:19px;box-shadow:0 25px 80px #172c4560}
+#ttCommunityApp .modal-header{position:sticky;top:0;display:flex;align-items:center;gap:12px;background:#fff;border-bottom:1px solid var(--line);padding:17px 20px;z-index:2}
+#ttCommunityApp .modal-header h2{font-size:20px;margin:0;flex:1}
+#ttCommunityApp .close-modal{border:0;border-radius:50%;height:37px;width:37px;background:#f4f6f9;color:var(--navy);font-size:23px}
+#ttCommunityApp .modal-body{padding:20px}
+#ttCommunityApp .challenge-hero{display:flex;align-items:center;gap:16px;padding:16px;background:linear-gradient(100deg,#fff5e5,#fffaf6);border:1px solid #f6e3cc;border-radius:15px;margin-bottom:16px}
+#ttCommunityApp .challenge-hero .badge-icon{width:75px;height:75px;flex:0 0 75px}
+#ttCommunityApp .challenge-hero h3{margin:0 0 5px}
+#ttCommunityApp .challenge-hero p{margin:0;color:var(--muted);font-size:13px}
+#ttCommunityApp .place-list{display:grid;gap:9px}
+#ttCommunityApp .place-row{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:11px;align-items:center;padding:11px;border:1px solid var(--line);border-radius:12px}
+#ttCommunityApp .place-num{width:38px;height:38px;display:grid;place-items:center;background:#f6f8fb;border-radius:10px;font-weight:900;color:#64758d}
+#ttCommunityApp .place-row strong{display:block}
+#ttCommunityApp .place-row small{display:block;color:var(--muted);font-size:12px}
+#ttCommunityApp .place-row .btn{padding:8px 10px;font-size:12px}
+#ttCommunityApp .place-complete{color:var(--green);font-weight:850;font-size:12px}
+#ttCommunityApp .complete-form{margin-top:16px;border:1px solid #ffe0c3;background:#fff9f4;border-radius:14px;padding:15px;display:grid;gap:11px}
+#ttCommunityApp .complete-form h3{margin:0}
+#ttCommunityApp .complete-form label{font-weight:750;font-size:13px;display:grid;gap:6px}
+#ttCommunityApp .complete-form input[type=file]{padding:10px;background:white;border:1px solid var(--line);border-radius:10px}
+#ttCommunityApp .achievement-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+#ttCommunityApp .achievement-card{border:1px solid #eee0d3;border-radius:14px;padding:15px;background:#fffaf6;text-align:left;color:var(--navy)}
+#ttCommunityApp .achievement-card:hover{border-color:#ffb48d}
+#ttCommunityApp .achievement-card .badge-icon{margin:0 0 10px}
+#ttCommunityApp .achievement-card strong{display:block;font-size:15px}
+#ttCommunityApp .achievement-card p{margin:6px 0;color:var(--muted);font-size:12px}
+#ttCommunityApp .settings-form{display:grid;gap:10px}
+#ttCommunityApp .profile-earned{display:flex;gap:12px;align-items:center;padding:12px;border-bottom:1px solid var(--line)}
+#ttCommunityApp .profile-earned:last-child{border-bottom:0}
+#ttCommunityApp .profile-earned .badge-icon{margin:0;flex-shrink:0}
+#ttCommunityApp .gold-text{color:#ac7910}
+#ttCommunityApp .empty{border:1px dashed #d8dee8;background:#fff;border-radius:15px;padding:28px;text-align:center;color:var(--muted);line-height:1.7}
+#ttCommunityApp .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#17345c;color:#fff;border-radius:12px;padding:12px 18px;box-shadow:var(--shadow);z-index:150;max-width:min(90vw,650px)}
+#ttCommunityApp .auth-card{width:min(460px,100%);margin:60px auto;padding:25px;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);background:#fff}
+#ttCommunityApp .auth-card h1{margin:0 0 8px}
+#ttCommunityApp .auth-card p{color:var(--muted);font-size:13px}
+#ttCommunityApp .auth-card label{display:grid;gap:5px;font-weight:700;font-size:13px;margin:12px 0}
+#ttCommunityApp .auth-actions{display:flex;gap:8px}
+#ttCommunityApp .auth-actions button{flex:1}
+#ttCommunityApp .footer-note{font-size:11px;color:var(--muted);padding:12px 16px}
+#ttCommunityApp .no-posts{padding:30px;text-align:center;border-radius:14px;background:#fff;border:1px dashed var(--line);color:var(--muted)}
+@media(max-width:1150px){#ttCommunityApp .shell{grid-template-columns:255px minmax(0,1fr)}
+#ttCommunityApp .right-column{grid-column:1/-1;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+#ttCommunityApp .right-column .sidebar-card:first-child{grid-row:span 2}
+#ttCommunityApp .navlinks{gap:13px}}
+@media(max-width:760px){#ttCommunityApp .topbar{gap:12px;padding:0 12px;height:60px}
+#ttCommunityApp .brand{font-size:22px}
+#ttCommunityApp .navlinks{display:none}
+#ttCommunityApp .searchbar{flex:1;width:auto;max-width:none}
+#ttCommunityApp .shell{grid-template-columns:minmax(0,1fr);padding:12px;gap:12px}
+#ttCommunityApp .left-column{display:grid;grid-template-columns:1fr;gap:11px}
+#ttCommunityApp .left-column .profile-panel{display:none}
+#ttCommunityApp .left-column .side-nav{display:flex;overflow:auto;gap:4px}
+#ttCommunityApp .side-nav button{white-space:nowrap;width:auto}
+#ttCommunityApp .side-nav .share-statement{display:none}
+#ttCommunityApp .right-column{grid-column:auto;grid-template-columns:1fr}
+#ttCommunityApp .right-column .sidebar-card:first-child{grid-row:auto}
+#ttCommunityApp .composer-actions .btn{flex-basis:30%;font-size:12px}
+#ttCommunityApp .composer-actions .post-btn{flex-basis:100%}
+#ttCommunityApp .tabs{overflow:auto}
+#ttCommunityApp .tabs button{white-space:nowrap;min-width:88px}
+#ttCommunityApp .post-media img{height:210px}
+#ttCommunityApp .achievements-strip{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:460px){#ttCommunityApp .composer-extra.open{grid-template-columns:1fr}
+#ttCommunityApp .composer-actions{display:grid;grid-template-columns:1fr 1fr}
+#ttCommunityApp .composer-actions .post-btn{grid-column:1/-1}
+#ttCommunityApp .post-media img{height:160px}
+#ttCommunityApp .post-actions .btn{font-size:12px;padding:8px}
+#ttCommunityApp .post-title{font-size:18px}
+#ttCommunityApp .modal-body{padding:13px}
+#ttCommunityApp .place-row{grid-template-columns:34px minmax(0,1fr)}
+#ttCommunityApp .place-row .btn,#ttCommunityApp .place-row .place-complete{grid-column:2;justify-self:start}
+#ttCommunityApp .place-num{width:32px;height:32px}
+#ttCommunityApp .challenge-hero{align-items:flex-start}
+#ttCommunityApp .achievement-grid{grid-template-columns:1fr}}
+
+#ttCommunityApp{display:block;box-sizing:border-box;width:100%;min-height:60vh;background:var(--cream);color:var(--navy);font:15px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+#ttCommunityApp *{box-sizing:border-box}
+#ttCommunityApp .community-feed-toolbar{align-items:center;gap:10px;flex-wrap:wrap}
+#ttCommunityApp .community-feed-tools{display:flex;align-items:center;gap:7px;flex-wrap:wrap;min-width:0}
+#ttCommunityApp .community-feed-tools .searchbar{width:190px;max-width:42vw;min-width:120px;margin:0;box-shadow:none}
+#ttCommunityApp .community-feed-tools .searchbar input{margin:0;padding:8px 0;border:0;border-radius:0;min-width:0;background:transparent}
+#ttCommunityApp .community-feed-tools .btn{width:auto;margin:0;padding:8px 10px}
+#ttCommunityApp .auth-card{margin-top:26px;margin-bottom:26px}
+#ttCommunityApp .modal-backdrop{z-index:100100}
+#ttCommunityApp .toast{z-index:100200}
+#ttCommunityApp .post-actions .btn{width:auto}
+#ttCommunityApp .post-menu{width:auto}
+#ttCommunityApp input,#ttCommunityApp textarea{margin-top:0}
+#ttCommunityApp .profile-content .btn{width:100%}
+#legacyCommunityRuntime[hidden]{display:none!important}
+@media(max-width:760px){#ttCommunityApp .community-feed-tools{width:100%}#ttCommunityApp .community-feed-tools .searchbar{flex:1;max-width:none}}
+
+</style>
 </head>
 
 <body>
@@ -2524,7 +2744,115 @@ body.detail-view-active .tt-photo-caption { color: #64748b; font-size: 13px; mar
 </footer>
 
 <section id="communityPage" hidden>
-  <div class="community-inner">
+  <div id="ttCommunityApp">
+<section id="ttc_authGate" class="auth-card">
+    <h1>TravelTaste Community 🌍</h1>
+    <p>Share your journeys, photos, travel stories and challenge achievements with other travellers.</p>
+    <div id="ttc_authForm">
+      <label>Display name (for new accounts)<input id="ttc_displayNameInput" maxlength="40" placeholder="Your display name" autocomplete="nickname"></label>
+      <label>Email address<input id="ttc_emailInput" type="email" placeholder="you@example.com" autocomplete="email" required></label>
+      <label>Password<input id="ttc_passwordInput" type="password" placeholder="At least 6 characters" autocomplete="current-password" required minlength="6"></label>
+      <div class="auth-actions"><button class="btn primary" id="ttc_loginButton">Log in</button><button class="btn secondary" id="ttc_signupButton">Create account</button></div>
+    </div>
+    <p id="ttc_authStatus" role="status" aria-live="polite"></p>
+  </section>
+
+  <section id="ttc_appShell" class="shell hidden">
+    <aside class="column left-column">
+      <section class="panel profile-panel">
+        <div class="profile-cover">🏔️ 🌅</div>
+        <div class="profile-content">
+          <div id="ttc_profileAvatar" class="avatar profile-avatar">T</div>
+          <h2 id="ttc_profileName">TravelTaste member</h2><div id="ttc_profileHandle" class="handle">@traveller</div>
+          <div class="stats"><div class="stat"><strong id="ttc_profileAchievementCount">0</strong><span>Golden achievements</span></div><div class="stat"><strong id="ttc_profilePoints">0</strong><span>Celebrations received</span></div></div>
+          <button class="btn secondary wide" id="ttc_viewMyAchievementsButton">🏆 View my achievements</button>
+        </div>
+      </section>
+      <section class="panel side-nav" aria-label="Community pages">
+        <button class="active" data-view="feed">⌂ &nbsp; Community Feed</button>
+        <button data-view="achievements">🏆 &nbsp; My Achievements</button>
+        <button data-view="saved">▱ &nbsp; Saved Posts</button>
+        <button data-view="mine">▣ &nbsp; My Posts</button>
+        <button data-view="settings">⚙ &nbsp; Settings</button>
+        <button id="ttc_shareStorySideButton" class="share-statement">＋ Share Your Story</button>
+        <button id="ttc_logoutButton" class="outline">Log out</button>
+      </section>
+    </aside>
+
+    <section class="column center-column">
+      <section id="ttc_composer" class="composer">
+        <div class="composer-top"><div id="ttc_composerAvatar" class="avatar">T</div><strong>Share your travel story with the community…</strong></div>
+        <input id="ttc_postTitleInput" class="hidden" maxlength="120" placeholder="Give your story a title" style="margin-bottom:9px">
+        <textarea id="ttc_captionInput" maxlength="2000" placeholder="Where did you go? What did you experience? Share your photos, tips, and memories…"></textarea>
+        <div id="ttc_composerExtra" class="composer-extra">
+          <label>Place or location name<input id="ttc_locationNameInput" maxlength="180" placeholder="e.g. Sabarmati Riverfront"></label>
+          <label>Google Maps link (optional)<input id="ttc_locationUrlInput" type="url" placeholder="https://maps.google.com/..."></label>
+        </div>
+        <div id="ttc_photoPreview" class="photo-preview"></div>
+        <div class="composer-actions">
+          <button id="ttc_addPhotosButton" class="btn outline">▧ Add Photos</button>
+          <button id="ttc_addAchievementButton" class="btn outline">🏆 Add Achievement</button>
+          <button id="ttc_addLocationButton" class="btn outline">⌖ Add Location</button>
+          <button id="ttc_publishButton" class="btn primary post-btn">➤ Post</button>
+        </div>
+        <input id="ttc_photoInput" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden>
+        <p class="footer-note">Up to 5 photos, 5 MB each. Only share images you have permission to post.</p>
+      </section>
+
+      <div class="tabs" id="ttc_feedTabs" role="tablist" aria-label="Feed sorting">
+        <button class="active" data-feed="for-you">⌂ For You</button>
+        <button data-feed="following">♧ Following</button>
+        <button data-feed="latest">◷ Latest</button>
+        <button data-feed="trending">♨ Trending</button>
+        <button data-feed="most-liked">♥ Most Liked</button>
+      </div>
+      <div class="sidebar-heading community-feed-toolbar">
+        <h2 class="feed-heading" id="ttc_feedHeading">Community stories</h2>
+        <div class="community-feed-tools">
+          <label class="searchbar" aria-label="Search community stories"><span aria-hidden="true">⌕</span><input id="ttc_globalSearch" placeholder="Search stories…" autocomplete="off"></label>
+          <button class="btn outline" id="ttc_notificationsButton" type="button" title="Notifications" aria-label="Notifications">♧</button>
+          <button class="btn outline" id="ttc_refreshFeedButton" type="button">↻ Refresh</button>
+        </div>
+      </div>
+      <p id="ttc_appStatus" class="status" role="status" aria-live="polite"></p>
+      <section id="ttc_feed" class="feed"><div class="empty">Loading community stories…</div></section>
+      <section id="ttc_achievementsView" class="panel hidden" style="padding:17px">
+        <div class="sidebar-heading"><h2>My Golden Achievements</h2><button id="ttc_browseChallengesButton" class="btn primary">Browse challenges</button></div>
+        <p style="color:var(--muted);font-size:13px">Earn a golden badge by completing every destination in a challenge and sharing a photo for each one.</p>
+        <div id="ttc_myAchievementList"><div class="empty">Loading achievements…</div></div>
+      </section>
+      <section id="ttc_settingsView" class="panel hidden" style="padding:18px">
+        <h2 style="margin-top:0">Community settings</h2><p style="color:var(--muted);font-size:13px">Update the public name shown with your posts and achievements.</p>
+        <form id="ttc_settingsForm" class="settings-form"><label>Display name<input id="ttc_settingsNameInput" class="settings-input" maxlength="40" required></label><button class="btn primary" type="submit">Save display name</button></form>
+      </section>
+    </section>
+
+    <aside class="column right-column">
+      <section class="sidebar-card">
+        <div class="sidebar-heading"><h3>Discover Travellers</h3><button id="ttc_refreshTravellersButton" class="text-btn">Refresh</button></div>
+        <label class="searchbar" style="width:100%;max-width:none;margin-bottom:10px">⌕ <input id="ttc_travellerSearch" placeholder="Search members…"></label>
+        <div id="ttc_travellersList"><div class="empty">Loading travellers…</div></div>
+      </section>
+      <section class="sidebar-card">
+        <div class="sidebar-heading"><h3>Featured Achievements</h3><button id="ttc_allChallengesButton" class="text-btn">See all</button></div>
+        <div id="ttc_featuredChallenges" class="challenge-mini-list"><div class="empty">Loading challenges…</div></div>
+      </section>
+      <section class="sidebar-card">
+        <div class="sidebar-heading"><h3>Trending Stories</h3><button id="ttc_trendingSeeAllButton" class="text-btn">See all</button></div>
+        <div id="ttc_trendingStories"><div class="empty">Loading stories…</div></div>
+      </section>
+    </aside>
+  </section>
+<div id="ttc_modalBackdrop" class="modal-backdrop" role="presentation">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="ttc_modalTitle">
+    <header class="modal-header"><h2 id="ttc_modalTitle">TravelTaste</h2><button id="ttc_closeModalButton" class="close-modal" aria-label="Close">×</button></header>
+    <div id="ttc_modalBody" class="modal-body"></div>
+  </section>
+</div>
+<div id="ttc_toast" class="toast hidden" role="status" aria-live="polite"></div>
+  </div>
+  <div id="legacyCommunityRuntime" hidden aria-hidden="true">
+<div class="community-inner">
     <section id="communityAuthGate" class="community-auth-gate">
       <div class="profile-avatar-large" aria-hidden="true">🏆</div>
       <h1>TravelTaste Community</h1>
@@ -2622,6 +2950,7 @@ body.detail-view-active .tt-photo-caption { color: #64748b; font-size: 13px; mar
         </aside>
       </div>
     </section>
+  </div>
   </div>
 </section>
 
@@ -2765,6 +3094,7 @@ function setPageView(page, { updateUrl = true, scroll = true } = {}) {
 
   if (showCommunity) {
     setActiveSiteNav('community');
+    window.dispatchEvent(new CustomEvent('travelTasteCommunityOpened'));
     if (currentUser) {
       loadFeed();
       loadFriendArea();
@@ -2883,22 +3213,22 @@ $('profileLoginOption').addEventListener('click', () => {
   closeProfileDropdown();
   setPageView('community');
   setActiveSiteNav('community');
-  $('communityAuthGate').scrollIntoView({ behavior: 'smooth', block: 'center' });
-  const emailInput = $('email');
+  $('ttc_authGate').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  const emailInput = $('ttc_emailInput');
   if (emailInput) emailInput.focus({ preventScroll: true });
 });
 
 $('profileLogoutOption').addEventListener('click', async () => {
   closeProfileDropdown();
-  if (currentUser) await $('logout').click();
+  if (currentUser) $('ttc_logoutButton')?.click();
 });
 
 $('myFavouritesOption').addEventListener('click', async () => {
   closeProfileDropdown();
   if (!currentUser) {
     setPageView('community'); setActiveSiteNav('community');
-    $('communityAuthGate').scrollIntoView({behavior:'smooth', block:'center'});
-    if ($('status')) $('status').textContent = 'Please log in to save and view your favourite places.';
+    $('ttc_authGate').scrollIntoView({behavior:'smooth', block:'center'});
+    if ($('ttc_authStatus')) $('ttc_authStatus').textContent = 'Please log in to save and view your favourite places.';
     return;
   }
   await loadSavedListingIds();
@@ -2926,10 +3256,10 @@ $('profileChangeOption').addEventListener('click', () => {
   if (!currentUser) {
     setPageView('community');
     setActiveSiteNav('community');
-    $('communityAuthGate').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    $('ttc_authGate').scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
-  $('showCommunitySettings').click();
+  document.querySelector('#ttCommunityApp [data-view="settings"]')?.click();
 });
 
 document.addEventListener('click', event => {
@@ -2943,10 +3273,10 @@ $('notificationsNavButton').addEventListener('click', () => {
   setPageView('community');
   setActiveSiteNav('community');
   if (currentUser) {
-    $('incomingFriendRequests').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    $('ttc_notificationsButton')?.click();
   } else {
-    $('communityAuthGate').scrollIntoView({ behavior: 'smooth', block: 'center' });
-    $('status').textContent = 'Log in to view friend requests and community notifications.';
+    $('ttc_authGate').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if ($('ttc_authStatus')) $('ttc_authStatus').textContent = 'Log in to view community notifications.';
   }
 });
 $('footerHomeLink').addEventListener('click', event => { event.preventDefault(); showHomeSection('top', 'home'); });
@@ -5875,7 +6205,7 @@ async function loadSavedListingIds() {
   else savedListingItems=places||[];
 }
 async function toggleFavourite(listingId,button){
-  if(!currentUser){if(typeof message==='function')message('Please log in to save favourite places.');setPageView('community');setActiveSiteNav('community');$('communityAuthGate').scrollIntoView({behavior:'smooth',block:'center'});return;}
+  if(!currentUser){if(typeof message==='function')message('Please log in to save favourite places.');setPageView('community');setActiveSiteNav('community');$('ttc_authGate').scrollIntoView({behavior:'smooth',block:'center'});if($('ttc_authStatus'))$('ttc_authStatus').textContent='Please log in to save favourite places.';return;}
   const id=String(listingId),wasSaved=savedListingIds.has(id);button.disabled=true;
   try{
     if(wasSaved){
@@ -6463,8 +6793,9 @@ document.querySelectorAll('.category').forEach(button => {
 });
 
 
-// Resolve coordinates only from the supplied Google Maps link. Short links may
-// be followed by the Supabase Edge Function. Never geocode names or addresses.
+// Resolve coordinates for new place submissions. First parse coordinates already
+// present in the Google Maps URL; then ask the Supabase Edge Function to resolve
+// shortened/other supported links. No existing published listings are modified.
 function extractCoordinatesFromMapUrl(rawUrl) {
   if (!rawUrl) return null;
   const valid = (lat, lon) => Number.isFinite(lat) && Number.isFinite(lon) &&
@@ -6476,7 +6807,7 @@ function extractCoordinatesFromMapUrl(rawUrl) {
     const patterns = [
       /!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/i,
       /!2d(-?\d+(?:\.\d+)?)!3d(-?\d+(?:\.\d+)?)/i,
-      /(?:[?&](?:query|q|destination)=)(-?\d{1,2}(?:\.\d+)?)\s*(?:%2C|,|%252C)\s*(-?\d{1,3}(?:\.\d+)?)/i
+      /(?:[?&](?:query|q|ll|center|destination)=)(-?\d{1,2}(?:\.\d+)?)\s*(?:%2C|,|%252C)\s*(-?\d{1,3}(?:\.\d+)?)/i
     ];
     for (let i = 0; i < patterns.length; i++) {
       const match = text.match(patterns[i]);
@@ -6490,11 +6821,10 @@ function extractCoordinatesFromMapUrl(rawUrl) {
   };
   try {
     const url = new URL(rawUrl);
-    const host = url.hostname.toLowerCase();
-    const allowedHost = /(^|\.)google\.[a-z.]+$/i.test(host) ||
-      /(^|\.)goo\.gl$/i.test(host) || host === 'share.google';
+    const allowedHost = /(^|\.)google\.[a-z.]+$/i.test(url.hostname) ||
+      /(^|\.)goo\.gl$/i.test(url.hostname);
     if (!allowedHost) return null;
-    for (const key of ['query', 'q', 'destination']) {
+    for (const key of ['query', 'q', 'll', 'center', 'destination']) {
       const value = url.searchParams.get(key);
       if (value) {
         const found = pairFromText(`${key}=${encodeURIComponent(value)}`) || pairFromText(value);
@@ -6510,29 +6840,35 @@ function extractCoordinatesFromMapUrl(rawUrl) {
   return null;
 }
 
-async function resolveNewSubmissionCoordinates(mapUrl) {
+async function resolveNewSubmissionCoordinates(mapUrl, placeName = '', cityName = '', stateName = '', countryName = '') {
   const cleanMapUrl = String(mapUrl || '').trim();
-  if (!cleanMapUrl) return { latitude: null, longitude: null, resolved: false };
+  if (cleanMapUrl) {
+    const direct = extractCoordinatesFromMapUrl(cleanMapUrl);
+    if (direct) return { ...direct, resolved: true, source: 'google_maps_link' };
+  }
 
-  // Google Maps link is the only source of coordinates. Do not geocode a place
-  // name/address when the link does not expose its exact pin. The server may
-  // follow a short link and inspect the final Google Maps place URL/page.
-  const direct = extractCoordinatesFromMapUrl(cleanMapUrl);
-  if (direct) return { ...direct, resolved: true, source: 'google_maps_link' };
+  // Fallback: the Edge Function tries the map link first, then geocodes the
+  // place name plus city/state/country. The API key stays on the server.
   try {
     const { data, error } = await supabase.functions.invoke('resolve-map-coordinates', {
-      body: { google_maps_url: cleanMapUrl }
+      body: {
+        google_maps_url: cleanMapUrl,
+        place_name: String(placeName || '').trim(),
+        city_name: String(cityName || '').trim(),
+        state_name: String(stateName || '').trim(),
+        country_name: String(countryName || '').trim()
+      }
     });
-    if (!error && data && data.verified === true && data.source === 'google_maps_link' &&
+    if (!error && data && data.verified === true &&
         Number.isFinite(Number(data.latitude)) && Number.isFinite(Number(data.longitude)) &&
         Number(data.latitude) >= -90 && Number(data.latitude) <= 90 &&
         Number(data.longitude) >= -180 && Number(data.longitude) <= 180) {
-      return { latitude: Number(data.latitude), longitude: Number(data.longitude), resolved: true, source: 'google_maps_link' };
+      return { latitude: Number(data.latitude), longitude: Number(data.longitude), resolved: true, source: data.source || 'resolver' };
     }
-    if (error) console.warn('Google Maps link resolver returned an error:', error.message || error);
-    else if (data?.error) console.info('Google Maps link did not expose verifiable pin coordinates:', data.error);
+    if (error) console.warn('Location resolver returned an error:', error.message || error);
+    else if (data?.error) console.info('Location could not be verified automatically:', data.error);
   } catch (error) {
-    console.warn('Google Maps link resolver unavailable; location remains unresolved.', error);
+    console.warn('Location resolver unavailable; submission can still be reviewed.', error);
   }
   return { latitude: null, longitude: null, resolved: false };
 }
@@ -6625,7 +6961,13 @@ $('placeSubmissionForm').addEventListener('submit', async (event) => {
   button.disabled = true;
   const submittedMapUrl = String(formData.get('google_maps_url') || '').trim();
   message.textContent = submittedMapUrl ? 'Checking map location…' : 'Uploading photos…';
-  const resolvedCoordinates = await resolveNewSubmissionCoordinates(submittedMapUrl);
+  const resolvedCoordinates = await resolveNewSubmissionCoordinates(
+    submittedMapUrl,
+    String(formData.get('name') || '').trim(),
+    selectedCity.name || '',
+    selectedCity.state || '',
+    selectedCity.country || ''
+  );
   if (submittedMapUrl && !resolvedCoordinates.resolved) {
     message.textContent = 'We could not verify coordinates from this map link yet. Your submission can still be reviewed; Nearby Discoveries will use it once its coordinates are verified.';
   } else {
@@ -7187,7 +7529,7 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
   <div class="nearby-content">
     <div class="nearby-location-prompt"><span aria-hidden="true" style="font-size:24px">📍</span><div class="nearby-prompt-copy"><strong>Find what's around you</strong><small>Use your current location for recommendations from places already listed on TravelTaste. Location sharing is optional.</small></div><button type="button" id="useNearbyLocation">◎ Use My Current Location</button></div>
     <p class="nearby-status" id="nearbyStatus" aria-live="polite">Your location is not being accessed yet. Select “Use My Current Location” to begin.</p>
-    <p class="nearby-attribution">Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>.</p>
+    <p class="nearby-attribution">Location lookup powered by <a href="https://www.geoapify.com/" target="_blank" rel="noopener noreferrer">Geoapify</a>. Map data may include <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>.</p>
     <div class="nearby-filters" id="nearbyFilters" aria-label="Filter nearby recommendations">
       <button type="button" class="nearby-filter" data-nearby-filter="all" aria-pressed="true">✨ All</button>
       <button type="button" class="nearby-filter" data-nearby-filter="places" aria-pressed="false">📍 Places</button>
@@ -7244,13 +7586,6 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
   }
   function coordinatesFromMapUrl(url){
     if(!url)return null;
-    let parsed;
-    try{
-      parsed=new URL(String(url));
-      const host=parsed.hostname.toLowerCase();
-      const googleHost=/(^|\.)google\.[a-z.]+$/i.test(host)||/(^|\.)goo\.gl$/i.test(host)||host==='share.google';
-      if(!googleHost||!['https:','http:'].includes(parsed.protocol))return null;
-    }catch(_){return null;}
     let text=String(url);
     try{for(let i=0;i<2;i++){const decoded=decodeURIComponent(text.replace(/\+/g,' '));if(decoded===text)break;text=decoded;}}catch(_){}
     // Pin coordinates must win over @lat,lon because @ often identifies the
@@ -7258,7 +7593,7 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
     const patterns=[
       {re:/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/i,swap:false},
       {re:/!2d(-?\d+(?:\.\d+)?)!3d(-?\d+(?:\.\d+)?)/i,swap:true},
-      {re:/(?:geo:|[?&](?:q|query|destination)=)(-?\d{1,2}(?:\.\d+)?)\s*(?:%2C|,|%252C|\s)\s*(-?\d{1,3}(?:\.\d+)?)/i,swap:false}
+      {re:/(?:geo:|[?&](?:q|query|destination|ll|center)=)(-?\d{1,2}(?:\.\d+)?)\s*(?:%2C|,|%252C|\s)\s*(-?\d{1,3}(?:\.\d+)?)/i,swap:false}
     ];
     for(const {re,swap} of patterns){
       const m=text.match(re);if(!m)continue;
@@ -7270,28 +7605,23 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
   function withCoordinates(item){
     const mapUrl=mapUrlFor(item);
     const fromUrl=coordinatesFromMapUrl(mapUrl);
-    const rawPairs=[[item.latitude,item.longitude],[item.lat,item.lng],[item.lat,item.lon],[item.lat,item.long]];
-    let saved=item._travelTasteDatabaseCoords||null;
+    // Preserve the coordinates actually stored in Supabase separately from
+    // coordinates embedded in a precise Google Maps pin URL. If both exist,
+    // the pin coordinates win for display, and any mismatch is repaired below.
+    const existingSaved=item._travelTasteDatabaseCoords || null;
+    const pairs=[[item.latitude,item.longitude],[item.lat,item.lng],[item.lat,item.lon],[item.lat,item.long]];
+    let saved=existingSaved;
     if(!saved){
-      for(const pair of rawPairs){if(validLatLon(pair[0],pair[1])){saved={latitude:Number(pair[0]),longitude:Number(pair[1])};break;}}
+      for(const pair of pairs){if(validLatLon(pair[0],pair[1])){saved={latitude:Number(pair[0]),longitude:Number(pair[1])};break;}}
     }
-    const verifiedCached=item._travelTasteLinkVerified && item._travelTasteLinkCoords &&
-      validLatLon(item._travelTasteLinkCoords.latitude,item._travelTasteLinkCoords.longitude)
-      ? {latitude:Number(item._travelTasteLinkCoords.latitude),longitude:Number(item._travelTasteLinkCoords.longitude)} : null;
-    // Only exact pin coordinates parsed from the supplied Maps link, or results
-    // previously verified by the server from that exact same link, may drive distance.
-    // Existing database numbers are kept only for comparison. They cannot drive
-    // nearby distance unless this exact saved link independently verifies them.
-    const coords=fromUrl||verifiedCached;
+    const coords=fromUrl||saved;
     return {
       ...item,
       google_maps_url:mapUrl||item.google_maps_url||null,
       latitude:coords?.latitude??null,
       longitude:coords?.longitude??null,
       _travelTasteDatabaseCoords:saved,
-      _travelTasteUrlCoords:fromUrl,
-      _travelTasteLinkVerified:Boolean(fromUrl||verifiedCached),
-      _travelTasteLinkCoords:fromUrl||verifiedCached
+      _travelTasteUrlCoords:fromUrl
     };
   }
   function typeOf(item){
@@ -7307,18 +7637,12 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
     const source=Array.isArray(window.travelTasteNearbyListings)?window.travelTasteNearbyListings:[];
     return source.filter(item=>item && (item.is_published===true || item.is_published==='true' || item.is_published===1 || item.is_published==='1')).map(withCoordinates);
   }
-  // Google Maps link is the only source of coordinates for Nearby Discoveries.
-  // This cache stores only successful link-derived coordinates, keyed by listing ID
-  // AND the exact saved link. Old address-geocoder cache entries are ignored.
-  const coordinateRecheckStorageKey='traveltaste-google-link-only-v4';
-  const COORDINATE_RECHECK_RETRY_MS=6*60*60*1000;
-  function readCoordinateRecheckState(){
-    try{return JSON.parse(localStorage.getItem(coordinateRecheckStorageKey)||'{}')||{};}catch(_){return {};}
-  }
-  function writeCoordinateRecheckState(state){
-    try{localStorage.setItem(coordinateRecheckStorageKey,JSON.stringify(state));}catch(_){}
-  }
-  function coordinateRecheckKey(item){return `${String(item.id||'')}|${mapUrlFor(item)}`;}
+  // Reconcile listing coordinates before distance filtering:
+  // - if the saved Google Maps URL contains explicit pin coordinates, prefer those;
+  // - persist them if missing or if they differ from the database by >50 metres;
+  // - if coordinates are missing and the URL is shortened, ask the resolver to
+  //   resolve the saved row and persist the result;
+  // - never geocode every already-populated shortened link on every page visit.
   async function refreshAndResolvePublishedListings(){
     let fetched=[];
     if(typeof window.travelTasteFetchPublishedNearbyListings==='function'){
@@ -7330,46 +7654,20 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
     let source=(Array.isArray(fetched)?fetched:[])
       .filter(item=>item&&(item.is_published===true||item.is_published==='true'||item.is_published===1||item.is_published==='1'))
       .map(withCoordinates);
-    const checked=readCoordinateRecheckState();
-    const now=Date.now();
-
-    // Restore only previously verified results produced from this same exact link.
-    source=source.map(item=>{
-      if(item._travelTasteUrlCoords)return item;
-      const state=checked[coordinateRecheckKey(item)];
-      if(state?.ok===true && state.source==='google_maps_link' &&
-         validLatLon(state.latitude,state.longitude)){
-        const coords={latitude:Number(state.latitude),longitude:Number(state.longitude)};
-        return {...item,latitude:coords.latitude,longitude:coords.longitude,
-          _travelTasteLinkVerified:true,_travelTasteLinkCoords:coords};
-      }
-      return item;
-    });
     window.travelTasteNearbyListings=source;
 
-    const tasks=[];
-    for(const item of source){
-      const mapUrl=mapUrlFor(item);
-      if(!item.id||!mapUrl)continue;
-      const key=coordinateRecheckKey(item);
-      const prior=checked[key];
+    const exactPinNeedsSave=source.filter(item=>{
+      if(!item.id||!item._travelTasteUrlCoords)return false;
       const saved=item._travelTasteDatabaseCoords;
-      const urlCoords=item._travelTasteUrlCoords;
-
-      // If the exact pin is present in the link and matches the database, use it;
-      // record that the link verified the current coordinate pair.
-      if(urlCoords && saved && distanceKm(saved.latitude,saved.longitude,urlCoords.latitude,urlCoords.longitude)<=0.001){
-        checked[key]={ok:true,source:'google_maps_link',latitude:urlCoords.latitude,longitude:urlCoords.longitude,verifiedAt:now};
-        continue;
-      }
-      // A result without direct URL coordinates is accepted only if this exact link
-      // was already verified by the server. Otherwise verify it through the Edge Function.
-      if(!urlCoords && prior?.ok===true && prior.source==='google_maps_link' &&
-         validLatLon(prior.latitude,prior.longitude))continue;
-      if(prior?.attemptedAt && now-Number(prior.attemptedAt)<COORDINATE_RECHECK_RETRY_MS && prior.ok!==true)continue;
-      tasks.push({item,key,forceRecheck:Boolean(saved)});
-    }
-    writeCoordinateRecheckState(checked);
+      if(!saved)return true;
+      const delta=distanceKm(saved.latitude,saved.longitude,item._travelTasteUrlCoords.latitude,item._travelTasteUrlCoords.longitude);
+      return delta>0.05;
+    });
+    const unresolvedRows=source.filter(item=>item.id&&!item._travelTasteDatabaseCoords&&!item._travelTasteUrlCoords&&mapUrlFor(item));
+    const tasks=[
+      ...exactPinNeedsSave.map(item=>({item,forceRecheck:true})),
+      ...unresolvedRows.map(item=>({item,forceRecheck:false}))
+    ];
 
     if(tasks.length){
       let nextIndex=0, savedCount=0, failedCount=0;
@@ -7379,36 +7677,26 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
           const item=task.item;
           try{
             const result=await window.travelTasteResolveNearbyListingCoordinates(item.id,{forceRecheck:task.forceRecheck});
-            if(result&&result.resolved&&result.source==='google_maps_link'&&validLatLon(result.latitude,result.longitude)){
+            if(result&&result.resolved&&validLatLon(result.latitude,result.longitude)){
               const coords={latitude:Number(result.latitude),longitude:Number(result.longitude)};
               source=source.map(row=>String(row.id)===String(item.id)?{
-                ...row,latitude:coords.latitude,longitude:coords.longitude,
+                ...row, ...coords,
                 _travelTasteDatabaseCoords:coords,
-                _travelTasteLinkVerified:true,_travelTasteLinkCoords:coords,
-                _travelTasteUrlCoords:row._travelTasteUrlCoords||null
+                // Keep URL coordinates if the link contains exact pin data;
+                // they should agree with the verified server result.
+                _travelTasteUrlCoords:row._travelTasteUrlCoords || null
               }:row);
-              checked[task.key]={ok:true,source:'google_maps_link',latitude:coords.latitude,longitude:coords.longitude,verifiedAt:Date.now()};
-              writeCoordinateRecheckState(checked);
               window.travelTasteNearbyListings=source;
               if(result.saved)savedCount++;
             }else{
               failedCount++;
-              checked[task.key]={ok:false,attemptedAt:Date.now(),error:'Google Maps link did not expose exact pin coordinates'};
-              writeCoordinateRecheckState(checked);
-              console.warn('Listing excluded from Nearby Discoveries because its own Google Maps link could not verify coordinates:',item.name,result);
-              // Never fall back to stale database coordinates that may have been geocoded incorrectly.
-              source=source.map(row=>String(row.id)===String(item.id)?{...row,latitude:null,longitude:null,_travelTasteLinkVerified:false,_travelTasteLinkCoords:null}:row);
-              window.travelTasteNearbyListings=source;
+              console.warn('Could not verify listing coordinates:',item.name,result);
             }
           }catch(error){
             failedCount++;
-            checked[task.key]={ok:false,attemptedAt:Date.now(),error:String(error?.message||error)};
-            writeCoordinateRecheckState(checked);
-            source=source.map(row=>String(row.id)===String(item.id)?{...row,latitude:null,longitude:null,_travelTasteLinkVerified:false,_travelTasteLinkCoords:null}:row);
-            window.travelTasteNearbyListings=source;
-            console.warn('Listing excluded from Nearby Discoveries because link-only coordinate verification failed:',item.name,error);
+            console.warn('Could not recheck existing listing coordinates:',item.name,error);
           }
-          status.textContent=`Checking exact Google Maps pins… ${Math.min(nextIndex,tasks.length)} of ${tasks.length} listings checked${savedCount?`; ${savedCount} coordinate pairs saved`:''}${failedCount?`; ${failedCount} links could not verify exact pin coordinates`:''}.`;
+          status.textContent=`Checking saved map links… ${Math.min(nextIndex,tasks.length)} of ${tasks.length} listings checked${savedCount?`; ${savedCount} corrected/saved`:''}${failedCount?`; ${failedCount} need manual review`:''}.`;
         }
       };
       await Promise.all(Array.from({length:Math.min(2,tasks.length)},()=>worker()));
@@ -7597,10 +7885,10 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
         const allNearbyListings=publishedItems();
         const coordCount=allNearbyListings.filter(item=>validLatLon(item.latitude,item.longitude)).length;
         const totalCount=allNearbyListings.length;
-        const unresolvedLinks=allNearbyListings.filter(item=>!validLatLon(item.latitude,item.longitude)&&mapUrlFor(item)).length;
+        const savedWithoutPinCoords=allNearbyListings.filter(item=>item._travelTasteDatabaseCoords&&!item._travelTasteUrlCoords).length;
         render();
         if(coordCount){
-          status.textContent=`Browser location: ${lat.toFixed(5)}, ${lon.toFixed(5)}${accuracyKm!==null?` (reported accuracy ±${accuracyKm.toFixed(1)} km)`:''}. ${coordCount} of ${totalCount} published places have usable coordinates. Distances are straight-line estimates.${unresolvedLinks?` ${unresolvedLinks} listings are excluded because their exact pin coordinates could not be verified from their own Google Maps links.`:''}${locationQuality}`;
+          status.textContent=`Browser location: ${lat.toFixed(5)}, ${lon.toFixed(5)}${accuracyKm!==null?` (reported accuracy ±${accuracyKm.toFixed(1)} km)`:''}. ${coordCount} of ${totalCount} published places have usable coordinates. Distances are straight-line estimates.${savedWithoutPinCoords?` ${savedWithoutPinCoords} saved locations use links without extractable pin coordinates; their existing coordinates cannot be independently verified from the link yet.`:''}${locationQuality}`;
         }else{
           status.textContent=`Browser location: ${lat.toFixed(5)}, ${lon.toFixed(5)}. ${totalCount} published places loaded, but none has usable coordinates yet.${locationQuality}`;
         }
@@ -8116,5 +8404,128 @@ body.tt-review-modal-open,body.tt-my-reviews-open{overflow:hidden}
 
 </style>
 
+
+<script type="module" id="ttCommunityModule">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const SUPABASE_URL = 'https://xhmztvfcosvqkeqnhzer.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_4TF5i_4Wtm5gogItPlQsRg_ck5n_dfi';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const $ = id => document.getElementById('ttc_' + id);
+const BUCKET = 'community-photos';
+const MAX_PHOTOS = 5, MAX_FILE_SIZE = 5 * 1024 * 1024;
+let currentUser = null, feedMode = 'for-you', allPosts = [], postMetrics = new Map(), postProfiles = new Map(), follows = new Set(), savedPosts = new Set(), challenges = [], challengePlaces = [], myCompletions = new Map(), myAchievements = new Set(), selectedFiles = [], busyPostIds = new Set(), toastTimer = null;
+const challengeEmoji = { 'seven-wonders':'🌍', 'twelve-jyotirlinga':'🛕', 'mountain-climber':'🏔️', 'indian-heritage-trail':'🏰' };
+const fallbackChallengeNames = { 'seven-wonders':'7 Wonders Explorer', 'twelve-jyotirlinga':'12 Jyotirlinga Yatra', 'mountain-climber':'Mountain Climber', 'indian-heritage-trail':'Indian Heritage Trail' };
+function say(text){ $('appStatus').textContent = text || ''; }
+function authSay(text){ $('authStatus').textContent = text || ''; }
+function notify(text){ const node=$('toast'); node.textContent=text; node.classList.remove('hidden'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>node.classList.add('hidden'),4500); }
+function escapeHtml(value){ return String(value ?? '').replace(/[&<>"']/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+function safeImageUrl(value){ try{const u=new URL(value);return u.protocol==='https:'?u.href:null;}catch{return null;} }
+function safeHttpUrl(value){ try{const u=new URL(value);return ['https:','http:'].includes(u.protocol)?u.href:null;}catch{return null;} }
+function displayName(user){return user?.communityDisplayName || user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'TravelTaste member';}
+function initials(name){const parts=String(name||'T').trim().split(/\s+/).slice(0,2);return parts.map(p=>p[0]||'').join('').toUpperCase()||'T';}
+function avatarMarkup(name, extra=''){return `<div class="avatar ${extra}">${escapeHtml(initials(name))}</div>`;}
+function formatDate(value){const d=new Date(value);return Number.isNaN(d.getTime())?'Recently':d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});}
+function challengeTitle(c){return c?.title || fallbackChallengeNames[c?.slug] || 'Travel Challenge';}
+function challengeIcon(c){return c?.badge_emoji || challengeEmoji[c?.slug] || '🏆';}
+function openModal(title, html){$('modalTitle').textContent=title; $('modalBody').innerHTML=html; $('modalBackdrop').classList.add('open'); $('modalBackdrop').setAttribute('aria-hidden','false');}
+function closeModal(){ $('modalBackdrop').classList.remove('open'); $('modalBackdrop').setAttribute('aria-hidden','true'); $('modalBody').replaceChildren(); }
+$('closeModalButton').addEventListener('click',closeModal); $('modalBackdrop').addEventListener('click',e=>{if(e.target===$('modalBackdrop'))closeModal();}); document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+function showAccountUI(user){currentUser=user; $('authGate').classList.toggle('hidden',!!user); $('appShell').classList.toggle('hidden',!user); const topAvatar=$('topAvatar'); if(topAvatar) topAvatar.textContent=user?initials(displayName(user)):'T'; if(user){$('profileName').textContent=displayName(user);$('profileHandle').textContent='@'+(user.email||'traveller').split('@')[0];$('profileAvatar').textContent=initials(displayName(user));$('composerAvatar').textContent=initials(displayName(user));$('settingsNameInput').value=displayName(user);} }
+async function ensureProfile(user, preferred=''){
+ if(!user)return;
+ const desired=(preferred||user.user_metadata?.display_name||user.email?.split('@')[0]||'TravelTaste member').trim().slice(0,40)||'TravelTaste member';
+ let {data,error}=await supabase.from('community_profiles').select('display_name,avatar_url').eq('user_id',user.id).maybeSingle();
+ if(error){console.warn('Profile lookup failed; page can still show account email.',error.message); user.communityDisplayName=desired; return;}
+ if(!data){const ins=await supabase.from('community_profiles').insert({user_id:user.id,display_name:desired});if(ins.error)console.warn('Could not create community profile:',ins.error.message); user.communityDisplayName=desired;}
+ else {user.communityDisplayName=data.display_name||desired;}
+}
+function readCredentials(){const email=$('emailInput').value.trim(),password=$('passwordInput').value, name=$('displayNameInput').value.trim(); if(!email||!$('emailInput').checkValidity()||password.length<6){authSay('Enter a valid email and a password of at least 6 characters.');return null;}return {email,password,name};}
+$('signupButton').addEventListener('click',async()=>{const c=readCredentials();if(!c)return;$('signupButton').disabled=true;authSay('Creating your account…');try{const {data,error}=await supabase.auth.signUp({email:c.email,password:c.password,options:{data:{display_name:c.name||c.email.split('@')[0]}}});if(error)throw error;if(data.session){currentUser=data.user;await ensureProfile(currentUser,c.name);showAccountUI(currentUser);authSay('Account created. Welcome to TravelTaste!');await initializeApp();}else authSay('Check your email for a confirmation link, then log in.');}catch(e){authSay(e.message||'Could not create your account.');}finally{$('signupButton').disabled=false;}});
+$('loginButton').addEventListener('click',async()=>{const c=readCredentials();if(!c)return;$('loginButton').disabled=true;authSay('Logging in…');try{const {data,error}=await supabase.auth.signInWithPassword({email:c.email,password:c.password});if(error)throw error;currentUser=data.user;await ensureProfile(currentUser);showAccountUI(currentUser);authSay('Login successful.');await initializeApp();}catch(e){authSay(e.message||'Could not log in.');}finally{$('loginButton').disabled=false;}});
+$('logoutButton').addEventListener('click',async()=>{try{const {error}=await supabase.auth.signOut();if(error)throw error;currentUser=null;showAccountUI(null);allPosts=[];say('You have logged out.');authSay('You have logged out.');}catch(e){say(e.message||'Could not log out.');}});
+
+function validateFiles(files){const arr=Array.from(files||[]);if(arr.length>MAX_PHOTOS)throw new Error('Choose no more than 5 photos.');for(const f of arr){if(!['image/jpeg','image/png','image/webp'].includes(f.type))throw new Error('Use JPEG, PNG, or WebP photos only.');if(f.size>MAX_FILE_SIZE)throw new Error(`${f.name} is larger than 5 MB.`);}return arr;}
+$('addPhotosButton').addEventListener('click',()=>$('photoInput').click());
+$('photoInput').addEventListener('change',()=>{try{selectedFiles=validateFiles($('photoInput').files);$('photoPreview').innerHTML=selectedFiles.map(f=>`<img src="${URL.createObjectURL(f)}" alt="Selected photo preview" title="${escapeHtml(f.name)}">`).join('');}catch(e){selectedFiles=[];$('photoInput').value='';$('photoPreview').replaceChildren();say(e.message);}});
+$('addLocationButton').addEventListener('click',()=>{$('composerExtra').classList.toggle('open'); if($('composerExtra').classList.contains('open'))$('locationNameInput').focus();});
+$('shareStorySideButton').addEventListener('click',()=>{$('captionInput').focus();$('composer').scrollIntoView({behavior:'smooth',block:'start'});});
+$('publishButton').addEventListener('click',publishStory);
+async function uploadImages(files, folder='posts') { const uploaded=[]; try{ for(const file of files){const ext={'image/jpeg':'jpg','image/png':'png','image/webp':'webp'}[file.type];const path=`${currentUser.id}/${folder}/${crypto.randomUUID()}.${ext}`;const {error}=await supabase.storage.from(BUCKET).upload(path,file,{contentType:file.type,cacheControl:'3600',upsert:false});if(error)throw error;uploaded.push({path,url:supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl});}return uploaded;}catch(e){if(uploaded.length)await supabase.storage.from(BUCKET).remove(uploaded.map(x=>x.path));throw e;}}
+async function publishStory(){if(!currentUser){notify('Log in before sharing a story.');return;} const caption=$('captionInput').value.trim(),title=$('postTitleInput').value.trim(),locationName=$('locationNameInput').value.trim(),locationUrl=$('locationUrlInput').value.trim();if(!caption&&!selectedFiles.length){say('Add a story or at least one photo before posting.');return;}if(locationUrl){try{const u=new URL(locationUrl);if(!['https:','http:'].includes(u.protocol))throw 0;}catch{say('Enter a valid location link or clear that field.');return;}}
+ $('publishButton').disabled=true;say('Uploading your story…');let uploaded=[];let postId=null;try{uploaded=await uploadImages(selectedFiles);const {data,error}=await supabase.from('community_posts').insert({user_id:currentUser.id,title:title||null,caption,image_url:uploaded[0]?.url||null,post_type:'story',location_name:locationName||null,location_url:locationUrl||null}).select('id').single();if(error)throw error;postId=data.id;if(uploaded.length){const {error:photoError}=await supabase.from('community_post_photos').insert(uploaded.map(x=>({post_id:postId,photo_url:x.url})));if(photoError)throw photoError;} $('postTitleInput').value='';$('captionInput').value='';$('locationNameInput').value='';$('locationUrlInput').value='';$('composerExtra').classList.remove('open');$('photoInput').value='';$('photoPreview').replaceChildren();selectedFiles=[];say('Your story is live in the community feed.');notify('Story shared!');await loadFeed();await renderProfileStats();}catch(e){if(postId){await supabase.from('community_post_photos').delete().eq('post_id',postId);await supabase.from('community_posts').delete().eq('id',postId).eq('user_id',currentUser.id);}if(uploaded.length)await supabase.storage.from(BUCKET).remove(uploaded.map(x=>x.path));say('Could not publish your story: '+(e.message||'Unknown error'));}finally{$('publishButton').disabled=false;}}
+
+async function loadChallenges(){const {data,error}=await supabase.from('community_achievement_challenges').select('*').eq('is_active',true).order('sort_order');if(error)throw new Error('Could not load achievement challenges. Run the supplied Community setup SQL first: '+error.message);challenges=data||[];const placesResult=await supabase.from('community_achievement_places').select('*').order('place_number');if(placesResult.error)throw new Error('Could not load challenge places: '+placesResult.error.message);challengePlaces=placesResult.data||[];if(currentUser){const [comps,earned]=await Promise.all([supabase.from('community_achievement_completions').select('challenge_place_id,challenge_id,created_at,photo_url').eq('user_id',currentUser.id),supabase.from('community_user_achievements').select('challenge_id,completed_at').eq('user_id',currentUser.id)]);if(comps.error)throw comps.error;if(earned.error)throw earned.error;myCompletions=new Map((comps.data||[]).map(x=>[x.challenge_place_id,x]));myAchievements=new Set((earned.data||[]).map(x=>x.challenge_id));}renderFeaturedChallenges();}
+function placesFor(challengeId){return challengePlaces.filter(p=>p.challenge_id===challengeId).sort((a,b)=>a.place_number-b.place_number);}
+function completionsForChallenge(challenge){return placesFor(challenge.id).filter(p=>myCompletions.has(p.id)).length;}
+function renderFeaturedChallenges(){const host=$('featuredChallenges');if(!challenges.length){host.innerHTML='<div class="empty">No challenges configured yet. Run the setup SQL to add challenge data.</div>';return;}host.innerHTML=challenges.map(c=>{const places=placesFor(c.id),done=completionsForChallenge(c),total=Number(c.total_places||places.length);return `<button class="challenge-mini" data-challenge="${c.id}"><span class="challenge-art">${escapeHtml(challengeIcon(c))}</span><span><strong>${escapeHtml(challengeTitle(c))}${myAchievements.has(c.id)?' ✓':''}</strong><small>${escapeHtml(c.short_description||c.description||'Visit each destination and share a photo.')}</small><small>${done} / ${total} places${myAchievements.has(c.id)?' · Completed':''}</small><span class="progress"><span style="width:${Math.min(100,100*done/Math.max(1,total))}%"></span></span></span></button>`;}).join('');host.querySelectorAll('[data-challenge]').forEach(b=>b.addEventListener('click',()=>openChallenge(b.dataset.challenge)));}
+function openAchievementPicker(){if(!challenges.length){notify('Challenges are loading; try again in a moment.');return;}openModal('Choose an achievement',`<p style="color:var(--muted);margin-top:0">Choose a challenge to see its destinations and start collecting verified-by-photo milestones.</p><div class="achievement-grid">${challenges.map(c=>{const done=completionsForChallenge(c),total=Number(c.total_places||placesFor(c.id).length);return `<button class="achievement-card" data-pick-challenge="${c.id}"><div class="badge-icon">${escapeHtml(challengeIcon(c))}</div><strong>${escapeHtml(challengeTitle(c))}</strong><p>${escapeHtml(c.description||'Complete every destination and earn the Golden Achievement.')}</p><div class="progress"><span style="width:${Math.min(100,done/Math.max(1,total)*100)}%"></span></div><small>${done}/${total} completed ${myAchievements.has(c.id)?'· Golden badge unlocked':''}</small></button>`;}).join('')}</div>`);$('modalBody').querySelectorAll('[data-pick-challenge]').forEach(b=>b.addEventListener('click',()=>openChallenge(b.dataset.pickChallenge)));}
+$('addAchievementButton').addEventListener('click',openAchievementPicker);$('browseChallengesButton').addEventListener('click',openAchievementPicker);$('allChallengesButton').addEventListener('click',openAchievementPicker);
+function openChallenge(challengeId){const challenge=challenges.find(c=>c.id===challengeId);if(!challenge)return;const places=placesFor(challengeId),done=completionsForChallenge(challenge),total=Number(challenge.total_places||places.length);const completed=myAchievements.has(challengeId);openModal(challengeTitle(challenge),`<div class="challenge-hero"><div class="badge-icon">${escapeHtml(challengeIcon(challenge))}</div><div><h3>${escapeHtml(challengeTitle(challenge))}${completed?' · Golden Achievement earned':''}</h3><p>${escapeHtml(challenge.description||'Visit each destination, upload your photo, and complete this travel challenge.')}</p><div class="progress"><span style="width:${Math.min(100,done/Math.max(1,total)*100)}%"></span></div><div class="progress-label"><span>${done} of ${total} destinations completed</span><strong>${Math.round(done/Math.max(1,total)*100)}%</strong></div></div></div><div id="ttc_challengePlaceList" class="place-list">${places.map(p=>{const completedPlace=myCompletions.has(p.id);return `<div class="place-row"><div class="place-num">${p.place_number}</div><div><strong>${escapeHtml(p.name)}</strong><small>${escapeHtml([p.region,p.country].filter(Boolean).join(' · '))}</small></div>${completedPlace?'<span class="place-complete">✓ Completed</span>':`<button class="btn primary" data-complete-place="${p.id}">Add visit photo</button>`}</div>`;}).join('')}</div><div id="ttc_completePlacePanel"></div>`);$('modalBody').querySelectorAll('[data-complete-place]').forEach(b=>b.addEventListener('click',()=>showCompletionForm(challenge,places.find(p=>p.id===b.dataset.completePlace))));}
+function showCompletionForm(challenge,place){if(!currentUser){notify('Log in to record a challenge visit.');return;}const panel=$('completePlacePanel');panel.innerHTML=`<form id="ttc_completionForm" class="complete-form"><h3>📍 ${escapeHtml(place.name)}</h3><p style="margin:0;color:var(--muted);font-size:13px">Upload at least one photo from this visit. A progress post will be shared with the community.</p><label>Visit photo *<input id="ttc_completionPhoto" type="file" accept="image/jpeg,image/png,image/webp" required></label><label>Share your experience (optional)<textarea id="ttc_completionNote" rows="3" maxlength="1000" placeholder="What did you discover here?"></textarea></label><button class="btn primary" type="submit">✓ Mark as completed</button><p id="ttc_completionStatus" class="status"></p></form>`; $('completionForm').addEventListener('submit',async e=>{e.preventDefault();const file=$('completionPhoto').files[0];const status=$('completionStatus');if(!file){status.textContent='Choose a visit photo first.';return;}try{validateFiles([file]);}catch(err){status.textContent=err.message;return;}const submit=e.currentTarget.querySelector('button[type=submit]');submit.disabled=true;status.textContent='Uploading photo and saving progress…';let uploaded=[];try{uploaded=await uploadImages([file],`challenges/${challenge.slug}`);const {data,error}=await supabase.rpc('complete_community_challenge_place',{p_challenge_place_id:place.id,p_photo_url:uploaded[0].url,p_caption:$('completionNote').value.trim()||null});if(error)throw error;if(!data?.success)throw new Error(data?.error||'Could not save challenge progress.');await loadChallenges();await loadFeed();await renderProfileStats();openChallenge(challenge.id);if(data.unlocked){notify(`🎉 Golden Achievement unlocked: ${challengeTitle(challenge)}!`);say(`You completed ${challengeTitle(challenge)}. Your golden badge has been added to your profile and shared to the Community Feed.`);}else if(data.already_completed){notify('This destination was already completed.');}else{notify(`Progress saved: ${data.completed_count}/${data.total_places} destinations.`);}}catch(err){if(uploaded.length)await supabase.storage.from(BUCKET).remove(uploaded.map(x=>x.path));status.textContent='Could not record the visit: '+(err.message||'Unknown error');submit.disabled=false;}});}
+
+async function renderProfileStats(){if(!currentUser)return;const {count:postCount}=await supabase.from('community_posts').select('id',{count:'exact',head:true}).eq('user_id',currentUser.id);const {count:earnedCount}=await supabase.from('community_user_achievements').select('id',{count:'exact',head:true}).eq('user_id',currentUser.id);const {data:ownPosts}=await supabase.from('community_posts').select('id').eq('user_id',currentUser.id);const ids=(ownPosts||[]).map(p=>p.id);let points=0;if(ids.length){const q=await supabase.from('community_post_likes').select('post_id',{count:'exact',head:true}).in('post_id',ids).eq('reaction','like');if(!q.error)points=q.count||0;} $('profileAchievementCount').textContent=String(earnedCount||0);$('profilePoints').textContent=String(points);}
+async function loadProfileMap(userIds){const ids=[...new Set(userIds.filter(Boolean))];if(!ids.length)return new Map();const {data,error}=await supabase.from('community_profiles').select('user_id,display_name,avatar_url').in('user_id',ids);if(error){console.warn('Could not load community profiles:',error.message);return new Map();}return new Map((data||[]).map(p=>[p.user_id,p]));}
+async function loadFeed(){const feed=$('feed');feed.innerHTML='<div class="empty">Loading stories…</div>';try{let query=supabase.from('community_posts').select('id,user_id,title,caption,image_url,created_at,post_type,location_name,location_url,challenge_id,challenge_place_id').order('created_at',{ascending:false}).limit(100);if(feedMode==='mine'&&currentUser)query=query.eq('user_id',currentUser.id);if(feedMode==='following'){if(!currentUser){feed.innerHTML='<div class="empty">Log in to see posts from travellers you follow.</div>';return;}const ids=[...follows];if(!ids.length){feed.innerHTML='<div class="empty">You are not following anyone yet. Use Discover Travellers to find members.</div>';return;}query=query.in('user_id',ids);}if(feedMode==='saved'){if(!currentUser){feed.innerHTML='<div class="empty">Log in to see your saved posts.</div>';return;}const {data:saves,error:saveError}=await supabase.from('community_saved_posts').select('post_id').eq('user_id',currentUser.id);if(saveError)throw saveError;const ids=(saves||[]).map(x=>x.post_id);if(!ids.length){feed.innerHTML='<div class="empty">You have not saved any posts yet. Use Save on a story to keep it here.</div>';return;}query=query.in('id',ids);}const {data:posts,error}=await query;if(error)throw error;let rows=posts||[];if(feedMode==='trending'||feedMode==='most-liked'){const counts=new Map();if(rows.length){const {data:likes,error:likeError}=await supabase.from('community_post_likes').select('post_id').in('post_id',rows.map(p=>p.id)).eq('reaction','like');if(!likeError)for(const l of likes||[])counts.set(l.post_id,(counts.get(l.post_id)||0)+1);}rows.sort((a,b)=>(counts.get(b.id)||0)-(counts.get(a.id)||0)||new Date(b.created_at)-new Date(a.created_at));}const search=$('globalSearch').value.trim().toLowerCase();if(search)rows=rows.filter(p=>`${p.title||''} ${p.caption||''} ${p.location_name||''}`.toLowerCase().includes(search));allPosts=rows;postProfiles=await loadProfileMap(rows.map(p=>p.user_id));await loadPostMetrics(rows);await renderPosts(rows);await renderTrending();}catch(e){feed.innerHTML=`<div class="empty">Could not load community stories: ${escapeHtml(e.message||'Unknown error')}<br><br>Make sure you have run the supplied SQL setup before using the new challenge features.</div>`;}}
+async function loadPostMetrics(posts){postMetrics=new Map();if(!posts.length)return;const ids=posts.map(p=>p.id);const {data:likes,error}=await supabase.from('community_post_likes').select('post_id,user_id,reaction').in('post_id',ids);if(error)throw error;for(const p of posts){const these=(likes||[]).filter(l=>l.post_id===p.id);postMetrics.set(p.id,{likes:these.filter(l=>l.reaction==='like').length,reacted:these.find(l=>l.user_id===currentUser?.id)?.reaction||null,comments:0});}const {data:comments,error:commentsError}=await supabase.from('community_post_comments').select('post_id').in('post_id',ids);if(!commentsError)for(const c of comments||[]){const m=postMetrics.get(c.post_id);if(m)m.comments++;}}
+async function renderPosts(posts){const feed=$('feed');feed.replaceChildren();if(!posts.length){feed.innerHTML='<div class="no-posts">No stories match this view yet. Share a travel memory or follow other travellers to get started.</div>';return;}for(const post of posts){const profile=postProfiles.get(post.user_id);const author=profile?.display_name||(post.user_id===currentUser?.id?displayName(currentUser):'TravelTaste member');let photos=[];const {data:photoRows,error:photoError}=await supabase.from('community_post_photos').select('photo_url').eq('post_id',post.id).order('created_at',{ascending:true});if(!photoError)photos=(photoRows||[]).map(p=>safeImageUrl(p.photo_url)).filter(Boolean);const mainImage=safeImageUrl(post.image_url);if(mainImage&&!photos.includes(mainImage))photos.unshift(mainImage);const metrics=postMetrics.get(post.id)||{likes:0,reacted:null,comments:0};const isAchievement=String(post.post_type||'').startsWith('achievement')||post.post_type==='challenge_place';const article=document.createElement('article');article.className='post';article.id=`post-${post.id}`;article.innerHTML=`<div class="post-head">${avatarMarkup(author)}<div class="meta"><button class="profile-name-btn" data-open-profile="${post.user_id}">${escapeHtml(author)}</button><div class="post-meta">${escapeHtml(formatDate(post.created_at))}${post.location_name?' · 📍 '+escapeHtml(post.location_name):''}</div></div>${post.user_id===currentUser?.id?`<button class="post-menu" title="Delete this post" aria-label="Delete this post" data-delete-post="${post.id}">⋯</button>`:''}</div>${isAchievement?`<div class="post-badge">🏆 ${post.post_type==='achievement_unlocked'?'GOLDEN ACHIEVEMENT UNLOCKED':'CHALLENGE PROGRESS'}</div>`:''}${post.title?`<h2 class="post-title">${escapeHtml(post.title)}</h2>`:''}${post.caption?`<div class="post-caption">${escapeHtml(post.caption)}</div>`:''}${photos.length?`<div class="post-media ${photos.length>1?'has-more':''}">${photos.slice(0,2).map(url=>`<img src="${escapeHtml(url)}" alt="Photo shared by ${escapeHtml(author)}" loading="lazy">`).join('')}</div>`:''}${post.location_name&&safeHttpUrl(post.location_url)?`<div class="post-location"><a href="${escapeHtml(safeHttpUrl(post.location_url))}" target="_blank" rel="noopener noreferrer">⌖ View ${escapeHtml(post.location_name)} on map ↗</a></div>`:''}<div class="post-actions"><button class="btn ${metrics.reacted==='like'?'active':''}" data-react="${post.id}">${isAchievement?'🏆 Celebrate':'♥ Like'} · ${metrics.likes}</button><button class="btn" data-comments="${post.id}">▢ Comments · ${metrics.comments}</button><button class="btn" data-share="${post.id}">↗ Share</button><span class="spacer"></span><button class="btn ${savedPosts.has(post.id)?'active':''}" data-save="${post.id}">${savedPosts.has(post.id)?'▣ Saved':'▱ Save'}</button></div><div class="post-footer"><div class="counts">${metrics.likes} ${isAchievement?'celebrations':'likes'} · ${metrics.comments} comments</div><section class="comments hidden" id="ttc_comments-${post.id}"><div class="comment-list" id="ttc_comment-list-${post.id}"></div><form class="comment-form" data-comment-form="${post.id}"><input maxlength="500" name="comment" placeholder="Write a comment…" required ${!currentUser?'disabled':''}><button class="btn primary" type="submit" ${!currentUser?'disabled':''}>Send</button></form></section></div>`;feed.append(article);article.querySelector('[data-open-profile]')?.addEventListener('click',()=>openPublicProfile(post.user_id));article.querySelector('[data-react]')?.addEventListener('click',()=>reactToPost(post));article.querySelector('[data-comments]')?.addEventListener('click',()=>toggleComments(post.id));article.querySelector('[data-share]')?.addEventListener('click',()=>sharePost(post));article.querySelector('[data-save]')?.addEventListener('click',()=>toggleSave(post.id));article.querySelector('[data-delete-post]')?.addEventListener('click',()=>deletePost(post));article.querySelector('[data-comment-form]')?.addEventListener('submit',e=>submitComment(e,post.id));}}
+async function reactToPost(post){if(!currentUser){notify('Log in to celebrate a story.');return;}if(busyPostIds.has(post.id))return;busyPostIds.add(post.id);try{const {data:existing,error:readError}=await supabase.from('community_post_likes').select('reaction').eq('post_id',post.id).eq('user_id',currentUser.id).maybeSingle();if(readError)throw readError;let result;if(existing?.reaction==='like')result=await supabase.from('community_post_likes').delete().eq('post_id',post.id).eq('user_id',currentUser.id);else if(existing)result=await supabase.from('community_post_likes').update({reaction:'like'}).eq('post_id',post.id).eq('user_id',currentUser.id);else result=await supabase.from('community_post_likes').insert({post_id:post.id,user_id:currentUser.id,reaction:'like'});if(result.error)throw result.error;await loadFeed();await renderProfileStats();}catch(e){say('Could not update reaction: '+e.message);}finally{busyPostIds.delete(post.id);}}
+async function toggleComments(postId){const section=$(`comments-${postId}`);if(!section)return;section.classList.toggle('hidden');if(!section.classList.contains('hidden'))await loadComments(postId);}
+async function loadComments(postId){const host=$(`comment-list-${postId}`);if(!host)return;host.innerHTML='<span class="counts">Loading comments…</span>';try{const {data,error}=await supabase.from('community_post_comments').select('id,user_id,comment,created_at').eq('post_id',postId).order('created_at',{ascending:true}).limit(50);if(error)throw error;const rows=data||[];const profiles=await loadProfileMap(rows.map(r=>r.user_id));host.replaceChildren();if(!rows.length){host.innerHTML='<span class="counts">Be the first to comment.</span>';return;}for(const r of rows){const div=document.createElement('div');div.className='comment';div.innerHTML=`<strong>${escapeHtml(profiles.get(r.user_id)?.display_name||(r.user_id===currentUser?.id?displayName(currentUser):'Traveller'))}</strong>${escapeHtml(r.comment)}`;host.append(div);}}catch(e){host.textContent='Could not load comments: '+e.message;}}
+async function submitComment(event,postId){event.preventDefault();if(!currentUser){notify('Log in to comment.');return;}const form=event.currentTarget;const input=form.elements.comment;const comment=input.value.trim();if(!comment)return;const btn=form.querySelector('button');btn.disabled=true;try{const {error}=await supabase.from('community_post_comments').insert({post_id:postId,user_id:currentUser.id,comment});if(error)throw error;input.value='';await loadFeed();const section=$(`comments-${postId}`);section?.classList.remove('hidden');await loadComments(postId);notify('Comment posted.');}catch(e){say('Could not post comment: '+e.message);}finally{btn.disabled=false;}}
+async function sharePost(post){const url=`${location.origin}${location.pathname}#post-${post.id}`;try{if(navigator.share)await navigator.share({title:post.title||'TravelTaste story',text:post.caption||'See this travel story on TravelTaste',url});else if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(url);notify('Post link copied.');}else{window.prompt('Copy this post link:',url);}}catch(e){if(e.name!=='AbortError')notify('Could not share this link.');}}
+async function toggleSave(postId){if(!currentUser){notify('Log in to save posts.');return;}try{if(savedPosts.has(postId)){const {error}=await supabase.from('community_saved_posts').delete().eq('post_id',postId).eq('user_id',currentUser.id);if(error)throw error;savedPosts.delete(postId);notify('Post removed from Saved.');}else{const {error}=await supabase.from('community_saved_posts').insert({post_id:postId,user_id:currentUser.id});if(error&&error.code!=='23505')throw error;savedPosts.add(postId);notify('Post saved.');}await loadFeed();}catch(e){say('Could not save post: '+e.message);}}
+async function deletePost(post){if(!currentUser||post.user_id!==currentUser.id)return; if(!confirm('Delete this post and its photo records? This cannot be undone.'))return;try{const {error:photoReadErr,data:photoRows}=await supabase.from('community_post_photos').select('photo_url').eq('post_id',post.id);if(photoReadErr)throw photoReadErr;const urls=[post.image_url,...(photoRows||[]).map(r=>r.photo_url)].filter(Boolean);const paths=[];for(const value of urls){try{const u=new URL(value);const marker='/community-photos/';const i=u.pathname.indexOf(marker);if(i>=0){const path=decodeURIComponent(u.pathname.slice(i+marker.length));if(path.startsWith(currentUser.id+'/'))paths.push(path);}}catch{}}const {error:photoDeleteErr}=await supabase.from('community_post_photos').delete().eq('post_id',post.id);if(photoDeleteErr)throw photoDeleteErr;const {error:postErr}=await supabase.from('community_posts').delete().eq('id',post.id).eq('user_id',currentUser.id);if(postErr)throw postErr;if(paths.length)await supabase.storage.from(BUCKET).remove([...new Set(paths)]);notify('Post deleted.');await loadFeed();await renderProfileStats();}catch(e){say('Could not delete post: '+e.message);}}
+
+async function loadTravellers(){const host=$('travellersList');try{const {data:profiles,error}=await supabase.from('community_profiles').select('user_id,display_name,avatar_url').neq('user_id',currentUser?.id||'00000000-0000-0000-0000-000000000000').limit(30);if(error)throw error;const search=$('travellerSearch').value.trim().toLowerCase();const rows=(profiles||[]).filter(p=>(p.display_name||'').toLowerCase().includes(search)).slice(0,5);if(!rows.length){host.innerHTML='<div class="empty">No other travellers found yet.</div>';return;}host.innerHTML=rows.map(p=>`<div class="traveller">${p.avatar_url&&safeImageUrl(p.avatar_url)?`<img class="avatar" src="${escapeHtml(safeImageUrl(p.avatar_url))}" alt="" style="object-fit:cover">`:avatarMarkup(p.display_name)}<div class="meta"><button class="profile-name-btn" data-open-profile="${p.user_id}">${escapeHtml(p.display_name||'Traveller')}</button><small>TravelTaste member</small></div><button class="btn ${follows.has(p.user_id)?'secondary':'outline'} follow-btn" data-follow-user="${p.user_id}">${follows.has(p.user_id)?'Following':'Follow'}</button></div>`).join('');host.querySelectorAll('[data-open-profile]').forEach(b=>b.addEventListener('click',()=>openPublicProfile(b.dataset.openProfile)));host.querySelectorAll('[data-follow-user]').forEach(b=>b.addEventListener('click',()=>toggleFollow(b.dataset.followUser)));}catch(e){host.innerHTML=`<div class="empty">Could not load travellers: ${escapeHtml(e.message)}</div>`;}}
+async function toggleFollow(userId){if(!currentUser){notify('Log in to follow travellers.');return;}try{if(follows.has(userId)){const {error}=await supabase.from('community_follows').delete().eq('follower_id',currentUser.id).eq('followed_id',userId);if(error)throw error;follows.delete(userId);}else{const {error}=await supabase.from('community_follows').insert({follower_id:currentUser.id,followed_id:userId});if(error&&error.code!=='23505')throw error;follows.add(userId);}await loadTravellers();notify(follows.has(userId)?'You are now following this traveller.':'You unfollowed this traveller.');if(feedMode==='following')await loadFeed();}catch(e){say('Could not update follow: '+e.message);}}
+async function loadTrending(){try{const {data:posts,error}=await supabase.from('community_posts').select('id,user_id,title,caption,image_url,created_at,post_type,location_name').order('created_at',{ascending:false}).limit(30);if(error)throw error;let rows=posts||[];const ids=rows.map(p=>p.id);let countMap=new Map();if(ids.length){const r=await supabase.from('community_post_likes').select('post_id').in('post_id',ids).eq('reaction','like');if(!r.error)for(const l of r.data||[])countMap.set(l.post_id,(countMap.get(l.post_id)||0)+1);}rows.sort((a,b)=>(countMap.get(b.id)||0)-(countMap.get(a.id)||0)||new Date(b.created_at)-new Date(a.created_at));$('trendingStories').innerHTML=rows.slice(0,4).map(p=>`<div class="trending-row" data-open-post="${p.id}"><div class="trend-thumb">${p.post_type==='achievement_unlocked'?'🏆':'📸'}</div><div><strong>${escapeHtml(p.title||p.location_name||'Travel story')}</strong><small>♥ ${countMap.get(p.id)||0} · ${escapeHtml(formatDate(p.created_at))}</small></div></div>`).join('')||'<div class="empty">No community stories yet.</div>'; $('trendingStories').querySelectorAll('[data-open-post]').forEach(el=>el.addEventListener('click',()=>openTrendingPost(el.dataset.openPost)));}catch(e){$('trendingStories').innerHTML=`<div class="empty">Could not load trending stories.</div>`;}}
+async function renderTrending(){await loadTrending();}
+function openTrendingPost(postId){feedMode='for-you';setActiveFeedTab('for-you');loadFeed().then(()=>{const el=$(`post-${postId}`);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.animate([{outline:'3px solid #ff8a50'},{outline:'0 solid transparent'}],{duration:1600});}});}
+function setActiveFeedTab(value){document.querySelectorAll('[data-feed]').forEach(b=>b.classList.toggle('active',b.dataset.feed===value));}
+function setView(value){document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===value));const achievements=value==='achievements',settings=value==='settings';$('achievementsView').classList.toggle('hidden',!achievements);$('settingsView').classList.toggle('hidden',!settings);$('composer').classList.toggle('hidden',achievements||settings);$('feed').classList.toggle('hidden',achievements||settings);$('feedTabs').classList.toggle('hidden',achievements||settings);$('feedHeading').textContent=value==='mine'?'My Posts':value==='saved'?'Saved Posts':'Community stories';if(value==='achievements')renderMyAchievements();else if(settings){$('settingsNameInput').value=displayName(currentUser);}else{feedMode=value==='mine'?'mine':value==='saved'?'saved':'for-you';setActiveFeedTab(feedMode);loadFeed();}}
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+$('viewMyAchievementsButton').addEventListener('click',()=>setView('achievements'));
+document.querySelectorAll('[data-feed]').forEach(b=>b.addEventListener('click',()=>{feedMode=b.dataset.feed;setActiveFeedTab(feedMode);$('feedHeading').textContent=({ 'for-you':'Community stories','following':'Stories from travellers you follow','latest':'Latest stories','trending':'Trending stories','most-liked':'Most liked stories'})[feedMode];loadFeed();}));
+$('refreshFeedButton').addEventListener('click',loadFeed);$('refreshTravellersButton').addEventListener('click',loadTravellers);$('travellerSearch').addEventListener('input',()=>loadTravellers());$('globalSearch').addEventListener('input',()=>loadFeed());$('trendingSeeAllButton').addEventListener('click',()=>{document.querySelector('[data-feed="trending"]').click();$('feedHeading').scrollIntoView({behavior:'smooth',block:'start'});});
+$('settingsForm').addEventListener('submit',async e=>{e.preventDefault();if(!currentUser)return;const name=$('settingsNameInput').value.trim().slice(0,40);if(!name){say('Enter a display name.');return;}try{const {error}=await supabase.from('community_profiles').upsert({user_id:currentUser.id,display_name:name,updated_at:new Date().toISOString()},{onConflict:'user_id'});if(error)throw error;currentUser.communityDisplayName=name;showAccountUI(currentUser);await loadTravellers();await loadFeed();notify('Display name updated.');}catch(err){say('Could not save settings: '+err.message);}});
+
+async function openPublicProfile(userId){
+  try{
+    const [{data:profile,error:profileError},{data:earned,error:earnedError},{count:postCount,error:postError}]=await Promise.all([
+      supabase.from('community_profiles').select('user_id,display_name,avatar_url').eq('user_id',userId).maybeSingle(),
+      supabase.from('community_user_achievements').select('challenge_id,completed_at').eq('user_id',userId).order('completed_at',{ascending:false}),
+      supabase.from('community_posts').select('id',{count:'exact',head:true}).eq('user_id',userId)
+    ]);
+    if(profileError)throw profileError;if(earnedError)throw earnedError;if(postError)throw postError;
+    const name=profile?.display_name||(userId===currentUser?.id?displayName(currentUser):'TravelTaste member');
+    const badges=(earned||[]).map(e=>{const c=challenges.find(x=>x.id===e.challenge_id);return `<div class="profile-earned"><div class="badge-icon">${escapeHtml(challengeIcon(c))}</div><div><strong class="gold-text">${escapeHtml(challengeTitle(c))}</strong><div style="font-size:12px;color:var(--muted)">Golden Achievement · ${escapeHtml(formatDate(e.completed_at))}</div></div></div>`;}).join('');
+    const following=userId!==currentUser?.id;
+    openModal(name,`${avatarMarkup(name)}<p style="margin:10px 0 4px;color:var(--muted)">${postCount||0} community posts · ${(earned||[]).length} Golden Achievements</p>${following?`<button class="btn ${follows.has(userId)?'secondary':'primary'}" id="ttc_profileFollowButton">${follows.has(userId)?'Following ✓':'＋ Follow traveller'}</button>`:''}<h3 style="margin:20px 0 8px">Golden Achievements</h3>${badges||'<div class="empty">No Golden Achievements earned yet. Their completed badges will appear here.</div>'}`);
+    if(following)$('profileFollowButton')?.addEventListener('click',async()=>{await toggleFollow(userId);if($('modalBackdrop').classList.contains('open'))await openPublicProfile(userId);});
+  }catch(e){notify('Could not load traveller profile: '+e.message);}
+}
+async function showNotifications(){
+ if(!currentUser){notify('Log in to view your community notifications.');return;}
+ try{
+  const {data:mine,error:mineError}=await supabase.from('community_posts').select('id,title,created_at').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50);if(mineError)throw mineError;
+  const ids=(mine||[]).map(p=>p.id);if(!ids.length){openModal('Notifications','<div class="empty">No activity yet. When travellers celebrate or comment on your posts, it will appear here.</div>');return;}
+  const [likesResult,commentsResult]=await Promise.all([supabase.from('community_post_likes').select('post_id,user_id,created_at').in('post_id',ids).neq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(25),supabase.from('community_post_comments').select('post_id,user_id,comment,created_at').in('post_id',ids).neq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(25)]);
+  if(likesResult.error)throw likesResult.error;if(commentsResult.error)throw commentsResult.error;
+  const notifications=[...(likesResult.data||[]).map(x=>({...x,kind:'celebration'})),...(commentsResult.data||[]).map(x=>({...x,kind:'comment'}))].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,25);
+  const userIds=[...new Set(notifications.map(n=>n.user_id))];const profiles=await loadProfileMap(userIds);const postMap=new Map((mine||[]).map(p=>[p.id,p]));
+  const html=notifications.map(n=>`<div class="profile-earned"><div class="badge-icon">${n.kind==='celebration'?'🏆':'💬'}</div><div><strong>${escapeHtml(profiles.get(n.user_id)?.display_name||'A traveller')} ${n.kind==='celebration'?'celebrated':'commented on'} your post</strong><div style="font-size:12px;color:var(--muted)">${escapeHtml(postMap.get(n.post_id)?.title||'Travel story')} · ${escapeHtml(formatDate(n.created_at))}${n.comment?`<br>${escapeHtml(n.comment)}`:''}</div><button class="text-btn" data-notification-post="${n.post_id}">View post</button></div></div>`).join('');
+  openModal('Notifications',html||'<div class="empty">No new celebrations or comments yet. Keep sharing your travels!</div>');$('modalBody').querySelectorAll('[data-notification-post]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.notificationPost;closeModal();openTrendingPost(id);}));
+ }catch(e){openModal('Notifications',`<div class="empty">Could not load notifications: ${escapeHtml(e.message)}</div>`);}
+}
+$('notificationsButton').addEventListener('click',showNotifications);
+
+async function loadSavedAndFollows(){if(!currentUser)return;const [saveResult,followResult]=await Promise.all([supabase.from('community_saved_posts').select('post_id').eq('user_id',currentUser.id),supabase.from('community_follows').select('followed_id').eq('follower_id',currentUser.id)]);if(!saveResult.error)savedPosts=new Set((saveResult.data||[]).map(r=>r.post_id));if(!followResult.error)follows=new Set((followResult.data||[]).map(r=>r.followed_id));}
+async function renderMyAchievements(){const host=$('myAchievementList');if(!currentUser){host.innerHTML='<div class="empty">Log in to see your achievements.</div>';return;}try{const {data:earned,error}=await supabase.from('community_user_achievements').select('challenge_id,completed_at').eq('user_id',currentUser.id).order('completed_at',{ascending:false});if(error)throw error;const earnedRows=earned||[];const earnedIds=new Set(earnedRows.map(x=>x.challenge_id));if(!earnedRows.length){host.innerHTML='<div class="empty">Your Golden Achievements will appear here when you complete a full challenge. Start with one of the Featured Achievements.</div>';return;}host.innerHTML=earnedRows.map(e=>{const c=challenges.find(x=>x.id===e.challenge_id);return `<div class="profile-earned"><div class="badge-icon">${escapeHtml(challengeIcon(c))}</div><div><strong class="gold-text">${escapeHtml(challengeTitle(c))} · Golden Achievement</strong><div style="font-size:12px;color:var(--muted)">Completed ${escapeHtml(formatDate(e.completed_at))} · Visible to the community</div></div></div>`;}).join('');}catch(e){host.innerHTML=`<div class="empty">Could not load achievements: ${escapeHtml(e.message)}</div>`;}}
+async function initializeApp(){try{await loadSavedAndFollows();await loadChallenges();await loadTravellers();await loadFeed();await renderProfileStats();}catch(e){say(e.message||'Could not initialize community.');}}
+const {data:{session},error:sessionError}=await supabase.auth.getSession();if(sessionError)authSay(sessionError.message);if(session?.user){currentUser=session.user;await ensureProfile(currentUser);showAccountUI(currentUser);if(!document.getElementById('communityPage')?.hidden)await initializeApp();}else showAccountUI(null);
+supabase.auth.onAuthStateChange((_event,nextSession)=>{setTimeout(async()=>{if(nextSession?.user){currentUser=nextSession.user;await ensureProfile(currentUser);showAccountUI(currentUser);if(!document.getElementById('communityPage')?.hidden)await initializeApp();}else{currentUser=null;showAccountUI(null);}},0);});
+window.addEventListener('travelTasteCommunityOpened',()=>{if(currentUser)void initializeApp();});
+</script>
 </body>
 </html>
