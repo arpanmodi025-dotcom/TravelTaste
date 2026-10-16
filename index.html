@@ -8684,7 +8684,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 const $ = id => document.getElementById('ttc_' + id);
 const BUCKET = 'community-photos';
 const MAX_PHOTOS = 5, MAX_FILE_SIZE = 5 * 1024 * 1024;
-let currentUser = null, feedMode = 'for-you', allPosts = [], postMetrics = new Map(), postProfiles = new Map(), follows = new Set(), savedPosts = new Set(), challenges = [], challengePlaces = [], myCompletions = new Map(), myAchievements = new Set(), selectedFiles = [], busyPostIds = new Set(), toastTimer = null;
+let currentUser = null, feedMode = 'for-you', allPosts = [], postMetrics = new Map(), postCommentCounts = new Map(), postCommentCountRevision = new Map(), postProfiles = new Map(), follows = new Set(), savedPosts = new Set(), challenges = [], challengePlaces = [], myCompletions = new Map(), myAchievements = new Set(), selectedFiles = [], busyPostIds = new Set(), toastTimer = null;
 const FEED_PAGE_SIZE = 30, COMMENT_PAGE_SIZE = 30;
 let feedOffset = 0, feedHasMore = true, feedLoading = false, feedRequestSequence = 0, rawFeedPosts = [], globalSearchDebounce = null, travellerSearchDebounce = null;
 let currentProfile = { avatar_url: null, cover_url: null };
@@ -8820,9 +8820,9 @@ async function loadPostMetrics(posts){
  const {data:likes,error}=await supabase.from('community_post_likes').select('post_id,user_id,reaction').in('post_id',ids);
  if(error)throw error;
  const byPost=new Map();
- for(const post of posts)byPost.set(post.id,{likes:0,reacted:null});
+ for(const post of posts)byPost.set(String(post.id),{likes:0,reacted:null,comments:postCommentCounts.get(String(post.id)) ?? 0});
  for(const like of likes||[]){
-  const metric=byPost.get(like.post_id);if(!metric)continue;
+  const metric=byPost.get(String(like.post_id));if(!metric)continue;
   if(like.reaction==='like')metric.likes++;
   if(like.user_id===currentUser?.id)metric.reacted=like.reaction||null;
  }
@@ -8852,7 +8852,7 @@ async function renderPosts(posts,{append=false,requestId=null}={}){
   const photos=[];
   const mainImage=safeImageUrl(post.image_url);if(mainImage)photos.push(mainImage);
   for(const row of photoRows){const url=safeImageUrl(row.photo_url);if(url&&!photos.includes(url))photos.push(url);}
-  const metrics=postMetrics.get(post.id)||{likes:0,reacted:null};
+  const metrics=postMetrics.get(String(post.id))||{likes:0,reacted:null,comments:postCommentCounts.get(String(post.id))??0};
   const isAchievement=String(post.post_type||'').startsWith('achievement')||post.post_type==='challenge_place';
   const own=!!currentUser&&post.user_id===currentUser.id;
   const article=document.createElement('article');article.className='post';article.id=`post-${post.id}`;
@@ -8866,7 +8866,7 @@ async function renderPosts(posts,{append=false,requestId=null}={}){
    ${post.location_name&&safeHttpUrl(post.location_url)?`<div class="post-location"><a href="${escapeHtml(safeHttpUrl(post.location_url))}" target="_blank" rel="noopener noreferrer">⌖ View ${escapeHtml(post.location_name)} on map ↗</a></div>`:''}
    <div class="post-actions" aria-label="Story actions">
     <button type="button" class="post-action ${metrics.reacted==='like'?'active':''}" data-react title="Celebrate this story" aria-label="Celebrate this story, ${metrics.likes} celebrations" aria-pressed="${metrics.reacted==='like'}"><span class="action-icon" aria-hidden="true">🏆</span><span class="action-count">${metrics.likes}</span></button>
-    <button type="button" class="post-action" data-comments title="Comments" aria-label="Open comments" aria-haspopup="dialog"><span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-5.5A7.5 7.5 0 1 1 20 11.5Z"/></svg></span></button>
+    <button type="button" class="post-action" data-comments title="${metrics.comments||0} ${Number(metrics.comments||0)===1?'comment':'comments'}" aria-label="Open comments, ${metrics.comments||0} comments" aria-haspopup="dialog"><span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-5.5A7.5 7.5 0 1 1 20 11.5Z"/></svg></span><span class="action-count">${metrics.comments||0}</span></button>
     <button type="button" class="post-action" data-share title="Share story" aria-label="Share story"><span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M18 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/></svg></span></button>
     <span class="post-action-spacer"></span>
     <button type="button" class="post-action ${savedPosts.has(post.id)?'active':''}" data-save title="${savedPosts.has(post.id)?'Remove from saved':'Save story'}" aria-label="${savedPosts.has(post.id)?'Remove from saved':'Save story'}" aria-pressed="${savedPosts.has(post.id)}"><span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" class="bookmark-svg"><path d="M6 4.75A1.75 1.75 0 0 1 7.75 3h8.5A1.75 1.75 0 0 1 18 4.75V21l-6-4-6 4V4.75Z"/></svg></span></button>
@@ -8889,6 +8889,42 @@ async function renderPosts(posts,{append=false,requestId=null}={}){
    stage?.addEventListener('touchstart',e=>{startX=e.changedTouches?.[0]?.clientX??null;},{passive:true});
    stage?.addEventListener('touchend',e=>{const endX=e.changedTouches?.[0]?.clientX;if(startX!==null&&Number.isFinite(endX)){const delta=endX-startX;if(Math.abs(delta)>45)show(index+(delta<0?1:-1));}startX=null;},{passive:true});
    stage?.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')show(index-1);if(e.key==='ArrowRight')show(index+1);});
+  }
+ }
+ // Fetch precise counts in small background batches; do not load comment text into the feed.
+ void loadCommentCounts(renderList);
+}
+function updatePostCommentCount(postId, value){
+ const id=String(postId), count=Math.max(0,Number(value)||0);
+ postCommentCounts.set(id,count);
+ postCommentCountRevision.set(id,(postCommentCountRevision.get(id)||0)+1);
+ const metric=postMetrics.get(id)||{likes:0,reacted:null,comments:count};
+ metric.comments=count;postMetrics.set(id,metric);
+ const button=document.getElementById(`post-${id}`)?.querySelector('[data-comments]');
+ if(button){
+  const countNode=button.querySelector('.action-count');
+  if(countNode)countNode.textContent=String(count);
+  button.title=`${count} ${count===1?'comment':'comments'}`;
+  button.setAttribute('aria-label',`Open comments, ${count} comments`);
+ }
+}
+async function loadCommentCounts(posts){
+ const pending=(posts||[]).filter(post=>!postCommentCounts.has(String(post.id)));
+ const batchSize=5;
+ for(let start=0;start<pending.length;start+=batchSize){
+  const batch=pending.slice(start,start+batchSize);
+  const results=await Promise.all(batch.map(async post=>{
+   const id=String(post.id),revision=postCommentCountRevision.get(id)||0;
+   try{
+    const {count,error}=await supabase.from('community_post_comments').select('id',{count:'exact',head:true}).eq('post_id',post.id);
+    if(error)throw error;
+    return {id,count:Number(count)||0,revision};
+   }catch(error){console.warn('Could not load comment count:',error.message);return null;}
+  }));
+  for(const result of results){
+   // If the user opened comments or added a comment while this request was in flight,
+   // ignore this older response so it cannot overwrite the newer visible count.
+   if(result&&(postCommentCountRevision.get(result.id)||0)===result.revision)updatePostCommentCount(result.id,result.count);
   }
  }
 }
@@ -8915,6 +8951,7 @@ async function openCommentsModal(post){
    if(error)throw error;
    const rows=data||[];total=Number.isFinite(count)?count:Math.max(total,offset+rows.length);
    summary.textContent=`${total} ${total===1?'comment':'comments'}`;
+   updatePostCommentCount(postId,total);
    if(!rows.length&&offset===0){const empty=document.createElement('div');empty.className='comments-empty';empty.textContent='Be the first to comment on this story.';host.replaceChildren(empty);}
    else if(rows.length){
     const profiles=await loadProfileMap(rows.map(row=>row.user_id));
@@ -8944,9 +8981,72 @@ async function openCommentsModal(post){
  void loadPage(true);
  const firstInput=body.querySelector('[data-comments-form] input');if(currentUser)firstInput?.focus({preventScroll:true});
 }
-async function reactToPost(post){if(!currentUser){notify('Log in to celebrate a story.');return;}if(busyPostIds.has(post.id))return;busyPostIds.add(post.id);try{const {data:existing,error:readError}=await supabase.from('community_post_likes').select('reaction').eq('post_id',post.id).eq('user_id',currentUser.id).maybeSingle();if(readError)throw readError;let result;if(existing?.reaction==='like')result=await supabase.from('community_post_likes').delete().eq('post_id',post.id).eq('user_id',currentUser.id);else if(existing)result=await supabase.from('community_post_likes').update({reaction:'like'}).eq('post_id',post.id).eq('user_id',currentUser.id);else result=await supabase.from('community_post_likes').insert({post_id:post.id,user_id:currentUser.id,reaction:'like'});if(result.error)throw result.error;await loadFeed();await renderProfileStats();}catch(e){say('Could not update reaction: '+e.message);}finally{busyPostIds.delete(post.id);}}
+async function reactToPost(post){
+ if(!currentUser){notify('Log in to celebrate a story.');return;}
+ const id=String(post.id),card=document.getElementById(`post-${id}`),button=card?.querySelector('[data-react]');
+ if(busyPostIds.has(id))return;
+ busyPostIds.add(id);if(button)button.disabled=true;
+ try{
+  const {data:existing,error:readError}=await supabase.from('community_post_likes').select('reaction').eq('post_id',post.id).eq('user_id',currentUser.id).maybeSingle();
+  if(readError)throw readError;
+  const hadCelebrated=existing?.reaction==='like';
+  let result;
+  if(hadCelebrated)result=await supabase.from('community_post_likes').delete().eq('post_id',post.id).eq('user_id',currentUser.id);
+  else if(existing)result=await supabase.from('community_post_likes').update({reaction:'like'}).eq('post_id',post.id).eq('user_id',currentUser.id);
+  else result=await supabase.from('community_post_likes').insert({post_id:post.id,user_id:currentUser.id,reaction:'like'});
+  if(result.error)throw result.error;
+  const prior=postMetrics.get(id)||{likes:Number(button?.querySelector('.action-count')?.textContent)||0,reacted:hadCelebrated?'like':null,comments:postCommentCounts.get(id)||0};
+  const celebratedNow=!hadCelebrated;
+  const nextCount=Math.max(0,(Number(prior.likes)||0)+(celebratedNow?1:-1));
+  const next={...prior,likes:nextCount,reacted:celebratedNow?'like':null};postMetrics.set(id,next);
+  if(button){
+   const countNode=button.querySelector('.action-count');if(countNode)countNode.textContent=String(nextCount);
+   button.classList.toggle('active',celebratedNow);button.setAttribute('aria-pressed',String(celebratedNow));
+   button.setAttribute('aria-label',`Celebrate this story, ${nextCount} celebrations`);
+  }
+  notify(celebratedNow?'You celebrated this story! 🏆':'Celebration removed.');
+  // Reconcile the count in the background without repainting or scrolling the feed.
+  void supabase.from('community_post_likes').select('post_id',{count:'exact',head:true}).eq('post_id',post.id).eq('reaction','like').then(({count,error})=>{
+   if(!error&&Number.isFinite(count)){
+    const current=postMetrics.get(id)||next;current.likes=count;current.reacted=celebratedNow?'like':null;postMetrics.set(id,current);
+    const liveButton=document.getElementById(`post-${id}`)?.querySelector('[data-react]');
+    if(liveButton){const countNode=liveButton.querySelector('.action-count');if(countNode)countNode.textContent=String(count);liveButton.setAttribute('aria-label',`Celebrate this story, ${count} celebrations`);}
+   }
+  }).catch(error=>console.warn('Could not reconcile celebration count:',error.message));
+  void renderProfileStats();
+ }catch(e){say('Could not update celebration: '+(e.message||'Unknown error'));}
+ finally{busyPostIds.delete(id);if(button?.isConnected)button.disabled=false;}
+}
 async function sharePost(post){const url=`${location.origin}${location.pathname}#post-${post.id}`;try{if(navigator.share)await navigator.share({title:post.title||'TravelTaste story',text:post.caption||'See this travel story on TravelTaste',url});else if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(url);notify('Post link copied.');}else{window.prompt('Copy this post link:',url);}}catch(e){if(e.name!=='AbortError')notify('Could not share this link.');}}
-async function toggleSave(postId){if(!currentUser){notify('Log in to save posts.');return;}try{if(savedPosts.has(postId)){const {error}=await supabase.from('community_saved_posts').delete().eq('post_id',postId).eq('user_id',currentUser.id);if(error)throw error;savedPosts.delete(postId);notify('Post removed from Saved.');}else{const {error}=await supabase.from('community_saved_posts').insert({post_id:postId,user_id:currentUser.id});if(error&&error.code!=='23505')throw error;savedPosts.add(postId);notify('Post saved.');}await loadFeed();}catch(e){say('Could not save post: '+e.message);}}
+async function toggleSave(postId){
+ if(!currentUser){notify('Log in to save posts.');return;}
+ const id=String(postId),card=document.getElementById(`post-${id}`),button=card?.querySelector('[data-save]');
+ const wasSaved=savedPosts.has(id)||savedPosts.has(postId);
+ if(button)button.disabled=true;
+ try{
+  if(wasSaved){
+   const {error}=await supabase.from('community_saved_posts').delete().eq('post_id',postId).eq('user_id',currentUser.id);
+   if(error)throw error;
+   savedPosts.delete(id);savedPosts.delete(postId);
+  }else{
+   const {error}=await supabase.from('community_saved_posts').insert({post_id:postId,user_id:currentUser.id});
+   if(error&&error.code!=='23505')throw error;
+   savedPosts.add(id);
+  }
+  const isSaved=!wasSaved;
+  if(button){button.classList.toggle('active',isSaved);button.setAttribute('aria-pressed',String(isSaved));button.title=isSaved?'Remove from saved':'Save story';button.setAttribute('aria-label',isSaved?'Remove from saved':'Save story');}
+  notify(isSaved?'Post saved.':'Post removed from Saved.');
+  // In the Saved view, remove only the unsaved card. Never rebuild the entire feed.
+  if(feedMode==='saved'&&!isSaved){
+   rawFeedPosts=rawFeedPosts.filter(item=>String(item.id)!==id);
+   allPosts=allPosts.filter(item=>String(item.id)!==id);
+   card?.remove();
+   const feed=$('feed');
+   if(!feed.querySelector('article.post')&&!feedHasMore)feed.innerHTML='<div class="no-posts">You have no saved stories in this view. Use the bookmark icon to save a story.</div>';
+  }
+ }catch(e){say('Could not save post: '+(e.message||'Unknown error'));}
+ finally{if(button?.isConnected)button.disabled=false;}
+}
 async function openEditPost(post){
  if(!currentUser||post.user_id!==currentUser.id)return;
  const {data:rows,error}=await supabase.from('community_post_photos').select('photo_url').eq('post_id',post.id).order('created_at',{ascending:true});
@@ -9301,7 +9401,9 @@ window.addEventListener('travelTasteCommunityOpened',()=>{setMobileCommunityTab(
 #communityPage #ttCommunityApp .post-actions .btn { font-size: 12px; padding: 7px 9px; }
 #communityPage #ttCommunityApp .post-actions .post-action { font-size: 20px; }
 #communityPage #ttCommunityApp .post-actions .post-action .action-icon { font-size: 20px; }
-#communityPage #ttCommunityApp .post-actions .post-action .action-count { font-size: 11.5px; }
+#communityPage #ttCommunityApp .post-actions .post-action .action-count { font-size: 11.5px; min-width: 1.25em; text-align: center; font-variant-numeric: tabular-nums; }
+#communityPage #ttCommunityApp .post-actions [data-react],
+#communityPage #ttCommunityApp .post-actions [data-comments] { width: auto; min-width: 46px; padding-left: 7px; padding-right: 7px; }
 #communityPage #ttCommunityApp .counts { font-size: 11.5px; }
 #communityPage #ttCommunityApp .comment { font-size: 12.5px; line-height: 1.45; }
 #communityPage #ttCommunityApp .comment-form input { font-size: 12.5px; padding: 9px 10px; }
