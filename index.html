@@ -2435,7 +2435,7 @@ body.detail-view-active .tt-photo-caption { color: #64748b; font-size: 13px; mar
       <input id="globalSearch" type="search" placeholder="Search places, food..." autocomplete="off">
       <button type="button" id="clearGlobalSearch" aria-label="Clear search" hidden>×</button>
     </label>
-    <button type="button" class="nav-icon-button" id="notificationsNavButton" aria-label="Community notifications" title="Friend requests">♧<span id="notificationDot" class="notification-dot" hidden></span></button>
+    <button type="button" class="nav-icon-button" id="notificationsNavButton" aria-label="Community notifications" title="Friend requests and messages">🔔<span id="notificationDot" class="notification-dot" hidden></span></button>
 
 <div class="profile-dropdown-wrap" id="profileDropdownWrap">
   <button type="button" class="nav-profile-button" id="profileNavButton"
@@ -2906,6 +2906,26 @@ body.detail-view-active .tt-photo-caption { color: #64748b; font-size: 13px; mar
           <div id="ttc_settingsPhotoPreview" class="profile-photo-preview" hidden></div>
           <button class="btn primary" type="submit">Save profile</button>
         </form>
+      </section>
+      <section id="ttc_profileView" class="panel hidden" style="padding:16px">
+        <div id="ttc_mobileProfileCover" class="mobile-profile-cover" aria-label="Profile cover photo"></div>
+        <div class="mobile-profile-main">
+          <div id="ttc_mobileProfileAvatarHost" class="mobile-profile-avatar-host"></div>
+          <div class="mobile-profile-ident">
+            <h2 id="ttc_mobileProfileName">Your profile</h2>
+            <p id="ttc_mobileProfileHandle" class="handle">@traveller</p>
+          </div>
+          <button id="ttc_profileEditSettingsButton" class="btn outline" type="button">Edit profile</button>
+        </div>
+        <div id="ttc_mobileProfileStats" class="mobile-profile-stats"></div>
+        <section class="mobile-profile-section">
+          <div class="sidebar-heading"><h3>My posts</h3></div>
+          <div id="ttc_mobileProfilePosts" class="mobile-profile-post-grid"><div class="empty">Loading posts…</div></div>
+        </section>
+        <section class="mobile-profile-section">
+          <div class="sidebar-heading"><h3>Golden Achievements</h3></div>
+          <div id="ttc_mobileProfileAchievements"><div class="empty">Loading achievements…</div></div>
+        </section>
       </section>
     </section>
 
@@ -8487,6 +8507,101 @@ body.tt-review-modal-open,body.tt-my-reviews-open{overflow:hidden}
 </style>
 
 
+<style id="ttMobileNavigationStyles">
+/* Mobile-only contextual navigation. Desktop site navigation and widgets remain unchanged. */
+.tt-mobile-bottom-nav{display:none}
+#ttCommunityApp .mobile-profile-cover{height:155px;border-radius:13px;background:linear-gradient(135deg,#b9d9e6,#f8d1ab 52%,#d5e7ce);background-size:cover;background-position:center;position:relative;overflow:hidden}
+#ttCommunityApp .mobile-profile-main{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:0 4px;margin-top:-27px;position:relative}
+#ttCommunityApp .mobile-profile-avatar-host .profile-view-avatar{width:78px;height:78px;border:4px solid #fff;box-shadow:0 3px 10px #00000012;background:#fff0e5}
+#ttCommunityApp .mobile-profile-ident{flex:1;min-width:120px;padding-top:32px}
+#ttCommunityApp .mobile-profile-ident h2{margin:0;color:var(--navy);font-size:21px;line-height:1.25;overflow-wrap:anywhere}
+#ttCommunityApp .mobile-profile-ident .handle{margin:4px 0 0;color:var(--muted);font-size:13px}
+#ttCommunityApp #profileEditSettingsButton{width:auto;margin-left:auto;white-space:nowrap}
+#ttCommunityApp .mobile-profile-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:18px 0}
+#ttCommunityApp .mobile-profile-stat{padding:11px 5px;text-align:center;border:1px solid var(--line);border-radius:11px;background:#fffaf5}
+#ttCommunityApp .mobile-profile-stat strong{display:block;font-size:20px;color:var(--navy)}
+#ttCommunityApp .mobile-profile-stat span{display:block;margin-top:3px;font-size:11px;color:var(--muted)}
+#ttCommunityApp .mobile-profile-section{margin-top:22px}
+#ttCommunityApp .mobile-profile-post-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+#ttCommunityApp .mobile-profile-post{display:block;min-width:0;padding:0;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:white;text-align:left;color:var(--navy)}
+#ttCommunityApp .mobile-profile-post img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;background:#f2f4f7}
+#ttCommunityApp .mobile-profile-post .mobile-profile-post-placeholder{display:grid!important;place-items:center;aspect-ratio:1/1;padding:0;background:#f2f4f7;font-size:25px;white-space:normal}
+#ttCommunityApp .mobile-profile-post span{display:block;padding:6px;font-size:11px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#ttCommunityApp .mobile-profile-post-grid .empty{grid-column:1/-1}
+#ttCommunityApp .message-thread-list{display:grid;gap:7px;margin:12px 0}
+#ttCommunityApp .message-thread-row{display:flex;align-items:center;gap:10px;width:100%;padding:11px;border:1px solid var(--line);border-radius:12px;background:#fff;text-align:left;color:var(--navy)}
+#ttCommunityApp .message-thread-row .meta{flex:1;min-width:0}
+#ttCommunityApp .message-thread-row strong{display:block;font-size:13px;overflow-wrap:anywhere}
+#ttCommunityApp .message-thread-row small{display:block;color:var(--muted);font-size:12px;overflow-wrap:anywhere}
+#ttCommunityApp .message-thread{display:grid;gap:8px;max-height:38vh;overflow-y:auto;padding:5px 0 12px}
+#ttCommunityApp .message-bubble{max-width:88%;padding:10px 12px;border-radius:13px;background:#f1f5f9;color:var(--navy);font-size:13px;line-height:1.45;overflow-wrap:anywhere;justify-self:start}
+#ttCommunityApp .message-bubble.mine{justify-self:end;background:#ffeadb;color:#743a21}
+#ttCommunityApp .message-bubble time{display:block;margin-top:4px;font-size:10px;opacity:.7}
+#ttCommunityApp .message-compose{display:grid;gap:8px;padding-top:12px;border-top:1px solid var(--line)}
+#ttCommunityApp .message-compose label{display:grid;gap:5px;color:var(--navy);font-size:12px;font-weight:750}
+#ttCommunityApp .message-compose select,#ttCommunityApp .message-compose textarea{width:100%;min-width:0;border:1px solid var(--line);border-radius:9px;padding:10px;background:#fff;color:var(--navy);font:inherit}
+#ttCommunityApp .message-compose textarea{min-height:80px;resize:vertical}
+#ttCommunityApp .friend-request-notification{display:flex;align-items:flex-start;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}
+#ttCommunityApp .friend-request-notification:last-child{border-bottom:0}
+#ttCommunityApp .friend-request-notification .request-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+#ttCommunityApp .friend-request-notification .request-actions button{width:auto;padding:7px 10px;font-size:12px}
+#ttCommunityApp .friend-request-notification .request-actions .secondary{background:#f3f5f8;color:var(--navy)}
+@media(max-width:760px){
+  body{padding-bottom:calc(76px + env(safe-area-inset-bottom))!important}
+  .site-nav{display:flex!important;flex-wrap:nowrap!important;gap:8px!important;padding:8px 12px!important;min-height:58px;align-items:center}
+  .site-nav .logo{font-size:21px!important;margin:0!important;flex:0 1 auto;min-width:0}
+  .site-nav-links{display:none!important}
+  .site-nav-tools{display:flex!important;align-items:center;gap:4px!important;min-width:0;flex:0 0 auto;margin-left:auto;order:2}
+  .site-nav-tools .mobile-community-button{display:none!important}
+  .global-search-wrap{position:static!important;order:0!important;display:flex!important;align-items:center;justify-content:center;width:36px!important;min-width:36px!important;max-width:36px!important;flex:0 0 36px!important;height:36px!important;padding:0!important;border:0!important;border-radius:50%!important;background:transparent!important;cursor:pointer}
+  .global-search-symbol{font-size:24px!important;color:#23466e}
+  .global-search-wrap input{display:none!important}
+  .global-search-wrap #clearGlobalSearch{display:none!important}
+  body.mobile-search-open .global-search-wrap input{display:block!important;position:fixed!important;top:calc(62px + env(safe-area-inset-top))!important;left:12px!important;right:12px!important;width:calc(100vw - 24px)!important;height:44px!important;padding:0 42px 0 14px!important;border:1px solid #e5d9cf!important;border-radius:12px!important;background:#fff!important;box-shadow:0 12px 28px #17202a24!important;z-index:10002!important;font-size:15px!important}
+  body.mobile-search-open .global-search-wrap #clearGlobalSearch:not([hidden]){display:block!important;position:fixed!important;top:calc(70px + env(safe-area-inset-top))!important;right:21px!important;z-index:10003!important;background:transparent!important}
+  .site-nav-tools .nav-icon-button,.site-nav-tools .nav-profile-button{display:grid!important;width:34px!important;height:34px!important;flex:0 0 34px!important;font-size:19px!important}
+  .tt-mobile-bottom-nav{position:fixed!important;left:0;right:0;bottom:0;z-index:9000;display:none;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;min-height:64px;padding:5px 6px calc(5px + env(safe-area-inset-bottom));border-top:1px solid #e8e0da;background:rgba(255,255,255,.97);box-shadow:0 -6px 22px rgba(23,32,42,.08);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+  body:not(.community-active) #ttMobileExplorerNav{display:grid!important}
+  body:not(.community-active) #ttMobileCommunityNav{display:none!important}
+  body.community-active #ttMobileCommunityNav{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))}
+  body.community-active #ttMobileExplorerNav{display:none!important}
+  .tt-mobile-bottom-nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0;width:100%;min-height:48px;padding:5px 2px;border:0;border-radius:10px;background:transparent!important;color:#5a6c82;font-size:10px;line-height:1.15;font-weight:650;white-space:nowrap;box-shadow:none;}
+  .tt-mobile-bottom-nav button .nav-icon{font-size:20px;line-height:1.1}
+  .tt-mobile-bottom-nav button.active{color:#e94b0a;background:#fff0e6!important;font-weight:850}
+  .tt-mobile-bottom-nav button:focus-visible{outline:2px solid #ef6c3b;outline-offset:1px}
+  #ttCommunityApp .shell{grid-template-columns:minmax(0,1fr)!important;padding:10px 10px calc(12px + env(safe-area-inset-bottom))!important}
+  #ttCommunityApp .left-column{display:none!important}
+  #ttCommunityApp .center-column{min-width:0;width:100%}
+  #ttCommunityApp .right-column{grid-column:auto!important;grid-template-columns:minmax(0,1fr)!important}
+  #ttCommunityApp .tabs{scrollbar-width:none}
+  #ttCommunityApp .tabs::-webkit-scrollbar{display:none}
+  #ttCommunityApp .shell.mobile-focused-view .right-column{display:none!important}
+  #ttCommunityApp .mobile-profile-main .btn{font-size:12px;padding:9px 10px}
+}
+@media(max-width:430px){
+  .site-nav .logo{font-size:19px!important}
+  .site-nav{padding-left:9px!important;padding-right:9px!important}
+  .site-nav-tools{gap:2px!important}
+  .tt-mobile-bottom-nav button{font-size:9px;padding-left:1px;padding-right:1px}
+  .tt-mobile-bottom-nav button .nav-icon{font-size:19px}
+  #ttCommunityApp .mobile-profile-main .btn{width:auto!important}
+}
+@media(min-width:761px){#ttMobileExplorerNav,#ttMobileCommunityNav{display:none!important}}
+</style>
+<nav id="ttMobileExplorerNav" class="tt-mobile-bottom-nav" aria-label="Explore navigation">
+  <button type="button" data-mobile-explore="home" class="active" aria-current="page"><span class="nav-icon" aria-hidden="true">⌂</span><span>Home</span></button>
+  <button type="button" data-mobile-explore="festivals"><span class="nav-icon" aria-hidden="true">▦</span><span>Festival</span></button>
+  <button type="button" data-mobile-explore="nearby"><span class="nav-icon" aria-hidden="true">⌖</span><span>Nearby</span></button>
+  <button type="button" data-mobile-explore="community"><span class="nav-icon" aria-hidden="true">♧</span><span>Community</span></button>
+</nav>
+<nav id="ttMobileCommunityNav" class="tt-mobile-bottom-nav" aria-label="Community navigation">
+  <button type="button" data-mobile-community="posts" class="active" aria-current="page"><span class="nav-icon" aria-hidden="true">▤</span><span>Posts</span></button>
+  <button type="button" data-mobile-community="messages"><span class="nav-icon" aria-hidden="true">✉</span><span>Messages</span></button>
+  <button type="button" data-mobile-community="achievements"><span class="nav-icon" aria-hidden="true">🏆</span><span>Achievements</span></button>
+  <button type="button" data-mobile-community="profile"><span class="nav-icon" aria-hidden="true">♙</span><span>Profile</span></button>
+  <button type="button" data-mobile-community="explorer"><span class="nav-icon" aria-hidden="true">◈</span><span>Explore</span></button>
+</nav>
+
 <script type="module" id="ttCommunityModule">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const SUPABASE_URL = 'https://xhmztvfcosvqkeqnhzer.supabase.co';
@@ -8671,7 +8786,23 @@ async function loadTrending(){try{const {data:posts,error}=await supabase.from('
 async function renderTrending(){await loadTrending();}
 function openTrendingPost(postId){feedMode='for-you';setActiveFeedTab('for-you');loadFeed().then(()=>{const el=$(`post-${postId}`);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.animate([{outline:'3px solid #ff8a50'},{outline:'0 solid transparent'}],{duration:1600});}});}
 function setActiveFeedTab(value){document.querySelectorAll('[data-feed]').forEach(b=>b.classList.toggle('active',b.dataset.feed===value));}
-function setView(value){document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===value));const achievements=value==='achievements',settings=value==='settings';$('achievementsView').classList.toggle('hidden',!achievements);$('settingsView').classList.toggle('hidden',!settings);$('composer').classList.toggle('hidden',achievements||settings);$('feed').classList.toggle('hidden',achievements||settings);$('feedTabs').classList.toggle('hidden',achievements||settings);$('feedHeading').textContent=value==='mine'?'My Posts':value==='saved'?'Saved Posts':'Community stories';if(value==='achievements')renderMyAchievements();else if(settings){$('settingsNameInput').value=displayName(currentUser);}else{feedMode=value==='mine'?'mine':value==='saved'?'saved':'for-you';setActiveFeedTab(feedMode);loadFeed();}}
+function setMobileCommunityTab(tab){document.querySelectorAll('[data-mobile-community]').forEach(button=>{const active=button.dataset.mobileCommunity===tab;button.classList.toggle('active',active);if(active)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});}
+function setMobileExploreTab(tab){document.querySelectorAll('[data-mobile-explore]').forEach(button=>{const active=button.dataset.mobileExplore===tab;button.classList.toggle('active',active);if(active)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});}
+function setView(value){
+ document.querySelectorAll('#ttCommunityApp [data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===value));
+ const achievements=value==='achievements',settings=value==='settings',profile=value==='profile';
+ $('achievementsView').classList.toggle('hidden',!achievements);
+ $('settingsView').classList.toggle('hidden',!settings);
+ $('profileView').classList.toggle('hidden',!profile);
+ const hideFeed=achievements||settings||profile;
+ $('composer').classList.toggle('hidden',hideFeed);$('feed').classList.toggle('hidden',hideFeed);$('feedTabs').classList.toggle('hidden',hideFeed);
+ $('feedHeading').textContent=value==='mine'?'My Posts':value==='saved'?'Saved Posts':'Community stories';
+ $('appShell').classList.toggle('mobile-focused-view',hideFeed);
+ if(value==='achievements'){setMobileCommunityTab('achievements');renderMyAchievements();}
+ else if(settings){setMobileCommunityTab('profile');$('settingsNameInput').value=displayName(currentUser);}
+ else if(profile){setMobileCommunityTab('profile');void renderMobileProfileView();}
+ else{setMobileCommunityTab('posts');feedMode=value==='mine'?'mine':value==='saved'?'saved':'for-you';setActiveFeedTab(feedMode);loadFeed();}
+}
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
 $('viewMyAchievementsButton').addEventListener('click',()=>setView('achievements'));
 document.querySelectorAll('[data-feed]').forEach(b=>b.addEventListener('click',()=>{feedMode=b.dataset.feed;setActiveFeedTab(feedMode);$('feedHeading').textContent=({ 'for-you':'Community stories','following':'Stories from travellers you follow','latest':'Latest stories','trending':'Trending stories','most-liked':'Most liked stories'})[feedMode];loadFeed();}));
@@ -8700,6 +8831,42 @@ $('settingsForm').addEventListener('submit',async e=>{
  finally{saveButton.disabled=false;}
 });
 
+async function renderMobileProfileView(){
+ if(!currentUser){$('mobileProfilePosts').innerHTML='<div class="empty">Log in to see your profile.</div>';return;}
+ const name=displayName(currentUser);
+ $('mobileProfileName').textContent=name;
+ $('mobileProfileHandle').textContent='@'+(currentProfile.display_name||currentUser.email?.split('@')[0]||'traveller').replace(/\s+/g,'').slice(0,30);
+ const cover=$('mobileProfileCover');const coverUrl=safeImageUrl(currentProfile.cover_url);cover.style.backgroundImage=coverUrl?`url("${coverUrl.replace(/["\\]/g,'\\$&')}")`:'';
+ $('mobileProfileAvatarHost').innerHTML=avatarMarkup(name,'profile-view-avatar',currentProfile.avatar_url);
+ $('mobileProfileStats').innerHTML='<div class="mobile-profile-stat"><strong>…</strong><span>Posts</span></div><div class="mobile-profile-stat"><strong>…</strong><span>Friends</span></div><div class="mobile-profile-stat"><strong>…</strong><span>Achievements</span></div>';
+ $('mobileProfilePosts').innerHTML='<div class="empty">Loading your posts…</div>';
+ $('mobileProfileAchievements').innerHTML='<div class="empty">Loading achievements…</div>';
+ try{
+  const [postsResult,earnedResult]=await Promise.all([
+   supabase.from('community_posts').select('id,title,caption,image_url,created_at,location_name').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(12),
+   supabase.from('community_user_achievements').select('challenge_id,completed_at').eq('user_id',currentUser.id).order('completed_at',{ascending:false})
+  ]);
+  if(postsResult.error)throw postsResult.error;if(earnedResult.error)throw earnedResult.error;
+  const posts=postsResult.data||[],earned=earnedResult.data||[];
+  let friendCount=0;
+  try{const [fromFriends,toFriends]=await Promise.all([
+   supabase.from('community_friend_requests').select('id',{count:'exact',head:true}).eq('requester_id',currentUser.id).eq('status','accepted'),
+   supabase.from('community_friend_requests').select('id',{count:'exact',head:true}).eq('recipient_id',currentUser.id).eq('status','accepted')
+  ]);friendCount=(fromFriends.count||0)+(toFriends.count||0);}catch(_){friendCount=0;}
+  const stats=$('mobileProfileStats').querySelectorAll('strong');
+  if(stats[0])stats[0].textContent=String(posts.length);
+  if(stats[1])stats[1].textContent=String(friendCount);
+  if(stats[2])stats[2].textContent=String(earned.length);
+  if(!posts.length){$('mobileProfilePosts').innerHTML='<div class="empty">Your posts will appear here after you share a travel story.</div>';}
+  else{
+   $('mobileProfilePosts').innerHTML=posts.map(post=>{const image=safeImageUrl(post.image_url);return `<button type="button" class="mobile-profile-post" data-profile-post="${escapeHtml(post.id)}">${image?`<img src="${escapeHtml(image)}" alt="" loading="lazy">`:'<span class="mobile-profile-post-placeholder">📷</span>'}<span>${escapeHtml(post.title||post.location_name||'Travel story')}</span></button>`;}).join('');
+   $('mobileProfilePosts').querySelectorAll('[data-profile-post]').forEach(button=>button.addEventListener('click',()=>openTrendingPost(button.dataset.profilePost)));
+  }
+  $('mobileProfileAchievements').innerHTML=earned.length?earned.map(row=>{const challenge=challenges.find(item=>item.id===row.challenge_id);return `<div class="profile-earned"><div class="badge-icon">${escapeHtml(challengeIcon(challenge))}</div><div><strong class="gold-text">${escapeHtml(challengeTitle(challenge))}</strong><div style="font-size:12px;color:var(--muted)">Golden Achievement · ${escapeHtml(formatDate(row.completed_at))}</div></div></div>`;}).join(''):'<div class="empty">Earn a Golden Achievement by completing all destinations in a challenge.</div>';
+ }catch(error){$('mobileProfilePosts').innerHTML=`<div class="empty">Could not load profile: ${escapeHtml(error.message||'Unknown error')}</div>`;}
+}
+$('profileEditSettingsButton').addEventListener('click',()=>setView('settings'));
+
 async function openPublicProfile(userId){
   try{
     const [{data:profile,error:profileError},{data:earned,error:earnedError},{count:postCount,error:postError}]=await Promise.all([
@@ -8711,31 +8878,120 @@ async function openPublicProfile(userId){
     const name=profile?.display_name||(userId===currentUser?.id?displayName(currentUser):'TravelTaste member');
     const badges=(earned||[]).map(e=>{const c=challenges.find(x=>x.id===e.challenge_id);return `<div class="profile-earned"><div class="badge-icon">${escapeHtml(challengeIcon(c))}</div><div><strong class="gold-text">${escapeHtml(challengeTitle(c))}</strong><div style="font-size:12px;color:var(--muted)">Golden Achievement · ${escapeHtml(formatDate(e.completed_at))}</div></div></div>`;}).join('');
     const following=userId!==currentUser?.id;
-    openModal(name,`${profile?.cover_url&&safeImageUrl(profile.cover_url)?`<div class="public-profile-cover" style="background-image:url('${escapeHtml(safeImageUrl(profile.cover_url))}')"></div>`:''}${avatarMarkup(name,'public-profile-avatar',profile?.avatar_url)}<p style="margin:10px 0 4px;color:var(--muted)">${postCount||0} community posts · ${(earned||[]).length} Golden Achievements</p>${following?`<button class="btn ${follows.has(userId)?'secondary':'primary'}" id="ttc_profileFollowButton">${follows.has(userId)?'Following ✓':'＋ Follow traveller'}</button>`:''}<h3 style="margin:20px 0 8px">Golden Achievements</h3>${badges||'<div class="empty">No Golden Achievements earned yet. Their completed badges will appear here.</div>'}`);
+    let friendRequest=null;
+    if(following&&currentUser){const requestResult=await supabase.from('community_friend_requests').select('id,requester_id,recipient_id,status').or(`and(requester_id.eq.${currentUser.id},recipient_id.eq.${userId}),and(requester_id.eq.${userId},recipient_id.eq.${currentUser.id})`).limit(1);if(!requestResult.error)friendRequest=requestResult.data?.[0]||null;}
+    let friendAction='';
+    if(following){if(friendRequest?.status==='accepted')friendAction='<span class="btn secondary" style="display:inline-block">Friends ✓</span>';else if(friendRequest?.status==='pending'&&friendRequest.requester_id===currentUser.id)friendAction='<button class="btn secondary" id="ttc_profileFriendButton" disabled>Request pending</button>';else if(friendRequest?.status==='pending'&&friendRequest.recipient_id===currentUser.id)friendAction='<button class="btn primary" id="ttc_profileFriendButton">Accept friend request</button>';else friendAction='<button class="btn outline" id="ttc_profileFriendButton">＋ Add friend</button>';}
+    openModal(name,`${profile?.cover_url&&safeImageUrl(profile.cover_url)?`<div class="public-profile-cover" style="background-image:url('${escapeHtml(safeImageUrl(profile.cover_url))}')"></div>`:''}${avatarMarkup(name,'public-profile-avatar',profile?.avatar_url)}<p style="margin:10px 0 4px;color:var(--muted)">${postCount||0} community posts · ${(earned||[]).length} Golden Achievements</p><div style="display:flex;gap:8px;flex-wrap:wrap">${following?`<button class="btn ${follows.has(userId)?'secondary':'primary'}" id="ttc_profileFollowButton">${follows.has(userId)?'Following ✓':'＋ Follow traveller'}</button>${friendAction}`:''}</div><h3 style="margin:20px 0 8px">Golden Achievements</h3>${badges||'<div class="empty">No Golden Achievements earned yet. Their completed badges will appear here.</div>'}`);
     if(following)$('profileFollowButton')?.addEventListener('click',async()=>{await toggleFollow(userId);if($('modalBackdrop').classList.contains('open'))await openPublicProfile(userId);});
+    $('profileFriendButton')?.addEventListener('click',async()=>{if(!currentUser)return;const action=$('profileFriendButton');action.disabled=true;try{if(friendRequest?.status==='pending'&&friendRequest.recipient_id===currentUser.id){const {error}=await supabase.from('community_friend_requests').update({status:'accepted'}).eq('id',friendRequest.id).eq('recipient_id',currentUser.id).eq('status','pending');if(error)throw error;notify('Friend request accepted.');}else if(!friendRequest||friendRequest.status==='declined'){if(friendRequest?.id){const {error}=await supabase.from('community_friend_requests').update({requester_id:currentUser.id,recipient_id:userId,status:'pending'}).eq('id',friendRequest.id);if(error)throw error;}else{const {error}=await supabase.from('community_friend_requests').insert({requester_id:currentUser.id,recipient_id:userId,status:'pending'});if(error)throw error;}notify('Friend request sent.');}await refreshMobileNotificationDot();await openPublicProfile(userId);}catch(error){action.disabled=false;notify('Could not update friend request: '+error.message);}});
   }catch(e){notify('Could not load traveller profile: '+e.message);}
 }
 async function showNotifications(){
  if(!currentUser){notify('Log in to view your community notifications.');return;}
  try{
-  const {data:mine,error:mineError}=await supabase.from('community_posts').select('id,title,created_at').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50);if(mineError)throw mineError;
-  const ids=(mine||[]).map(p=>p.id);if(!ids.length){openModal('Notifications','<div class="empty">No activity yet. When travellers celebrate or comment on your posts, it will appear here.</div>');return;}
-  const [likesResult,commentsResult]=await Promise.all([supabase.from('community_post_likes').select('post_id,user_id,created_at').in('post_id',ids).neq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(25),supabase.from('community_post_comments').select('post_id,user_id,comment,created_at').in('post_id',ids).neq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(25)]);
-  if(likesResult.error)throw likesResult.error;if(commentsResult.error)throw commentsResult.error;
-  const notifications=[...(likesResult.data||[]).map(x=>({...x,kind:'celebration'})),...(commentsResult.data||[]).map(x=>({...x,kind:'comment'}))].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,25);
-  const userIds=[...new Set(notifications.map(n=>n.user_id))];const profiles=await loadProfileMap(userIds);const postMap=new Map((mine||[]).map(p=>[p.id,p]));
-  const html=notifications.map(n=>`<div class="profile-earned"><div class="badge-icon">${n.kind==='celebration'?'🏆':'💬'}</div><div><strong>${escapeHtml(profiles.get(n.user_id)?.display_name||'A traveller')} ${n.kind==='celebration'?'celebrated':'commented on'} your post</strong><div style="font-size:12px;color:var(--muted)">${escapeHtml(postMap.get(n.post_id)?.title||'Travel story')} · ${escapeHtml(formatDate(n.created_at))}${n.comment?`<br>${escapeHtml(n.comment)}`:''}</div><button class="text-btn" data-notification-post="${n.post_id}">View post</button></div></div>`).join('');
-  openModal('Notifications',html||'<div class="empty">No new celebrations or comments yet. Keep sharing your travels!</div>');$('modalBody').querySelectorAll('[data-notification-post]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.notificationPost;closeModal();openTrendingPost(id);}));
+  const [mineResult,requestResult,unreadResult]=await Promise.all([
+   supabase.from('community_posts').select('id,title,created_at').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50),
+   supabase.from('community_friend_requests').select('id,requester_id,recipient_id,status,created_at').eq('recipient_id',currentUser.id).eq('status','pending').order('created_at',{ascending:false}).limit(50),
+   supabase.from('community_messages').select('id,sender_id,body,created_at').eq('recipient_id',currentUser.id).is('read_at',null).order('created_at',{ascending:false}).limit(25)
+  ]);
+  if(mineResult.error)throw mineResult.error;
+  const mine=mineResult.data||[],ids=mine.map(p=>p.id),friendRequests=requestResult.error?[]:(requestResult.data||[]),unreadMessages=unreadResult.error?[]:(unreadResult.data||[]);
+  let likes=[],comments=[];
+  if(ids.length){
+   const [likesResult,commentsResult]=await Promise.all([
+    supabase.from('community_post_likes').select('post_id,user_id,created_at').in('post_id',ids).neq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(25),
+    supabase.from('community_post_comments').select('post_id,user_id,comment,created_at').in('post_id',ids).neq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(25)
+   ]);
+   if(likesResult.error)throw likesResult.error;if(commentsResult.error)throw commentsResult.error;likes=likesResult.data||[];comments=commentsResult.data||[];
+  }
+  const activity=[...likes.map(x=>({...x,kind:'celebration'})),...comments.map(x=>({...x,kind:'comment'}))].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,25);
+  const actorIds=[...new Set([...activity.map(n=>n.user_id),...friendRequests.map(n=>n.requester_id),...unreadMessages.map(n=>n.sender_id)])];
+  const profiles=await loadProfileMap(actorIds);const postMap=new Map(mine.map(p=>[p.id,p]));
+  const requestHtml=friendRequests.length?`<h3 style="margin:4px 0 8px">Friend requests (${friendRequests.length})</h3>${friendRequests.map(r=>{const person=profiles.get(r.requester_id);return `<div class="friend-request-notification"><div class="avatar">${escapeHtml((person?.display_name||'T').slice(0,1).toUpperCase())}</div><div style="flex:1;min-width:0"><strong>${escapeHtml(person?.display_name||'A traveller')} sent you a friend request</strong><div style="font-size:12px;color:var(--muted);margin-top:3px">${escapeHtml(formatDate(r.created_at))}</div><div class="request-actions"><button type="button" class="btn primary" data-request-accept="${r.id}">Accept</button><button type="button" class="btn secondary" data-request-decline="${r.id}">Decline</button></div></div></div>`;}).join('')}`:(requestResult.error?`<div class="empty">Friend requests could not load. Run the mobile navigation SQL patch and retry. ${escapeHtml(requestResult.error.message)}</div>`:'<div class="empty">No pending friend requests.</div>');
+  const activityHtml=activity.map(n=>`<div class="profile-earned"><div class="badge-icon">${n.kind==='celebration'?'🏆':'💬'}</div><div><strong>${escapeHtml(profiles.get(n.user_id)?.display_name||'A traveller')} ${n.kind==='celebration'?'celebrated':'commented on'} your post</strong><div style="font-size:12px;color:var(--muted)">${escapeHtml(postMap.get(n.post_id)?.title||'Travel story')} · ${escapeHtml(formatDate(n.created_at))}${n.comment?`<br>${escapeHtml(n.comment)}`:''}</div><button class="text-btn" data-notification-post="${n.post_id}">View post</button></div></div>`).join('');
+  const unreadHtml=unreadMessages.map(m=>`<div class="profile-earned"><div class="badge-icon">✉</div><div><strong>New message from ${escapeHtml(profiles.get(m.sender_id)?.display_name||'A traveller')}</strong><div style="font-size:12px;color:var(--muted)">${escapeHtml(m.body.slice(0,160))} · ${escapeHtml(formatDate(m.created_at))}</div><button class="text-btn" data-open-message="${m.sender_id}">Open message</button></div></div>`).join('');
+  openModal('Notifications',`${requestHtml}<h3 style="margin:20px 0 8px">Messages</h3>${unreadHtml||'<div class="empty">No unread messages.</div>'}<h3 style="margin:20px 0 8px">Post activity</h3>${activityHtml||'<div class="empty">No new celebrations or comments yet.</div>'}`);
+  $('modalBody').querySelectorAll('[data-notification-post]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.notificationPost;closeModal();openTrendingPost(id);}));
+  $('modalBody').querySelectorAll('[data-open-message]').forEach(b=>b.addEventListener('click',()=>{const userId=b.dataset.openMessage;closeModal();void showMessages(userId);}));
+  $('modalBody').querySelectorAll('[data-request-accept],[data-request-decline]').forEach(button=>button.addEventListener('click',async()=>{
+   const accept=button.hasAttribute('data-request-accept'),requestId=button.getAttribute(accept?'data-request-accept':'data-request-decline');button.disabled=true;
+   try{const {error}=await supabase.from('community_friend_requests').update({status:accept?'accepted':'declined'}).eq('id',requestId).eq('recipient_id',currentUser.id).eq('status','pending');if(error)throw error;notify(accept?'Friend request accepted.':'Friend request declined.');await refreshMobileNotificationDot();await showNotifications();}
+   catch(error){button.disabled=false;notify('Could not update friend request: '+error.message);}
+  }));
  }catch(e){openModal('Notifications',`<div class="empty">Could not load notifications: ${escapeHtml(e.message)}</div>`);}
 }
 $('notificationsButton').addEventListener('click',showNotifications);
 
+async function refreshMobileNotificationDot(){
+ if(!currentUser)return;
+ try{
+  const [requests,unread]=await Promise.all([
+   supabase.from('community_friend_requests').select('id',{count:'exact',head:true}).eq('recipient_id',currentUser.id).eq('status','pending'),
+   supabase.from('community_messages').select('id',{count:'exact',head:true}).eq('recipient_id',currentUser.id).is('read_at',null)
+  ]);
+  const dot=document.getElementById('notificationDot');if(dot)dot.hidden=!((requests.count||0)+(unread.count||0));
+ }catch(_){/* Keep notification controls usable if the optional message table hasn't been created yet. */}
+}
+
+async function showMessages(selectedUserId=null){
+ if(!currentUser){notify('Log in to send and receive messages.');return;}
+ try{
+  const [profilesResult,messagesResult]=await Promise.all([
+   supabase.from('community_profiles').select('user_id,display_name,avatar_url').neq('user_id',currentUser.id).order('display_name',{ascending:true}).limit(150),
+   supabase.from('community_messages').select('id,sender_id,recipient_id,body,created_at,read_at').or(`sender_id.eq.${currentUser.id},recipient_id.eq.${currentUser.id}`).order('created_at',{ascending:false}).limit(300)
+  ]);
+  if(profilesResult.error)throw profilesResult.error;if(messagesResult.error)throw messagesResult.error;
+  const profiles=profilesResult.data||[],messages=messagesResult.data||[],profileMap=new Map(profiles.map(p=>[p.user_id,p]));
+  if(!selectedUserId&&messages.length)selectedUserId=messages[0].sender_id===currentUser.id?messages[0].recipient_id:messages[0].sender_id;
+  const partnerOptions=profiles.map(p=>`<option value="${p.user_id}" ${p.user_id===selectedUserId?'selected':''}>${escapeHtml(p.display_name||'TravelTaste member')}</option>`).join('');
+  let bodyHtml='';
+  if(selectedUserId){
+   const thread=messages.filter(m=>(m.sender_id===currentUser.id&&m.recipient_id===selectedUserId)||(m.sender_id===selectedUserId&&m.recipient_id===currentUser.id)).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+   bodyHtml=thread.length?`<div class="message-thread" aria-label="Message conversation">${thread.map(m=>`<div class="message-bubble ${m.sender_id===currentUser.id?'mine':''}">${escapeHtml(m.body)}<time>${escapeHtml(formatDate(m.created_at))}</time></div>`).join('')}</div>`:'<div class="empty">No messages in this conversation yet. Send the first message below.</div>';
+   const unreadIds=thread.filter(m=>m.recipient_id===currentUser.id&&!m.read_at).map(m=>m.id);
+   if(unreadIds.length)await supabase.from('community_messages').update({read_at:new Date().toISOString()}).in('id',unreadIds).eq('recipient_id',currentUser.id);
+  }else{
+   const latestByPartner=new Map();for(const m of messages){const other=m.sender_id===currentUser.id?m.recipient_id:m.sender_id;if(!latestByPartner.has(other))latestByPartner.set(other,m);}
+   const rows=[...latestByPartner.entries()];bodyHtml=rows.length?`<div class="message-thread-list">${rows.map(([other,m])=>`<button type="button" class="message-thread-row" data-open-message-user="${other}">${avatarMarkup(profileMap.get(other)?.display_name||'Traveller','',profileMap.get(other)?.avatar_url)}<span class="meta"><strong>${escapeHtml(profileMap.get(other)?.display_name||'TravelTaste member')}</strong><small>${escapeHtml(m.body.slice(0,100))}</small><small>${escapeHtml(formatDate(m.created_at))}</small></span></button>`).join('')}</div>`:'<div class="empty">No messages yet. Choose a traveller below to start a conversation.</div>';
+  }
+  const recipientOption=selectedUserId&&!profiles.some(p=>p.user_id===selectedUserId)?`<option value="${selectedUserId}" selected>TravelTaste member</option>`:'';
+  openModal('Messages',`${bodyHtml}<form id="ttc_messageComposeForm" class="message-compose"><label for="ttc_messageRecipient">To<select id="ttc_messageRecipient" required><option value="">Choose a traveller</option>${recipientOption}${partnerOptions}</select></label><label for="ttc_messageBody">Message<textarea id="ttc_messageBody" maxlength="2000" required placeholder="Write a message…"></textarea></label><button type="submit" class="btn primary">Send message</button></form>`);
+  $('modalBody').querySelectorAll('[data-open-message-user]').forEach(button=>button.addEventListener('click',()=>showMessages(button.dataset.openMessageUser)));
+  const form=$('messageComposeForm');form.addEventListener('submit',async event=>{event.preventDefault();const recipient=$('messageRecipient').value,body=$('messageBody').value.trim();if(!recipient){notify('Choose a traveller first.');return;}if(!body){notify('Write a message first.');return;}const send=form.querySelector('[type="submit"]');send.disabled=true;try{const {error}=await supabase.from('community_messages').insert({sender_id:currentUser.id,recipient_id:recipient,body});if(error)throw error;notify('Message sent.');await refreshMobileNotificationDot();await showMessages(recipient);}catch(error){send.disabled=false;notify('Could not send message: '+error.message);}});
+  await refreshMobileNotificationDot();
+ }catch(error){openModal('Messages',`<div class="empty">Messages need the one-time mobile navigation SQL patch. ${escapeHtml(error.message||'Unable to load messages.')}</div>`);}
+}
+
+function bindMobileBottomNavigation(){
+ document.querySelectorAll('[data-mobile-explore]').forEach(button=>button.addEventListener('click',()=>{
+  const page=button.dataset.mobileExplore;setMobileExploreTab(page);
+  if(page==='home')document.getElementById('homeNavButton')?.click();
+  else if(page==='festivals')document.getElementById('festivalSeasonalMenuItem')?.click();
+  else if(page==='nearby')document.getElementById('nearbyDiscoveriesMenuItem')?.click();
+  else if(page==='community'){setMobileCommunityTab('posts');document.getElementById('communityNavButton')?.click();}
+ }));
+ document.querySelectorAll('[data-mobile-community]').forEach(button=>button.addEventListener('click',()=>{
+  const page=button.dataset.mobileCommunity;setMobileCommunityTab(page);
+  if(page==='posts')setView('feed');
+  else if(page==='messages')void showMessages();
+  else if(page==='achievements')setView('achievements');
+  else if(page==='profile')setView('profile');
+  else if(page==='explorer')document.getElementById('homeNavButton')?.click();
+ }));
+ const wrap=document.querySelector('.global-search-wrap');const input=document.getElementById('globalSearch');
+ if(wrap&&input){wrap.addEventListener('click',event=>{if(window.matchMedia('(max-width: 760px)').matches&&event.target!==input&&!event.target.closest('#clearGlobalSearch')){event.preventDefault();document.body.classList.add('mobile-search-open');setTimeout(()=>input.focus(),0);}});input.addEventListener('keydown',event=>{if(event.key==='Escape'){document.body.classList.remove('mobile-search-open');input.blur();}});document.addEventListener('click',event=>{if(!event.target.closest('.global-search-wrap')&&window.matchMedia('(max-width: 760px)').matches)document.body.classList.remove('mobile-search-open');});}
+}
+bindMobileBottomNavigation();
+
+
 async function loadSavedAndFollows(){if(!currentUser)return;const [saveResult,followResult]=await Promise.all([supabase.from('community_saved_posts').select('post_id').eq('user_id',currentUser.id),supabase.from('community_follows').select('followed_id').eq('follower_id',currentUser.id)]);if(!saveResult.error)savedPosts=new Set((saveResult.data||[]).map(r=>r.post_id));if(!followResult.error)follows=new Set((followResult.data||[]).map(r=>r.followed_id));}
 async function renderMyAchievements(){const host=$('myAchievementList');if(!currentUser){host.innerHTML='<div class="empty">Log in to see your achievements.</div>';return;}try{const {data:earned,error}=await supabase.from('community_user_achievements').select('challenge_id,completed_at').eq('user_id',currentUser.id).order('completed_at',{ascending:false});if(error)throw error;const earnedRows=earned||[];const earnedIds=new Set(earnedRows.map(x=>x.challenge_id));if(!earnedRows.length){host.innerHTML='<div class="empty">Your Golden Achievements will appear here when you complete a full challenge. Start with one of the Featured Achievements.</div>';return;}host.innerHTML=earnedRows.map(e=>{const c=challenges.find(x=>x.id===e.challenge_id);return `<div class="profile-earned"><div class="badge-icon">${escapeHtml(challengeIcon(c))}</div><div><strong class="gold-text">${escapeHtml(challengeTitle(c))} · Golden Achievement</strong><div style="font-size:12px;color:var(--muted)">Completed ${escapeHtml(formatDate(e.completed_at))} · Visible to the community</div></div></div>`;}).join('');}catch(e){host.innerHTML=`<div class="empty">Could not load achievements: ${escapeHtml(e.message)}</div>`;}}
-async function initializeApp(){try{await loadSavedAndFollows();await loadChallenges();await loadTravellers();await loadFeed();await renderProfileStats();}catch(e){say(e.message||'Could not initialize community.');}}
+async function initializeApp(){try{await loadSavedAndFollows();await loadChallenges();await loadTravellers();await loadFeed();await renderProfileStats();await refreshMobileNotificationDot();}catch(e){say(e.message||'Could not initialize community.');}}
+window.addEventListener('popstate',()=>{setTimeout(()=>{if(document.body.classList.contains('community-active'))setMobileCommunityTab('posts');else setMobileExploreTab('home');},0);});
 const {data:{session},error:sessionError}=await supabase.auth.getSession();if(sessionError)authSay(sessionError.message);if(session?.user){currentUser=session.user;await ensureProfile(currentUser);showAccountUI(currentUser);if(!document.getElementById('communityPage')?.hidden)await initializeApp();}else showAccountUI(null);
 supabase.auth.onAuthStateChange((_event,nextSession)=>{setTimeout(async()=>{if(nextSession?.user){currentUser=nextSession.user;await ensureProfile(currentUser);showAccountUI(currentUser);if(!document.getElementById('communityPage')?.hidden)await initializeApp();}else{currentUser=null;showAccountUI(null);}},0);});
-window.addEventListener('travelTasteCommunityOpened',()=>{if(currentUser)void initializeApp();});
+window.addEventListener('travelTasteCommunityOpened',()=>{setMobileCommunityTab('posts');if(currentUser)void initializeApp();});
 </script>
 </body>
 </html>
