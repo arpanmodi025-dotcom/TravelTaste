@@ -2689,21 +2689,39 @@ body.detail-view-active .tt-photo-caption { color: #64748b; font-size: 13px; mar
     </label>
 
     <div class="submission-city-group">
-      <label for="submissionCitySearch">City *</label>
-      <div class="submission-city-picker" id="submissionCityPicker">
-        <div class="submission-city-input-wrap">
-          <span class="submission-city-search-icon" aria-hidden="true">⌕</span>
-          <input id="submissionCitySearch" type="text" autocomplete="off"
-            placeholder="Search or type a city name..." maxlength="100" required
-            role="combobox" aria-autocomplete="list" aria-expanded="false"
-            aria-controls="submissionCitySuggestions"
-            aria-describedby="submissionCityHelp submissionCityStatus">
-          <button type="button" id="submissionCityClearButton" class="submission-city-clear"
-            aria-label="Clear city search" title="Clear" hidden>×</button>
-        </div>
-        <input type="hidden" id="submissionCity" name="city_id" value="">
-        <div id="submissionCitySuggestions" class="submission-city-suggestions"
-          role="listbox" aria-label="City search results" hidden></div>
+      <div class="submission-city-row">
+        <label class="submission-city-name-field" for="submissionCitySearch">City *
+          <div class="submission-city-picker" id="submissionCityPicker">
+            <div class="submission-city-input-wrap">
+              <span class="submission-city-search-icon" aria-hidden="true">⌕</span>
+              <input id="submissionCitySearch" type="text" autocomplete="off"
+                placeholder="Search or type a city..." maxlength="100" required
+                role="combobox" aria-autocomplete="list" aria-expanded="false"
+                aria-controls="submissionCitySuggestions"
+                aria-describedby="submissionCityHelp submissionCityStatus">
+              <button type="button" id="submissionCityClearButton" class="submission-city-clear"
+                aria-label="Clear city search" title="Clear" hidden>×</button>
+            </div>
+            <input type="hidden" id="submissionCity" name="city_id" value="">
+            <div id="submissionCitySuggestions" class="submission-city-suggestions"
+              role="listbox" aria-label="City search results" hidden></div>
+          </div>
+        </label>
+        <label class="submission-state-field" for="submissionState">State / region
+          <select id="submissionState" name="state">
+            <option value="">Choose state (new cities)</option>
+            <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option><option>Bihar</option>
+            <option>Chhattisgarh</option><option>Goa</option><option>Gujarat</option><option>Haryana</option>
+            <option>Himachal Pradesh</option><option>Jharkhand</option><option>Karnataka</option><option>Kerala</option>
+            <option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option><option>Meghalaya</option>
+            <option>Mizoram</option><option>Nagaland</option><option>Odisha</option><option>Punjab</option>
+            <option>Rajasthan</option><option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option>
+            <option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option><option>West Bengal</option>
+            <option>Andaman and Nicobar Islands</option><option>Chandigarh</option><option>Dadra and Nagar Haveli and Daman and Diu</option>
+            <option>Delhi</option><option>Jammu and Kashmir</option><option>Ladakh</option><option>Lakshadweep</option><option>Puducherry</option>
+          </select>
+          <small>Required when creating a new city; existing cities keep their saved state.</small>
+        </label>
       </div>
       <small id="submissionCityHelp">Search an existing city or type a new city name.</small>
       <p id="submissionCityStatus" class="submission-city-status" role="status" aria-live="polite"></p>
@@ -2766,6 +2784,7 @@ body.detail-view-active .tt-photo-caption { color: #64748b; font-size: 13px; mar
         style="display:block;width:100%;padding:12px;margin-top:6px">
       <small>Select up to 5 photos, maximum 5 MB each. Your photos will preview here before submission.</small>
       <div id="submissionPhotoPreview" class="submission-photo-preview" aria-live="polite" aria-label="Selected photo previews"></div>
+      <small id="submissionPhotoSelectionStatus" class="photo-selection-status" role="status" aria-live="polite"></small>
     </label>
 
 <label for="submissionTravelerType">
@@ -4791,21 +4810,19 @@ const allPhotos = combinedPhotos.length
           <button type="button" class="tt-gallery-main" id="detailMainPhotoButton" aria-label="Open photo gallery">
             <img id="detailMainPhoto" src="${escapeHtml(allPhotos[0].image_url)}" alt="${escapeHtml(allPhotos[0].caption || item.name)}">
           </button>
-          <div class="tt-gallery-side">
-            ${allPhotos.slice(1, 3).map((photo, sideIndex) => {
+          <div class="tt-gallery-side" ${allPhotos.length === 1 ? 'hidden' : ''}>
+            ${allPhotos.slice(1, 5).map((photo, sideIndex) => {
               const photoIndex = sideIndex + 1;
-              const remaining = allPhotos.length - 3;
-              const isLastTile = sideIndex === Math.min(1, allPhotos.length - 2);
-              const showMore = photoIndex === 2 && remaining > 0;
+              const remaining = allPhotos.length - 5;
+              const showMore = photoIndex === 4 && remaining > 0;
               return `
                 <button type="button" class="detail-thumb tt-gallery-tile ${showMore ? 'tt-gallery-more' : ''}"
                   data-photo-index="${photoIndex}" aria-label="Show photo ${photoIndex + 1}${showMore ? ` and ${remaining} more photos` : ''}">
-                  <img src="${escapeHtml(photo.image_url)}" alt="${escapeHtml(photo.caption || item.name)}">
-                  ${showMore ? `<span>+${remaining}</span>` : ''}
+                  <img src="${escapeHtml(photo.image_url)}" alt="${escapeHtml(photo.caption || item.name)}" loading="lazy" decoding="async">
+                  ${showMore ? `<span>+${remaining} photos</span>` : ''}
                 </button>
               `;
             }).join('')}
-            ${allPhotos.length === 2 ? '<div class="tt-gallery-empty" aria-hidden="true"></div><div class="tt-gallery-empty" aria-hidden="true"></div><div class="tt-gallery-empty" aria-hidden="true"></div>' : ''}
           </div>
         </div>
         <div id="detailPhotoCaption" class="tt-photo-caption">${escapeHtml(allPhotos[0].caption || item.name)}</div>
@@ -4889,8 +4906,10 @@ const allPhotos = combinedPhotos.length
           <p class="tt-photo-entry-help">Help other travellers discover this place through your photos.</p>
           <form id="visitorPhotoForm" class="tt-visitor-photo-form">
             <label>
-              <span>🖼️ Choose a photo (JPG, PNG or WebP; maximum 5 MB)</span>
-              <input id="visitorPhotoFile" type="file" accept="image/jpeg,image/png,image/webp" required>
+              <span>🖼️ Choose photos (JPG, PNG or WebP; up to 5 photos, maximum 5 MB each)</span>
+              <input id="visitorPhotoFile" type="file" accept="image/jpeg,image/png,image/webp" multiple required>
+              <small>Select several photos if needed. Remove any photo using the × on its preview before submitting.</small>
+              <div id="visitorPhotoPreview" class="submission-photo-preview visitor-photo-preview" aria-live="polite" aria-label="Selected visitor photo previews"></div>
             </label>
             <label>
               <span>✍️ Caption (optional)</span>
@@ -4924,8 +4943,8 @@ const allPhotos = combinedPhotos.length
     tabs.setAttribute('aria-label', 'Place details');
     tabs.innerHTML = `
       <button type="button" class="tt-detail-tab active" role="tab" aria-selected="true" data-detail-tab="overview">Overview</button>
+      <button type="button" class="tt-detail-tab" role="tab" aria-selected="false" data-detail-tab="photos">Photos</button>
       <button type="button" class="tt-detail-tab" role="tab" aria-selected="false" data-detail-tab="budget">Visit Budget</button>
-      <button type="button" class="tt-detail-tab" role="tab" aria-selected="false" data-detail-tab="visitor">Visitor Info</button>
       <button type="button" class="tt-detail-tab" role="tab" aria-selected="false" data-detail-tab="reviews">Reviews</button>
       <button type="button" class="tt-detail-tab" role="tab" aria-selected="false" data-detail-tab="nearby">Nearby Places</button>`;
     const panels = document.createElement('div');
@@ -4933,14 +4952,32 @@ const allPhotos = combinedPhotos.length
     panels.innerHTML = `
       <section class="tt-detail-panel active" data-detail-panel="overview" role="tabpanel">
         <div class="tt-info-grid" data-panel-info></div>
+        <div data-panel-visitor-info></div>
+      </section>
+      <section class="tt-detail-panel" data-detail-panel="photos" role="tabpanel" hidden>
+        <div class="tt-photo-tab-intro"><h2>Visitor Photos</h2><p>Browse approved photos and share your own photos from this place.</p></div>
         <div data-panel-photos></div>
       </section>
       <section class="tt-detail-panel" data-detail-panel="budget" role="tabpanel" hidden>
         <section class="tt-detail-card tt-budget-panel">
           <h2><span class="tt-budget-title-icon" aria-hidden="true">💰</span> Visit Budget</h2>
           <p class="tt-visitor-tip">Estimates use real visitor submissions from the last 30 days. No sample amounts are shown as real data.</p>
-          <label class="tt-budget-people-label" for="ttBudgetPeople">👥 Number of people</label>
-          <select id="ttBudgetPeople"><option value="1">1 person</option><option value="2" selected>2 people</option><option value="3">3 people</option><option value="4">4 people</option><option value="5">5 people</option><option value="6">6 people</option><option value="8">8 people</option><option value="10">10 people</option></select>
+          <div class="tt-budget-controls">
+            <label class="tt-budget-people-label" for="ttBudgetPeople">👥 Group size
+              <select id="ttBudgetPeople">
+                <option value="1">1 person</option>
+                <option value="2" selected>2 people</option>
+                <option value="4">3–4 people</option>
+                <option value="5">5+ people</option>
+              </select>
+            </label>
+            <label class="tt-budget-people-label" for="ttBudgetBasis">💰 Show estimate
+              <select id="ttBudgetBasis">
+                <option value="group" selected>Total for group</option>
+                <option value="person">Per person</option>
+              </select>
+            </label>
+          </div>
           <div id="ttBudgetSummary" class="tt-budget-summary" aria-live="polite">Loading recent visitor submissions…</div>
           <details class="tt-budget-entry-details">
             <summary><span aria-hidden="true">✍️</span> Add or update your visit budget</summary>
@@ -4960,9 +4997,7 @@ const allPhotos = combinedPhotos.length
           </details>
         </section>
       </section>
-      <section class="tt-detail-panel" data-detail-panel="visitor" role="tabpanel" hidden>
-        <div data-panel-location></div>
-        <section class="tt-detail-card tt-visitor-info-extra">
+      <section class="tt-detail-card tt-visitor-info-extra">
           <h2>Visitor Information</h2>
           <div class="tt-visitor-info-grid">
             <p><strong>Address:</strong> <span data-visitor-address></span></p>
@@ -4974,7 +5009,6 @@ const allPhotos = combinedPhotos.length
           </div>
           <p class="tt-visitor-tip">Information is shown only when available in the place record. Confirm details with the venue before travelling.</p>
         </section>
-      </section>
       <section class="tt-detail-panel tt-reviews-panel" data-detail-panel="reviews" role="tabpanel" hidden>
         <div class="tt-reviews-title-row">
           <div>
@@ -5096,13 +5130,12 @@ const allPhotos = combinedPhotos.length
     tabs.insertAdjacentElement('afterend', panels);
 
     const overviewInfo = panels.querySelector('[data-panel-info]');
-    if (aboutCard) overviewInfo.appendChild(aboutCard);
-    const visitorLocation = panels.querySelector('[data-panel-location]');
-    if (locationCard && overviewInfo) {
-      overviewInfo.appendChild(locationCard);
-      if (visitorLocation) visitorLocation.appendChild(locationCard.cloneNode(true));
-    }
+    if (aboutCard && overviewInfo) overviewInfo.appendChild(aboutCard);
+    if (locationCard && overviewInfo) overviewInfo.appendChild(locationCard);
     if (infoGrid) infoGrid.remove();
+    const visitorInfoCard = panels.querySelector('.tt-visitor-info-extra');
+    const overviewVisitorInfo = panels.querySelector('[data-panel-visitor-info]');
+    if (visitorInfoCard && overviewVisitorInfo) overviewVisitorInfo.appendChild(visitorInfoCard);
 
     // Show the same published-place recommendations in BOTH Overview and Nearby Places.
     // Keep the original section in Nearby Places and render a separate visual clone in Overview.
@@ -5216,9 +5249,19 @@ const allPhotos = combinedPhotos.length
       }));
       const averageTotal = avg(row => row.total, totalRows);
       const averagePerPerson = avg(row => row.perPerson, totalRows);
-      budgetSummary.innerHTML = `<div class="tt-budget-stats">${cards}</div><div class="tt-budget-total"><strong>Estimated group total for ${people} people: ${money(averageTotal)}</strong><span>Average per person in submitted trips: ${money(averagePerPerson)}</span></div><p class="tt-visitor-tip">Group total applies per-person ticket and food averages to your selected group size, then adds average reported vehicle parking, fuel and toll. These are averages of submitted reports, not guaranteed prices.</p>`;
+      const basis = panels.querySelector('#ttBudgetBasis')?.value || 'group';
+      const groupOption = panels.querySelector('#ttBudgetPeople')?.selectedOptions?.[0];
+      const groupLabel = groupOption?.textContent?.trim() || `${people} people`;
+      const headline = basis === 'person'
+        ? `Estimated budget per person: ${money(averagePerPerson)}`
+        : `Estimated budget for ${groupLabel}: ${money(averageTotal)}`;
+      const detail = basis === 'person'
+        ? `Group-size estimate uses ${people} ${people === 1 ? 'person' : 'people'} as the calculation basis.`
+        : `Average per person in submitted trips: ${money(averagePerPerson)}`;
+      budgetSummary.innerHTML = `<div class="tt-budget-stats">${cards}</div><div class="tt-budget-total"><strong>${headline}</strong><span>${detail}</span></div><p class="tt-visitor-tip">Per-person costs are multiplied by the chosen group size. Reported parking, fuel and toll are then included from visitor submissions. For “5+ people”, the estimate uses 5 people as a minimum baseline. These are averages of submitted reports, not guaranteed prices.</p>`;
     }
     panels.querySelector('#ttBudgetPeople')?.addEventListener('change', loadRecentBudgets);
+    panels.querySelector('#ttBudgetBasis')?.addEventListener('change', loadRecentBudgets);
 
     const budgetForm = panels.querySelector('#ttBudgetForm');
     budgetForm?.addEventListener('submit', async event => {
@@ -5883,88 +5926,69 @@ const allPhotos = combinedPhotos.length
   }
   
   const visitorPhotoForm = $('visitorPhotoForm');
+  const visitorPhotoInput = $('visitorPhotoFile');
+  const visitorPhotoPreview = $('visitorPhotoPreview');
+  let visitorPhotoPreviewUrls = [];
+
+  if (visitorPhotoInput && visitorPhotoPreview) {
+    visitorPhotoInput.addEventListener('change', () => {
+      renderRemovablePhotoPreviews(visitorPhotoInput, visitorPhotoPreview, visitorPhotoPreviewUrls, {
+        maxFiles: 5,
+        status: $('visitorPhotoMessage'),
+        label: 'Visitor photo'
+      });
+    });
+  }
 
   if (visitorPhotoForm) {
     visitorPhotoForm.addEventListener('submit', async (event) => {
       event.preventDefault();
-
       const message = $('visitorPhotoMessage');
-      const file = $('visitorPhotoFile').files[0];
+      const files = Array.from($('visitorPhotoFile')?.files || []);
       const caption = $('visitorPhotoCaption').value.trim();
-      const submitButton = visitorPhotoForm.querySelector(
-        'button[type="submit"]'
-      );
+      const submitButton = visitorPhotoForm.querySelector('button[type="submit"]');
 
-      if (!file) {
-        message.textContent = 'Please choose a photo.';
-        return;
-      }
-
-      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-        message.textContent = 'Choose a JPG, PNG or WebP photo.';
-        return;
-      }
-
-      if (file.size > 5 * 1024 * 1024) {
-        message.textContent = 'Your photo must be 5 MB or smaller.';
-        return;
-      }
+      if (!files.length) { message.textContent = 'Please choose at least one photo.'; return; }
+      if (files.length > 5) { message.textContent = 'Choose up to 5 photos.'; return; }
+      const invalidType = files.find(file => !['image/jpeg','image/png','image/webp'].includes(file.type));
+      if (invalidType) { message.textContent = 'All files must be JPG, PNG or WebP photos.'; return; }
+      const tooLarge = files.find(file => file.size > 5 * 1024 * 1024);
+      if (tooLarge) { message.textContent = 'Each photo must be 5 MB or smaller.'; return; }
 
       submitButton.disabled = true;
-      message.textContent = 'Uploading photo...';
-
+      message.textContent = `Uploading ${files.length} photo${files.length === 1 ? '' : 's'}…`;
+      const uploadedPaths = [];
       try {
-        const { data: { user }, error: authError } =
-          await supabase.auth.getUser();
-
-        if (authError || !user) {
-          message.textContent =
-            'Please log in to Community before submitting a photo.';
-          return;
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (authError || !user) throw new Error('Please log in to submit visitor photos.');
+        const rows = [];
+        for (const file of files) {
+          const path = `${user.id}/${crypto.randomUUID()}`;
+          const { error: uploadError } = await supabase.storage.from('traveltaste-images').upload(path, file, {
+            contentType: file.type, upsert: false
+          });
+          if (uploadError) throw uploadError;
+          uploadedPaths.push(path);
+          const { data: publicFile } = supabase.storage.from('traveltaste-images').getPublicUrl(path);
+          rows.push({ listing_id: item.id, user_id: user.id, image_url: publicFile.publicUrl, caption: caption || null, status: 'pending' });
         }
-
-        const path = `${user.id}/${crypto.randomUUID()}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('traveltaste-images')
-          .upload(path, file, {
-            contentType: file.type,
-            upsert: false
-          });
-
-        if (uploadError) throw uploadError;
-
-        const { data: publicFile } = supabase.storage
-          .from('traveltaste-images')
-          .getPublicUrl(path);
-
-        const { error: insertError } = await supabase
-          .from('place_photo_submissions')
-          .insert({
-            listing_id: item.id,
-            user_id: user.id,
-            image_url: publicFile.publicUrl,
-            caption: caption || null,
-            status: 'pending'
-          });
-
+        const { error: insertError } = await supabase.from('place_photo_submissions').insert(rows);
         if (insertError) throw insertError;
-
         visitorPhotoForm.reset();
-        message.textContent =
-          'Photo submitted successfully! It will appear after admin approval.';
+        visitorPhotoPreviewUrls.forEach(url => URL.revokeObjectURL(url));
+        visitorPhotoPreviewUrls = [];
+        if (visitorPhotoPreview) visitorPhotoPreview.replaceChildren();
+        message.textContent = `${files.length} photo${files.length === 1 ? '' : 's'} submitted for approval. They will appear after approval.`;
       } catch (error) {
-        console.error('Photo submission failed:', error);
-        message.textContent = 'Could not submit photo: ' + error.message;
-      } finally {
-        submitButton.disabled = false;
-      }
+        if (uploadedPaths.length) {
+          try { await supabase.storage.from('traveltaste-images').remove(uploadedPaths); } catch (_) {}
+        }
+        console.error('Visitor photo submission failed:', error);
+        message.textContent = 'Could not submit photos: ' + (error.message || 'Please try again.');
+      } finally { submitButton.disabled = false; }
     });
   }
 
-
-  
- 
   // Track the currently selected photo.
   let currentPhotoIndex = 0;
 
@@ -6523,6 +6547,15 @@ function selectSubmissionCity(city, message = '') {
   $('submissionCity').value = String(city.id);
   $('submissionCitySearch').value = formatSubmissionCityName(city.name || '');
   $('submissionCityClearButton').hidden = false;
+  const stateField = $('submissionState');
+  const savedState = String(city.state || city.state_name || '').split(',')[0].trim();
+  if (stateField) {
+    if (savedState) {
+      const existingOption = Array.from(stateField.options).find(option => normalizedCityKey(option.value || option.textContent) === normalizedCityKey(savedState));
+      if (existingOption) stateField.value = existingOption.value || existingOption.textContent;
+      else { const option = document.createElement('option'); option.value = savedState; option.textContent = savedState; stateField.appendChild(option); stateField.value = savedState; }
+    } else { stateField.value = ''; }
+  }
   closeSubmissionCitySuggestions();
   setSubmissionCityStatus(message, message ? 'success' : '');
 }
@@ -6631,6 +6664,13 @@ async function addSubmissionCity(rawValue) {
     return;
   }
 
+  const stateName = String($('submissionState')?.value || '').trim();
+  if (!stateName) {
+    setSubmissionCityStatus('Choose the state / region before adding a new city.', 'error');
+    $('submissionState')?.focus();
+    return;
+  }
+
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
     closeSubmissionCitySuggestions();
@@ -6649,7 +6689,7 @@ async function addSubmissionCity(rawValue) {
     }
 
     const { data, error } = await supabase.from('cities')
-      .insert({ name: cityName, slug: citySlug })
+      .insert({ name: cityName, slug: citySlug, state: stateName, country: 'India' })
       .select('*')
       .single();
 
@@ -7005,36 +7045,16 @@ async function resolveNewSubmissionCoordinates(mapUrl, placeName = '', cityName 
   return { latitude: null, longitude: null, resolved: false };
 }
 
-// Preview selected Suggest a Place photos before upload; clicking a preview opens it larger.
+// Removable multi-photo previews for Suggest a Place.
 const submissionPhotoInput = $('submissionPhotos');
 const submissionPhotoPreview = $('submissionPhotoPreview');
 let submissionPreviewUrls = [];
 if (submissionPhotoInput && submissionPhotoPreview) {
   submissionPhotoInput.addEventListener('change', () => {
-    submissionPreviewUrls.forEach(url => URL.revokeObjectURL(url));
-    submissionPreviewUrls = [];
-    submissionPhotoPreview.replaceChildren();
-    const selectedFiles = Array.from(submissionPhotoInput.files || []).filter(file => file.type.startsWith('image/')).slice(0, 5);
-    selectedFiles.forEach((file, index) => {
-      const url = URL.createObjectURL(file);
-      submissionPreviewUrls.push(url);
-      const previewButton = document.createElement('button');
-      previewButton.type = 'button';
-      previewButton.setAttribute('aria-label', `Preview selected photo ${index + 1}`);
-      const previewImage = document.createElement('img');
-      previewImage.src = url;
-      previewImage.alt = file.name || `Selected photo ${index + 1}`;
-      previewImage.loading = 'lazy';
-      previewImage.addEventListener('error', () => previewButton.remove(), { once: true });
-      previewButton.appendChild(previewImage);
-      previewButton.addEventListener('click', () => {
-        if (typeof window.openTravelTasteLightbox === 'function') {
-          window.openTravelTasteLightbox(selectedFiles.map((f, i) => ({
-            image_url: submissionPreviewUrls[i], caption: f.name || `Selected photo ${i + 1}`
-          })), index);
-        }
-      });
-      submissionPhotoPreview.appendChild(previewButton);
+    renderRemovablePhotoPreviews(submissionPhotoInput, submissionPhotoPreview, submissionPreviewUrls, {
+      maxFiles: 5,
+      status: $('submissionPhotoSelectionStatus'),
+      label: 'Place photo'
     });
   });
 }
@@ -7366,11 +7386,27 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
       <button class="seasonal-tab" type="button" data-seasonal-tab="tips" aria-pressed="false">💡 Travel Tips</button>
       <button class="seasonal-tab" type="button" data-seasonal-tab="weather" aria-pressed="false">☀️ Season Guide</button>
     </div>
+    <section class="seasonal-submitted-directory" aria-labelledby="seasonalDirectoryTitle">
+      <div class="seasonal-directory-heading">
+        <div><h3 id="seasonalDirectoryTitle">Explore places shared by travellers</h3><p>Choose a state and city to see published TravelTaste listings submitted by the community.</p></div>
+      </div>
+      <div class="seasonal-directory-selects">
+        <label for="seasonalStateSelect">State / region
+          <select id="seasonalStateSelect"><option value="">Choose a state</option></select>
+        </label>
+        <label for="seasonalCitySelect">City
+          <select id="seasonalCitySelect" disabled><option value="">Choose a state first</option></select>
+        </label>
+      </div>
+      <p id="seasonalDirectoryStatus" class="seasonal-search-status" role="status" aria-live="polite">Select a state, then a city to browse published places.</p>
+      <div id="seasonalCityPlaces" class="seasonal-city-places" aria-live="polite"></div>
+    </section>
     <div class="seasonal-section-head">
       <h3 id="seasonalResultsTitle">Popular destinations in January</h3>
       <span id="seasonalResultsCount"></span>
     </div>
     <div id="seasonalResults" aria-live="polite"></div>
+
     <section id="seasonalTipsBox">
       <h3 id="seasonalTipsTitle">Travel tips for January</h3>
       <ul id="seasonalTipsList"></ul>
@@ -7495,6 +7531,16 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
     input.setAttribute('aria-expanded','false');
     $season('seasonalSearchStatus').textContent=`Showing recommendations for ${item.name}.`;
     renderSeasonal();
+    // If the selected seasonal suggestion is also a real city in Supabase,
+    // reuse the homepage Explore destination rather than maintaining a separate city dataset.
+    try {
+      const matchedCity = Array.isArray(cities) ? cities.find(city => normalizeSeasonalQuery(city.name) === normalizeSeasonalQuery(item.name)) : null;
+      if (matchedCity && typeof loadDestination === 'function') {
+        const homeSearch = document.getElementById('citySearch');
+        if (homeSearch) homeSearch.value = typeof cityLabel === 'function' ? cityLabel(matchedCity) : matchedCity.name;
+        void loadDestination(matchedCity.id);
+      }
+    } catch (error) { console.warn('Could not sync seasonal selection with Explore search:', error); }
   }
   function renderDestinationSuggestions() {
     const input=$season('seasonalDestinationSearch');
@@ -7923,7 +7969,9 @@ document.querySelectorAll('.community-cta-gallery img').forEach((img) => {
         const duration=item.duration_category||'';
         const rating=ratingCache.get(String(item.id||''));
         const ratingHtml=rating?`<div class="nearby-card-rating"><span class="stars">★ ${rating.average.toFixed(1)}</span> <span>(${rating.count.toLocaleString('en-IN')} ${rating.count===1?'rating':'ratings'})</span></div>`:'';
-        return `<article class="nearby-card" data-nearby-card-id="${esc(item.id||'')}"><div class="nearby-card-photo">${img?`<img src="${esc(img)}" alt="${esc(item.name)}" loading="lazy" onerror="this.style.display='none'">`:''}<span class="nearby-distance">${item._nearbyDistance<10?item._nearbyDistance.toFixed(1):item._nearbyDistance<100?item._nearbyDistance.toFixed(1):Math.round(item._nearbyDistance)} km straight-line</span></div><div class="nearby-card-body"><span class="nearby-card-type">${esc(categoryLabel(item))}</span><h4>${esc(item.name||'TravelTaste listing')}</h4>${ratingHtml}<p>${esc(desc)}</p><div class="nearby-card-meta">${[price,duration].filter(Boolean).map(esc).join(' · ')||'Straight-line distance from your location'}</div><div class="nearby-card-actions"><button type="button" data-nearby-detail="${esc(item.id||'')}">View details</button><a href="${esc(directionsUrl(item))}" target="_blank" rel="noopener noreferrer">Directions ↗</a></div></div></article>`;
+        const listingId=String(item.id||'');
+        const isSaved=typeof savedListingIds!=='undefined'&&savedListingIds.has(listingId);
+        return `<article class="nearby-card" data-nearby-card-id="${esc(listingId)}"><div class="nearby-card-photo">${img?`<img src="${esc(img)}" alt="${esc(item.name)}" loading="lazy" decoding="async" onerror="this.style.display='none'">`:''}<span class="nearby-distance">${item._nearbyDistance<10?item._nearbyDistance.toFixed(1):item._nearbyDistance<100?item._nearbyDistance.toFixed(1):Math.round(item._nearbyDistance)} km straight-line</span><button type="button" class="travel-favourite-button nearby-save-button" data-favourite-id="${esc(listingId)}" aria-pressed="${isSaved}" aria-label="${isSaved?'Remove from':'Save to'} My Favourites" title="${isSaved?'Remove from My Favourites':'Save this place'}" onclick="event.stopPropagation();toggleFavourite('${esc(listingId)}',this)">${isSaved?'♥':'♡'}</button></div><div class="nearby-card-body"><span class="nearby-card-type">${esc(categoryLabel(item))}</span><h4>${esc(item.name||'TravelTaste listing')}</h4>${ratingHtml}<p>${esc(desc)}</p><div class="nearby-card-meta">${[price,duration].filter(Boolean).map(esc).join(' · ')||'Straight-line distance from your location'}</div><div class="nearby-card-actions"><button type="button" data-nearby-detail="${esc(listingId)}">View details</button><a href="${esc(directionsUrl(item))}" target="_blank" rel="noopener noreferrer">Directions ↗</a></div></div></article>`;
       }).join('');
       results.querySelectorAll('[data-nearby-detail]').forEach(button=>button.addEventListener('click',event=>{
         event.preventDefault();
@@ -9454,6 +9502,423 @@ window.addEventListener('travelTasteCommunityOpened',()=>{setMobileCommunityTab(
   #communityPage #ttCommunityApp .sidebar-heading h3 { font-size: 15px; }
   #communityPage #ttCommunityApp .post-actions .post-action { width: 42px; min-width: 42px; }
 }
+</style>
+
+
+<style id="travelTasteApprovedMockupRefinements">
+/* Approved TravelTaste redesign: refined typography, compact spacing, and clear sections. */
+:root{--tt-navy:#142b4b;--tt-ink:#26384e;--tt-muted:#718198;--tt-orange:#f04b0b;--tt-orange-soft:#fff0e5;--tt-border:#e4eaf1;--tt-panel:#fff;--tt-page:#f5f8fc;}
+body{color:var(--tt-ink);background:var(--tt-page);}
+.site-nav{padding:9px max(20px,calc((100% - 1440px)/2));gap:clamp(10px,1.5vw,24px);min-height:68px;}
+.site-nav .logo{font-size:24px;letter-spacing:-.7px;}
+.site-nav-link{font-size:13px;padding:0 9px;}
+.global-search-wrap{width:clamp(170px,22vw,310px);height:40px;}
+/* Homepage: tighter hero and image-led discovery without disturbing existing controls. */
+.hero-home{padding:26px clamp(18px,2.5vw,38px) 24px;background:linear-gradient(110deg,#f2f7fc 0%,#edf5fc 60%,#fff3e8 100%);border-bottom:1px solid #e8eef4;}
+.hero-home-inner{width:min(1440px,100%);grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:clamp(24px,3vw,46px);}
+.hero-home .eyebrow{font-size:11px;letter-spacing:2.2px;font-weight:800;}
+.hero-home h1{font-size:clamp(34px,3.55vw,49px);line-height:1.06;letter-spacing:-1.35px;margin:10px 0 11px;max-width:530px;}
+.hero-home p{font-size:15px;line-height:1.5;margin:0 0 15px;max-width:490px;}
+.hero-home-visual img{aspect-ratio:1.55/1;max-width:none;max-height:350px;object-fit:cover;border-radius:18px;box-shadow:0 10px 28px rgba(28,47,69,.09);}
+.hero-home .search{max-width:580px;border-radius:12px;padding:5px;box-shadow:0 5px 16px rgba(35,53,72,.045);}
+.hero-home .search input{font-size:13px;padding:10px 12px;}
+.hero-home .search .btn{min-width:100px;padding:10px 15px;font-size:13px;}
+.hero-home .destination-banner{font-size:12px;padding:8px 11px;border-radius:10px;}
+.hero-home .destination-banner .text-button{font-size:12px;}
+.section{max-width:1500px;padding:25px clamp(18px,2vw,30px);}
+.section-head{margin-bottom:16px;}
+.section-head h2{font-size:clamp(21px,2vw,27px);letter-spacing:-.45px;color:var(--tt-navy);}
+.section-head p{font-size:13px;line-height:1.45;}
+#discover .styles{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;}
+#discover .style-card{border-radius:14px;border-color:#e3eaf1;box-shadow:0 3px 12px rgba(26,50,75,.035);}
+#discover .style-art{height:118px;min-height:0;background:#e8eff6;}
+#discover .style-copy{padding:12px 13px;}
+#discover .style-copy h3{font-size:15px;line-height:1.3;margin:0 0 5px;color:var(--tt-navy);}
+#discover .style-copy p{font-size:12px;line-height:1.4;color:var(--tt-muted);}
+#budgetBand{padding:0 clamp(18px,2vw,30px) 14px;background:linear-gradient(180deg,#f1f7fc,#f8fbff);}
+#budgetBand .budget-planner{max-width:1440px;border-radius:13px;padding:11px 14px;gap:10px;box-shadow:none;}
+#budgetBand .budget-planner label,#budgetBand .budget-planner strong{font-size:12px;}
+#budgetBand .budget-note{font-size:11px;line-height:1.4;}
+#recommendations{padding-top:23px;}
+#recommendations .section-head{margin-bottom:13px;}
+#recommendations .categories{gap:7px;margin-bottom:14px;}
+#recommendations .category{font-size:12px;padding:8px 12px;border-radius:9px;font-weight:700;}
+#recommendations .recommendation-toolbar{margin-bottom:11px;}
+#recommendations .results-meta{font-size:12px;}
+#recommendations #list{grid-template-columns:repeat(5,minmax(0,1fr));gap:13px;}
+#recommendations #list .card{border-radius:13px;box-shadow:0 4px 14px rgba(25,45,65,.04);}
+#recommendations #list .card-photo,#recommendations #list .photo-placeholder{height:132px;}
+#recommendations #list .card-body{padding:13px;}
+#recommendations #list .tag{font-size:10px;padding:4px 8px;}
+#recommendations #list .card h3{font-size:15px;line-height:1.3;margin:9px 0 6px;}
+#recommendations #list .card p{font-size:12px;line-height:1.45;margin-bottom:9px;}
+#recommendations #list .card-actions{display:flex;gap:7px;flex-wrap:wrap;}
+#recommendations #list .card-actions .btn{font-size:11px;padding:8px 9px;border-radius:8px;}
+#communityCta{max-width:1440px;margin:12px auto 30px;border-radius:16px;padding:22px;background:linear-gradient(120deg,#fff9f1,#eef6fc);border:1px solid #e7edf2;}
+#communityCta h2{font-size:23px;line-height:1.2;}
+#communityCta p{font-size:13px;line-height:1.5;}
+/* Suggest a Place: compact form, organized fields, removable photo chips. */
+#suggestPlace:not([hidden]){inset:68px 0 0;padding:14px clamp(12px,3vw,42px);}
+#suggestPlace .suggest-place-panel{width:min(100%,620px);border-radius:16px;}
+#suggestPlace .section-head{padding:18px 21px 9px;}
+#suggestPlace .section-head h2{font-size:25px;letter-spacing:-.55px;}
+#suggestPlace .section-head p{font-size:13px;}
+#suggestPlace form#placeSubmissionForm{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px!important;padding:10px 21px 20px!important;}
+#placeSubmissionForm>label,#placeSubmissionForm .submission-city-group{min-width:0;}
+#placeSubmissionForm>label[for="submissionPlaceName"],#placeSubmissionForm .submission-city-group,#placeSubmissionForm>div:not(.submission-city-group),#placeSubmissionForm>label[for="submissionMapsUrl"],#placeSubmissionForm>label[for="submissionDescription"],#placeSubmissionForm>label:has(#submissionPhotos),#placeSubmissionForm>label[for="submissionTravelTips"],#placeSubmissionForm>button[type="submit"],#placeSubmissionForm>#submissionMessage{grid-column:1/-1;}
+#placeSubmissionForm label{font-size:12px!important;line-height:1.35;font-weight:700!important;}
+#placeSubmissionForm input,#placeSubmissionForm select,#placeSubmissionForm textarea{font-size:13px!important;padding:10px 11px!important;border-radius:8px!important;margin-top:5px!important;}
+#placeSubmissionForm textarea{min-height:76px!important;}
+#placeSubmissionForm small{font-size:10.5px;line-height:1.4;}
+#placeSubmissionForm button[type="submit"]{min-height:42px;font-size:13px;}
+.submission-photo-preview{grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:9px;}
+.photo-preview-item{position:relative;min-width:0;aspect-ratio:1/1;border:1px solid #e1e8ef;border-radius:10px;overflow:hidden;background:#f2f5f8;}
+.photo-preview-open{display:block!important;width:100%!important;height:100%;min-height:0!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;background:transparent!important;cursor:zoom-in;}
+.photo-preview-open img{display:block;width:100%;height:100%;object-fit:cover;}
+.photo-preview-remove{position:absolute;top:5px;right:5px;z-index:2;width:25px!important;height:25px;min-height:25px!important;padding:0!important;margin:0!important;display:grid!important;place-items:center;border:1px solid #fff!important;border-radius:50%!important;background:rgba(22,39,59,.88)!important;color:#fff!important;font-size:18px!important;line-height:1!important;box-shadow:0 2px 7px #0003;}
+.photo-selection-status{display:block;min-height:0;font-size:11px;color:#7a6457;}
+@media(max-width:560px){#suggestPlace:not([hidden]){inset:104px 0 0;padding:8px;}#suggestPlace form#placeSubmissionForm{grid-template-columns:minmax(0,1fr);padding:9px 16px 16px!important;}#placeSubmissionForm>label,#placeSubmissionForm .submission-city-group,#placeSubmissionForm>div:not(.submission-city-group),#placeSubmissionForm>label[for="submissionMapsUrl"],#placeSubmissionForm>label[for="submissionDescription"],#placeSubmissionForm>label:has(#submissionPhotos),#placeSubmissionForm>label[for="submissionTravelTips"],#placeSubmissionForm>button[type="submit"],#placeSubmissionForm>#submissionMessage{grid-column:1;}.submission-photo-preview{grid-template-columns:repeat(3,minmax(0,1fr));}}
+/* Place details: compact overview, gallery, tabs, budget and reviews. */
+body.detail-view-active #locationDetails{padding-top:8px;padding-bottom:24px;}
+body.detail-view-active .tt-detail-page{max-width:1440px;width:min(1440px,calc(100% - 30px));}
+body.detail-view-active .tt-breadcrumbs{font-size:11px;gap:7px;margin-bottom:7px;}
+body.detail-view-active .tt-detail-heading-row{gap:12px;align-items:center;}
+body.detail-view-active .tt-detail-heading{margin-bottom:5px;}
+body.detail-view-active .tt-detail-heading .tag{font-size:10px;padding:4px 8px;margin-bottom:3px;}
+body.detail-view-active .tt-detail-heading h1{font-size:clamp(24px,2.5vw,32px);line-height:1.15;letter-spacing:-.7px;margin:3px 0 5px;}
+body.detail-view-active .tt-detail-address{font-size:12px;line-height:1.4;}
+body.detail-view-active .tt-detail-heading-actions{padding-top:0;gap:7px;}
+body.detail-view-active .tt-detail-action{min-height:34px;padding:7px 10px;font-size:12px;border-radius:8px;box-shadow:none;}
+body.detail-view-active .tt-photo-gallery{grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:7px;max-width:100%;margin:9px 0 4px;align-items:stretch;}
+body.detail-view-active .tt-gallery-main{height:270px;border-radius:12px;}
+body.detail-view-active .tt-gallery-main img{object-fit:cover;}
+body.detail-view-active .tt-gallery-side{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:131px;gap:7px;}
+body.detail-view-active .tt-gallery-tile{border-radius:9px;}
+body.detail-view-active .tt-gallery-tile img{object-fit:cover;}
+body.detail-view-active .tt-gallery-more span{font-size:14px;}
+body.detail-view-active .tt-photo-caption{font-size:10px;margin:3px 0 6px;color:#718096;}
+body.detail-view-active .tt-quick-info-title{font-size:11px;margin:8px 0 6px;text-transform:uppercase;letter-spacing:.07em;color:#7b8ca1;}
+body.detail-view-active .tt-detail-highlights{grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin:7px 0 9px;}
+body.detail-view-active .tt-detail-highlight{padding:8px 10px;border-radius:9px;gap:3px;}
+body.detail-view-active .tt-detail-highlight small{font-size:9px;margin-bottom:2px;letter-spacing:.03em;}
+body.detail-view-active .tt-detail-highlight strong{font-size:11px;line-height:1.35;}
+body.detail-view-active .tt-detail-highlight a.tt-directions-button{padding:7px 8px;font-size:11px;}
+body.detail-view-active .tt-detail-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;padding:7px 0 8px;margin:7px 0 10px;border-bottom:0;}
+body.detail-view-active .tt-photo-tab-intro{margin:0 0 10px;padding:14px 16px;border:1px solid #e5eaf1;border-radius:11px;background:#fff;}
+body.detail-view-active .tt-photo-tab-intro h2{margin:0 0 5px;font-size:17px;color:#142b4b;}
+body.detail-view-active .tt-photo-tab-intro p{margin:0;font-size:12px;line-height:1.5;color:#718198;}
+body.detail-view-active [data-panel-visitor-info] .tt-visitor-info-extra{margin-top:10px;}
+body.detail-view-active .tt-detail-tab{font-size:11px;padding:9px 6px;border-radius:8px;white-space:nowrap;min-height:36px;}
+body.detail-view-active .tt-detail-panel{min-width:0;}
+body.detail-view-active .tt-info-grid{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:10px;align-items:start;}
+body.detail-view-active .tt-detail-card{padding:15px;border-radius:12px;margin:0 0 10px;box-shadow:0 4px 14px rgba(23,38,61,.035);}
+body.detail-view-active .tt-detail-card h2{font-size:16px;line-height:1.3;margin:0 0 8px;}
+body.detail-view-active .tt-detail-card h3{font-size:14px;margin:11px 0 7px;}
+body.detail-view-active .tt-detail-card p{font-size:12px;line-height:1.5;margin:0 0 8px;}
+body.detail-view-active .tt-about-description{font-size:12px;line-height:1.55;}
+body.detail-view-active .tt-map-frame{height:180px;border-radius:9px;}
+body.detail-view-active .tt-more-places{padding:13px;border-radius:12px;margin:10px 0 12px;}
+body.detail-view-active .tt-more-places-heading{margin-bottom:10px;}
+body.detail-view-active .tt-more-places-heading h2{font-size:17px;}
+body.detail-view-active .tt-more-places-heading p{font-size:11px;}
+body.detail-view-active .tt-more-places-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;}
+body.detail-view-active .tt-more-place-card{border-radius:10px;overflow:hidden;}
+body.detail-view-active .tt-more-place-image{height:115px;object-fit:cover;}
+body.detail-view-active .tt-more-place-body{padding:10px;}
+body.detail-view-active .tt-more-place-body h3{font-size:13px;line-height:1.3;margin:5px 0;}
+body.detail-view-active .tt-more-place-body p{font-size:11px;line-height:1.4;margin:0;}
+body.detail-view-active .tt-feedback-grid{gap:10px;margin-top:10px;}
+body.detail-view-active .tt-reviews-main-title{font-size:22px;}
+body.detail-view-active .tt-reviews-intro,body.detail-view-active .tt-review-list-heading p{font-size:12px;line-height:1.45;}
+body.detail-view-active .tt-reviews-summary-layout{gap:10px;margin-bottom:12px;}
+body.detail-view-active .tt-review-summary-card,body.detail-view-active .tt-review-rate-card{padding:14px;border-radius:12px;}
+body.detail-view-active .tt-review-summary-card h3,body.detail-view-active .tt-review-rate-card h3{font-size:15px;}
+body.detail-view-active .tt-review-rate-card p,body.detail-view-active .tt-review-summary-card p{font-size:12px;}
+body.detail-view-active .tt-budget-panel{padding:16px;}
+body.detail-view-active .tt-budget-panel>p{font-size:11px;line-height:1.45;}
+.tt-budget-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:10px 0 12px;}
+.tt-budget-controls .tt-budget-people-label{display:grid;gap:5px;font-size:11px;font-weight:750;color:#4d6078;}
+#ttBudgetPeople,#ttBudgetBasis{max-width:none;width:100%;padding:9px 10px;border:1px solid #d9e1eb;border-radius:8px;background:#fff;font-size:12px;color:#243c5b;}
+body.detail-view-active .tt-budget-summary{margin:10px 0;}
+body.detail-view-active .tt-budget-stats{gap:8px;}
+body.detail-view-active .tt-budget-stat{padding:10px;border-radius:9px;}
+body.detail-view-active .tt-budget-stat span{font-size:10px;}
+body.detail-view-active .tt-budget-stat strong{font-size:15px;}
+body.detail-view-active .tt-budget-stat small{font-size:10px;}
+body.detail-view-active .tt-budget-total{margin-top:9px;padding:11px;border-radius:9px;}
+body.detail-view-active .tt-budget-total strong{font-size:14px;}
+body.detail-view-active .tt-budget-total span{font-size:11px;}
+/* Nearby map/listing cards: favourite bookmark stays separate from opening the details. */
+.nearby-card-photo{position:relative;}
+.nearby-save-button{width:34px!important;height:34px!important;top:8px!important;right:8px!important;font-size:21px!important;line-height:1!important;}
+.nearby-card-actions{gap:7px;}
+.nearby-card-actions button,.nearby-card-actions a{font-size:11px;padding:8px 7px;border-radius:8px;}
+/* Seasonal submitted-place directory */
+.seasonal-submitted-directory{margin:17px 0 14px;padding:15px;border:1px solid #e5eaf0;border-radius:13px;background:#fff;}
+.seasonal-directory-heading{display:flex;justify-content:space-between;gap:12px;margin-bottom:12px;}
+.seasonal-directory-heading h3{font-size:16px;color:#172b46;margin:0 0 4px;}
+.seasonal-directory-heading p{font-size:11px;line-height:1.45;color:#718096;margin:0;}
+.seasonal-directory-selects{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+.seasonal-directory-selects label{display:grid;gap:5px;font-size:11px;font-weight:800;color:#445a75;}
+.seasonal-directory-selects select{width:100%;min-width:0;border:1px solid #dfe6ef;border-radius:8px;padding:10px;background:#fff;color:#172b46;font-size:12px;}
+#seasonalDirectoryStatus{font-size:11px;line-height:1.45;margin:8px 0;color:#718096;}
+.seasonal-city-places{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;}
+.seasonal-city-place{min-width:0;border:1px solid #e4eaf1;border-radius:10px;background:#fff;overflow:hidden;}
+.seasonal-city-place-photo{height:94px;background:#eef2f6;position:relative;}
+.seasonal-city-place-photo img{display:block;width:100%;height:100%;object-fit:cover;}
+.seasonal-city-place .travel-favourite-button{width:30px;height:30px;top:6px;right:6px;font-size:19px;}
+.seasonal-city-place-body{padding:9px;}
+.seasonal-city-place-body h4{font-size:12px;line-height:1.3;margin:0 0 4px;color:#172b46;}
+.seasonal-city-place-body p{font-size:10.5px;line-height:1.4;color:#718096;margin:0 0 8px;}
+.seasonal-city-place-actions{display:flex;gap:6px;}
+.seasonal-city-place-actions button{flex:1;min-width:0;border:1px solid #f04408;border-radius:7px;background:#fff;color:#e94b12;padding:7px 5px;font-size:10px;font-weight:800;}
+.seasonal-city-place-actions button:first-child{background:#f04408;color:#fff;}
+.seasonal-city-place-empty{grid-column:1/-1;padding:15px;border:1px dashed #e2d7ce;border-radius:9px;text-align:center;color:#718096;font-size:12px;line-height:1.5;}
+@media(max-width:1120px){#recommendations #list{grid-template-columns:repeat(3,minmax(0,1fr));}body.detail-view-active .tt-photo-gallery{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);}body.detail-view-active .tt-gallery-main{height:240px;}body.detail-view-active .tt-gallery-side{grid-auto-rows:116px;}}
+@media(max-width:820px){.hero-home-inner{grid-template-columns:1fr 1fr;gap:20px;}.hero-home h1{font-size:clamp(30px,5vw,40px);}#discover .styles{grid-template-columns:repeat(2,minmax(0,1fr));}#recommendations #list{grid-template-columns:repeat(2,minmax(0,1fr));}body.detail-view-active .tt-detail-highlights{grid-template-columns:repeat(3,minmax(0,1fr));}body.detail-view-active .tt-photo-gallery{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);}body.detail-view-active .tt-gallery-main{height:215px;}body.detail-view-active .tt-gallery-side{grid-auto-rows:104px;}body.detail-view-active .tt-info-grid{grid-template-columns:1fr;}body.detail-view-active .tt-more-places-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.seasonal-city-places{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:560px){.hero-home{padding:18px 14px 16px;}.hero-home-inner{grid-template-columns:1fr;gap:12px;}.hero-home h1{font-size:31px;letter-spacing:-.9px;}.hero-home p{font-size:13px;}.hero-home-visual img{aspect-ratio:16/9;max-height:190px;border-radius:13px;}.section{padding:19px 13px;}#discover .styles{gap:8px;}#discover .style-art{height:88px;}#discover .style-copy{padding:9px;}#discover .style-copy h3{font-size:13px;}#discover .style-copy p{font-size:10.5px;}#recommendations #list{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;}#recommendations #list .card-photo,#recommendations #list .photo-placeholder{height:108px;}#recommendations #list .card-body{padding:10px;}#recommendations #list .card h3{font-size:13px;}#recommendations #list .card p{font-size:11px;}#recommendations #list .card-actions .btn{font-size:10px;padding:7px 8px;}#budgetBand .budget-planner{grid-template-columns:1fr;}.tt-budget-controls{grid-template-columns:1fr 1fr;}body.detail-view-active .tt-detail-page{width:calc(100% - 20px);}body.detail-view-active .tt-detail-heading-row{align-items:flex-start;flex-direction:column;}body.detail-view-active .tt-detail-heading h1{font-size:24px;}body.detail-view-active .tt-photo-gallery{grid-template-columns:1fr;gap:6px;}body.detail-view-active .tt-gallery-main{height:205px;}body.detail-view-active .tt-gallery-side{grid-auto-rows:90px;}body.detail-view-active .tt-detail-highlights{grid-template-columns:repeat(2,minmax(0,1fr));}body.detail-view-active .tt-detail-tabs{grid-template-columns:repeat(5,minmax(82px,1fr));overflow-x:auto;}body.detail-view-active .tt-detail-tab{font-size:10px;}body.detail-view-active .tt-more-places-grid{grid-template-columns:repeat(2,minmax(0,1fr));}body.detail-view-active .tt-more-place-image{height:90px;}body.detail-view-active .tt-reviews-summary-layout{grid-template-columns:1fr;}.seasonal-directory-selects{grid-template-columns:1fr;}.seasonal-city-places{grid-template-columns:repeat(2,minmax(0,1fr));}.seasonal-city-place-photo{height:80px;}}
+</style>
+
+
+<script id="travelTastePhotoAndSeasonalEnhancements">
+/* Shared helper: edit a selected FileList without uploading or reloading the page. */
+function travelTasteSetInputFiles(input, files) {
+  if (!input) return false;
+  try {
+    const transfer = new DataTransfer();
+    files.forEach(file => transfer.items.add(file));
+    input.files = transfer.files;
+    return true;
+  } catch (error) {
+    console.warn('This browser cannot update a selected file list:', error);
+    return false;
+  }
+}
+function renderRemovablePhotoPreviews(input, host, trackedUrls, options = {}) {
+  if (!input || !host) return;
+  const maxFiles = Math.max(1, Number(options.maxFiles || 5));
+  let files = Array.from(input.files || []);
+  if (files.length > maxFiles) {
+    files = files.slice(0, maxFiles);
+    if (!travelTasteSetInputFiles(input, files)) {
+      if (options.status) options.status.textContent = `Choose no more than ${maxFiles} photos.`;
+      return;
+    }
+    if (options.status) options.status.textContent = `Only the first ${maxFiles} photos were kept. Remove any photo using ×.`;
+  } else if (options.status && String(options.status.textContent || '').startsWith('Only the first')) {
+    options.status.textContent = '';
+  }
+  (trackedUrls || []).forEach(url => { try { URL.revokeObjectURL(url); } catch (_) {} });
+  if (Array.isArray(trackedUrls)) trackedUrls.length = 0;
+  host.replaceChildren();
+  files.forEach((file, index) => {
+    const url = URL.createObjectURL(file);
+    trackedUrls.push(url);
+    const item = document.createElement('div');
+    item.className = 'photo-preview-item';
+    const open = document.createElement('button');
+    open.type = 'button';
+    open.className = 'photo-preview-open';
+    open.setAttribute('aria-label', `Preview photo ${index + 1}`);
+    const image = document.createElement('img');
+    image.src = url;
+    image.alt = file.name || `Selected photo ${index + 1}`;
+    image.loading = 'lazy';
+    image.decoding = 'async';
+    open.appendChild(image);
+    open.addEventListener('click', () => {
+      if (typeof window.openTravelTasteLightbox === 'function') {
+        window.openTravelTasteLightbox(files.map((selected, i) => ({ image_url: trackedUrls[i], caption: selected.name || `Selected photo ${i + 1}` })), index);
+      }
+    });
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'photo-preview-remove';
+    remove.textContent = '×';
+    remove.title = 'Remove this photo';
+    remove.setAttribute('aria-label', `Remove selected photo ${index + 1}`);
+    remove.addEventListener('click', event => {
+      event.preventDefault(); event.stopPropagation();
+      const next = Array.from(input.files || []).filter((_, i) => i !== index);
+      if (!travelTasteSetInputFiles(input, next)) {
+        if (options.status) options.status.textContent = 'Your browser could not remove that photo. Please reselect the remaining photos.';
+        return;
+      }
+      renderRemovablePhotoPreviews(input, host, trackedUrls, options);
+    });
+    item.append(open, remove);
+    host.appendChild(item);
+  });
+}
+
+/* Destination directory for seasonal travel: state → existing city → published listings. */
+(() => {
+  const $ = id => document.getElementById(id);
+  const stateSelect = $('seasonalStateSelect');
+  const citySelect = $('seasonalCitySelect');
+  const status = $('seasonalDirectoryStatus');
+  const placesHost = $('seasonalCityPlaces');
+  if (!stateSelect || !citySelect || !status || !placesHost) return;
+
+  const knownCityState = {
+    ahmedabad:'Gujarat', amdavad:'Gujarat', surat:'Gujarat', vadodara:'Gujarat', baroda:'Gujarat', rajkot:'Gujarat', bhuj:'Gujarat', deesa:'Gujarat', palanpur:'Gujarat', dwarka:'Gujarat', somnath:'Gujarat', gandhinagar:'Gujarat', junagadh:'Gujarat', anand:'Gujarat', bhavnagar:'Gujarat', jamnagar:'Gujarat', saputara:'Gujarat',
+    jaipur:'Rajasthan', udaipur:'Rajasthan', jodhpur:'Rajasthan', jaisalmer:'Rajasthan', kota:'Rajasthan', ajmer:'Rajasthan', bikaner:'Rajasthan', pushkar:'Rajasthan', mountabu:'Rajasthan',
+    shimla:'Himachal Pradesh', manali:'Himachal Pradesh', dharamshala:'Himachal Pradesh', kasol:'Himachal Pradesh', kasauli:'Himachal Pradesh', dalhousie:'Himachal Pradesh',
+    kochi:'Kerala', cochin:'Kerala', munnar:'Kerala', alappuzha:'Kerala', alleppey:'Kerala', wayanad:'Kerala', kozhikode:'Kerala', kozhikod:'Kerala', thiruvananthapuram:'Kerala', trivandrum:'Kerala', kollam:'Kerala', thekkady:'Kerala', thrissur:'Kerala',
+    panaji:'Goa', madgaon:'Goa', calangute:'Goa',
+    mumbai:'Maharashtra', pune:'Maharashtra', nashik:'Maharashtra', nagpur:'Maharashtra', aurangabad:'Maharashtra', chhatrapatisambhajinagar:'Maharashtra',
+    kolkata:'West Bengal', darjeeling:'West Bengal', siliguri:'West Bengal',
+    amritsar:'Punjab', ludhiana:'Punjab', jalandhar:'Punjab', chandigarh:'Chandigarh', dehradun:'Uttarakhand', rishikesh:'Uttarakhand', haridwar:'Uttarakhand', nainital:'Uttarakhand', mussoorie:'Uttarakhand',
+    mysuru:'Karnataka', mysore:'Karnataka', bengaluru:'Karnataka', bangalore:'Karnataka', hampi:'Karnataka', mangalore:'Karnataka', madikeri:'Karnataka', coorg:'Karnataka',
+    chennai:'Tamil Nadu', madurai:'Tamil Nadu', ooty:'Tamil Nadu', coimbatore:'Tamil Nadu', kanyakumari:'Tamil Nadu', rameswaram:'Tamil Nadu',
+    varanasi:'Uttar Pradesh', agra:'Uttar Pradesh', lucknow:'Uttar Pradesh', ayodhya:'Uttar Pradesh', mathura:'Uttar Pradesh', vrindavan:'Uttar Pradesh',
+    shillong:'Meghalaya', cherrapunji:'Meghalaya', gangtok:'Sikkim',
+    bhopal:'Madhya Pradesh', indore:'Madhya Pradesh', ujjain:'Madhya Pradesh', khajuraho:'Madhya Pradesh', puri:'Odisha', bhubaneswar:'Odisha',
+    hyderabad:'Telangana', vizag:'Andhra Pradesh', visakhapatnam:'Andhra Pradesh', vijayawada:'Andhra Pradesh', tirupati:'Andhra Pradesh',
+    guwahati:'Assam', patna:'Bihar', bodhgaya:'Bihar', ranchi:'Jharkhand', raipur:'Chhattisgarh', gurgaon:'Haryana', gurugram:'Haryana', agartala:'Tripura', portblair:'Andaman and Nicobar Islands', srinagar:'Jammu and Kashmir', jammu:'Jammu and Kashmir', leh:'Ladakh', tawang:'Arunachal Pradesh', imphal:'Manipur', kohima:'Nagaland', aizawl:'Mizoram', puducherry:'Puducherry', pondicherry:'Puducherry',
+    delhi:'Delhi', newdelhi:'Delhi'
+  };
+  const defaultStates = ['Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh','Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab','Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh','Uttarakhand','West Bengal','Andaman and Nicobar Islands','Chandigarh','Dadra and Nagar Haveli and Daman and Diu','Delhi','Jammu and Kashmir','Ladakh','Lakshadweep','Puducherry'];
+  let directoryCities = [];
+  let selectedDirectoryCity = null;
+  let loadedCities = false;
+  let currentCityListings = [];
+  const normalize = value => String(value || '').normalize('NFKC').trim().toLocaleLowerCase('en-IN').replace(/[’']/g,'').replace(/[^\p{L}\p{N}]+/gu,' ');
+  function cityState(city) {
+    const fromRecord = String(city?.state || city?.state_name || city?.province || '').trim();
+    if (fromRecord) return fromRecord.split(',')[0].trim();
+    const key = normalize(city?.name).replace(/\s+/g,'');
+    return knownCityState[key] || knownCityState[normalize(city?.name)] || '';
+  }
+  function uniqueStates() {
+    const values = new Set(defaultStates);
+    directoryCities.forEach(city => { const state = cityState(city); if (state) values.add(state); });
+    return [...values].sort((a,b) => a.localeCompare(b));
+  }
+  function renderStateOptions() {
+    const previous = stateSelect.value;
+    stateSelect.innerHTML = '<option value="">Choose a state</option>' + uniqueStates().map(state => `<option value="${escapeHtml(state)}">${escapeHtml(state)}</option>`).join('');
+    if (previous && uniqueStates().includes(previous)) stateSelect.value = previous;
+  }
+  function renderCityOptions() {
+    const state = stateSelect.value;
+    citySelect.innerHTML = '<option value="">Choose a city</option>';
+    citySelect.disabled = !state;
+    selectedDirectoryCity = null;
+    currentCityListings = [];
+    placesHost.replaceChildren();
+    if (!state) return;
+    const options = directoryCities.filter(city => normalize(cityState(city)) === normalize(state));
+    if (!options.length) {
+      // Never show cities from another state as a fallback; that would mislead the visitor.
+      citySelect.innerHTML = '<option value="">No cities linked to this state yet</option>';
+      citySelect.disabled = true;
+      status.textContent = `No existing cities are linked to ${state} yet. Add a city with its state in Suggest a Place, then it will appear here.`;
+      return;
+    }
+    status.textContent = 'Choose a city to see places already published by TravelTaste travellers.';
+    options.sort((a,b) => String(a.name||'').localeCompare(String(b.name||'')));
+    citySelect.innerHTML = '<option value="">Choose a city</option>' + options.map(city => `<option value="${escapeHtml(city.id)}">${escapeHtml(city.name)}</option>`).join('');
+  }
+  function syncHomeSearch(city) {
+    try {
+      const field = $('citySearch');
+      if (field) field.value = typeof cityLabel === 'function' ? cityLabel(city) : String(city.name || '');
+      if (typeof cities !== 'undefined' && Array.isArray(cities) && !cities.some(existing => String(existing.id) === String(city.id))) cities.push(city);
+      if (typeof loadDestination === 'function') return loadDestination(city.id);
+    } catch (error) { console.warn('Could not sync the seasonal destination to Explore search:', error); }
+  }
+  function renderCityListings(rows, city) {
+    currentCityListings = rows || [];
+    if (!currentCityListings.length) {
+      placesHost.innerHTML = `<div class="seasonal-city-place-empty">No published TravelTaste places are listed for ${escapeHtml(city.name)} yet. New places will appear here after they are published.</div>`;
+      return;
+    }
+    placesHost.innerHTML = currentCityListings.slice(0,24).map(place => {
+      const id = String(place.id || '');
+      const image = place.image_url || place.image || '';
+      const isSaved = typeof savedListingIds !== 'undefined' && savedListingIds.has(id);
+      const type = typeof categoryNames !== 'undefined' ? (categoryNames[place.type] || place.type || 'Place') : (place.type || 'Place');
+      const cost = place.price_range || (place.estimated_cost_per_person !== undefined && place.estimated_cost_per_person !== null ? `₹${Math.round(Number(place.estimated_cost_per_person)).toLocaleString('en-IN')} per person` : 'Budget not listed');
+      return `<article class="seasonal-city-place" data-seasonal-listing-id="${escapeHtml(id)}">
+        <div class="seasonal-city-place-photo">${image ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(place.name || 'TravelTaste place')}" loading="lazy" decoding="async" onerror="this.style.display='none'">` : ''}
+        <button type="button" class="travel-favourite-button" data-favourite-id="${escapeHtml(id)}" aria-pressed="${isSaved}" aria-label="${isSaved?'Remove from':'Save to'} My Favourites" title="${isSaved?'Remove from My Favourites':'Save this place'}" onclick="event.stopPropagation();toggleFavourite('${escapeHtml(id)}',this)">${isSaved?'♥':'♡'}</button></div>
+        <div class="seasonal-city-place-body"><h4>${escapeHtml(place.name || 'TravelTaste place')}</h4><p>${escapeHtml(type)} · ${escapeHtml(cost)}</p><div class="seasonal-city-place-actions"><button type="button" data-seasonal-open-place="${escapeHtml(id)}">View details</button><button type="button" data-seasonal-place-map="${escapeHtml(id)}">Directions</button></div></div></article>`;
+    }).join('');
+    placesHost.querySelectorAll('[data-seasonal-open-place]').forEach(button => button.addEventListener('click', async () => {
+      const place = currentCityListings.find(item => String(item.id) === button.dataset.seasonalOpenPlace);
+      if (!place || !selectedDirectoryCity) return;
+      button.disabled = true;
+      try {
+        await syncHomeSearch(selectedDirectoryCity);
+        $('seasonalDrawer').hidden = true; $('seasonalDrawerBackdrop').hidden = true; document.body.classList.remove('seasonal-drawer-open');
+        if (typeof window.openListingDetails === 'function') await window.openListingDetails(place.id);
+      } catch (error) { status.textContent = 'Could not open this place: ' + (error.message || 'Please try again.'); }
+      finally { button.disabled = false; }
+    }));
+    placesHost.querySelectorAll('[data-seasonal-place-map]').forEach(button => button.addEventListener('click', () => {
+      const place = currentCityListings.find(item => String(item.id) === button.dataset.seasonalPlaceMap);
+      if (!place) return;
+      const url = place.google_maps_url || (place.latitude != null && place.longitude != null ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.latitude+','+place.longitude)}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((place.address||'')+' '+(selectedDirectoryCity?.name||'')+' '+(place.name||''))}`);
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }));
+  }
+  async function initDirectory() {
+    if (loadedCities) return;
+    status.textContent = 'Loading states and cities…';
+    try {
+      const {data,error} = await supabase.from('cities').select('*').order('name');
+      if (error) throw error;
+      directoryCities = Array.isArray(data) ? data : [];
+      loadedCities = true;
+      renderStateOptions();
+      renderCityOptions();
+      status.textContent = directoryCities.length ? 'Select a state, then a city to see published TravelTaste places.' : 'No city records were returned yet. Add a city through Suggest a Place, then return here.';
+    } catch (error) {
+      status.textContent = 'Could not load cities: ' + (error.message || 'Please try again.');
+    }
+  }
+  stateSelect.addEventListener('focus', initDirectory);
+  citySelect.addEventListener('focus', initDirectory);
+  stateSelect.addEventListener('change', () => { renderCityOptions(); });
+  citySelect.addEventListener('change', async () => {
+    const id = citySelect.value;
+    selectedDirectoryCity = directoryCities.find(city => String(city.id) === String(id)) || null;
+    placesHost.replaceChildren();
+    currentCityListings = [];
+    if (!selectedDirectoryCity) { status.textContent = 'Choose a city to browse published places.'; return; }
+    status.textContent = `Loading published places in ${selectedDirectoryCity.name}…`;
+    placesHost.innerHTML = '<div class="seasonal-city-place-empty">Loading places…</div>';
+    try {
+      const {data,error} = await supabase.from('listings').select('*').eq('city_id', selectedDirectoryCity.id).eq('is_published', true).order('created_at', {ascending:false}).limit(100);
+      if (error) throw error;
+      status.textContent = `${(data||[]).length} published place${(data||[]).length===1?'':'s'} in ${selectedDirectoryCity.name}.`;
+      // Show the already-fetched city cards immediately; syncing Explore can finish in the background.
+      renderCityListings(data || [], selectedDirectoryCity);
+      void Promise.resolve(syncHomeSearch(selectedDirectoryCity)).catch(error => console.warn('Explore city sync failed:', error));
+    } catch (error) {
+      status.textContent = 'Could not load this city’s places: ' + (error.message || 'Please try again.');
+      placesHost.innerHTML = '<div class="seasonal-city-place-empty">Please try selecting this city again.</div>';
+    }
+  });
+  const seasonalOpen = $('festivalSeasonalMenuItem');
+  seasonalOpen?.addEventListener('click', () => { void initDirectory(); });
+  // The directory is loaded on demand when the seasonal drawer is opened or a selector receives focus.
+})();
+</script>
+
+
+<style id="travelTasteMockupPolish">
+.submission-city-row{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(170px,.85fr);gap:10px;align-items:start;}
+.submission-city-name-field,.submission-state-field{display:grid;gap:5px;min-width:0;color:#182538;font-size:12px;font-weight:700;line-height:1.35;}
+.submission-state-field select{width:100%;min-width:0;min-height:42px;padding:9px 10px;border:1px solid #d8dee7;border-radius:8px;background:#fff;color:#25374d;font:inherit;font-size:12px;}
+.submission-city-group .submission-city-input-wrap{min-height:42px;border-radius:8px;padding:0 10px;}
+.submission-city-group .submission-city-input-wrap input{padding:8px 2px!important;font-size:12px!important;}
+.submission-city-group .submission-city-search-icon{font-size:17px;}
+.tt-gallery-side[hidden]{display:none!important;}
+body.detail-view-active .tt-photo-gallery:has(.tt-gallery-side[hidden]){grid-template-columns:minmax(0,1fr);}
+body.detail-view-active .tt-gallery-side:has(.tt-gallery-tile:only-child) .tt-gallery-tile{grid-column:1/-1;}
+@media(max-width:560px){.submission-city-row{grid-template-columns:minmax(0,1fr);gap:8px;}.submission-state-field select{min-height:40px;}}
 </style>
 
 </body>
