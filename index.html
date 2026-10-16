@@ -2408,6 +2408,35 @@ body.detail-view-active .tt-photo-caption { color: #64748b; font-size: 13px; mar
   #ttCommunityApp .post-carousel-arrow{width:36px;height:36px}
   #ttCommunityApp .post-actions .post-action{width:42px;min-width:42px}
 }
+
+/* Community feed refinement: compact single-photo cards, deferred discussions and bounded feed work. */
+#ttCommunityApp .post-carousel-stage{aspect-ratio:16/9;min-height:0;height:auto;max-height:420px;}
+#ttCommunityApp .post-carousel-image{width:100%;height:100%;max-height:none;object-fit:cover;aspect-ratio:16/9;}
+#ttCommunityApp .post-actions .post-action{width:44px;min-width:44px;height:42px;padding:6px;}
+#ttCommunityApp .post-actions .post-action .action-count{font-size:12px;font-weight:800;}
+#ttCommunityApp .feed-load-more{display:block;margin:8px auto 22px;min-width:170px;}
+#ttCommunityApp .feed-load-more[hidden],#ttCommunityApp .hidden.feed-load-more{display:none!important;}
+#ttCommunityApp .comments-modal{display:grid;gap:12px;min-width:0;}
+#ttCommunityApp .comments-modal-summary{font-size:13px;font-weight:800;color:var(--navy);}
+#ttCommunityApp .comments-modal-list{display:grid;gap:8px;max-height:min(55vh,520px);overflow:auto;overscroll-behavior:contain;padding:2px 2px 8px;}
+#ttCommunityApp .comments-modal-list .comment{display:grid;grid-template-columns:minmax(0,1fr);gap:4px;background:#f7f9fc;border:1px solid #edf0f5;border-radius:12px;padding:11px 13px;}
+#ttCommunityApp .comments-modal-list .comment strong{color:var(--navy);margin:0;}
+#ttCommunityApp .comments-modal-list .comment-text{white-space:pre-wrap;overflow-wrap:anywhere;color:#405570;font-size:13px;line-height:1.5;}
+#ttCommunityApp .comments-modal-list .comment-date{font-size:11px;color:var(--muted);}
+#ttCommunityApp .comments-modal-list .comments-empty{padding:22px 12px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px;}
+#ttCommunityApp .comments-load-more{justify-self:center;width:auto;}
+#ttCommunityApp .comments-modal-form{position:sticky;bottom:0;display:flex;align-items:center;gap:8px;padding-top:10px;background:#fff;border-top:1px solid #edf0f5;}
+#ttCommunityApp .comments-modal-form input{flex:1;min-width:0;padding:11px 12px;border:1px solid var(--line);border-radius:11px;background:#fff;}
+#ttCommunityApp .comments-modal-form button{width:44px;min-width:44px;padding:10px;border-radius:11px;}
+@media(max-width:760px){
+ #ttCommunityApp .post-carousel-stage{aspect-ratio:4/3;max-height:390px;}
+ #ttCommunityApp .post-carousel-image{aspect-ratio:4/3;}
+ #ttCommunityApp .comments-modal-list{max-height:52vh;}
+}
+@media(max-width:460px){
+ #ttCommunityApp .post-carousel-stage{aspect-ratio:4/3;max-height:320px;}
+ #ttCommunityApp .post-carousel-arrow{width:34px;height:34px;font-size:20px;}
+}
 </style>
 </head>
 
@@ -2878,7 +2907,7 @@ body.detail-view-active .tt-photo-caption { color: #64748b; font-size: 13px; mar
         <button data-feed="following">♧ Following</button>
         <button data-feed="latest">◷ Latest</button>
         <button data-feed="trending">♨ Trending</button>
-        <button data-feed="most-liked">♥ Most Liked</button>
+        <button data-feed="most-liked">🏆 Most Celebrated</button>
       </div>
       <div class="sidebar-heading community-feed-toolbar">
         <h2 class="feed-heading" id="ttc_feedHeading">Community stories</h2>
@@ -2890,6 +2919,7 @@ body.detail-view-active .tt-photo-caption { color: #64748b; font-size: 13px; mar
       </div>
       <p id="ttc_appStatus" class="status" role="status" aria-live="polite"></p>
       <section id="ttc_feed" class="feed"><div class="empty">Loading community stories…</div></section>
+      <button id="ttc_loadMoreFeedButton" class="btn outline feed-load-more hidden" type="button" hidden>Load more stories</button>
       <section id="ttc_achievementsView" class="panel hidden" style="padding:17px">
         <div class="sidebar-heading"><h2>My Golden Achievements</h2><button id="ttc_browseChallengesButton" class="btn primary">Browse challenges</button></div>
         <p style="color:var(--muted);font-size:13px">Earn a golden badge by completing every destination in a challenge and sharing a photo for each one.</p>
@@ -8611,6 +8641,8 @@ const $ = id => document.getElementById('ttc_' + id);
 const BUCKET = 'community-photos';
 const MAX_PHOTOS = 5, MAX_FILE_SIZE = 5 * 1024 * 1024;
 let currentUser = null, feedMode = 'for-you', allPosts = [], postMetrics = new Map(), postProfiles = new Map(), follows = new Set(), savedPosts = new Set(), challenges = [], challengePlaces = [], myCompletions = new Map(), myAchievements = new Set(), selectedFiles = [], busyPostIds = new Set(), toastTimer = null;
+const FEED_PAGE_SIZE = 30, COMMENT_PAGE_SIZE = 30;
+let feedOffset = 0, feedHasMore = true, feedLoading = false, feedRequestSequence = 0, rawFeedPosts = [], globalSearchDebounce = null, travellerSearchDebounce = null;
 let currentProfile = { avatar_url: null, cover_url: null };
 const challengeEmoji = { 'seven-wonders':'🌍', 'twelve-jyotirlinga':'🛕', 'mountain-climber':'🏔️', 'indian-heritage-trail':'🏰' };
 const fallbackChallengeNames = { 'seven-wonders':'7 Wonders Explorer', 'twelve-jyotirlinga':'12 Jyotirlinga Yatra', 'mountain-climber':'Mountain Climber', 'indian-heritage-trail':'Indian Heritage Trail' };
@@ -8677,23 +8709,106 @@ function showCompletionForm(challenge,place){if(!currentUser){notify('Log in to 
 
 async function renderProfileStats(){if(!currentUser)return;const {count:postCount}=await supabase.from('community_posts').select('id',{count:'exact',head:true}).eq('user_id',currentUser.id);const {count:earnedCount}=await supabase.from('community_user_achievements').select('id',{count:'exact',head:true}).eq('user_id',currentUser.id);const {data:ownPosts}=await supabase.from('community_posts').select('id').eq('user_id',currentUser.id);const ids=(ownPosts||[]).map(p=>p.id);let points=0;if(ids.length){const q=await supabase.from('community_post_likes').select('post_id',{count:'exact',head:true}).in('post_id',ids).eq('reaction','like');if(!q.error)points=q.count||0;} $('profileAchievementCount').textContent=String(earnedCount||0);$('profilePoints').textContent=String(points);}
 async function loadProfileMap(userIds){const ids=[...new Set(userIds.filter(Boolean))];if(!ids.length)return new Map();const {data,error}=await supabase.from('community_profiles').select('user_id,display_name,avatar_url,cover_url').in('user_id',ids);if(error){console.warn('Could not load community profiles:',error.message);return new Map();}return new Map((data||[]).map(p=>[p.user_id,p]));}
-async function loadFeed(){const feed=$('feed');feed.innerHTML='<div class="empty">Loading stories…</div>';try{let query=supabase.from('community_posts').select('id,user_id,title,caption,image_url,created_at,post_type,location_name,location_url,challenge_id,challenge_place_id').order('created_at',{ascending:false}).limit(100);if(feedMode==='mine'&&currentUser)query=query.eq('user_id',currentUser.id);if(feedMode==='following'){if(!currentUser){feed.innerHTML='<div class="empty">Log in to see posts from travellers you follow.</div>';return;}const ids=[...follows];if(!ids.length){feed.innerHTML='<div class="empty">You are not following anyone yet. Use Discover Travellers to find members.</div>';return;}query=query.in('user_id',ids);}if(feedMode==='saved'){if(!currentUser){feed.innerHTML='<div class="empty">Log in to see your saved posts.</div>';return;}const {data:saves,error:saveError}=await supabase.from('community_saved_posts').select('post_id').eq('user_id',currentUser.id);if(saveError)throw saveError;const ids=(saves||[]).map(x=>x.post_id);if(!ids.length){feed.innerHTML='<div class="empty">You have not saved any posts yet. Use Save on a story to keep it here.</div>';return;}query=query.in('id',ids);}const {data:posts,error}=await query;if(error)throw error;let rows=posts||[];if(feedMode==='trending'||feedMode==='most-liked'){const counts=new Map();if(rows.length){const {data:likes,error:likeError}=await supabase.from('community_post_likes').select('post_id').in('post_id',rows.map(p=>p.id)).eq('reaction','like');if(!likeError)for(const l of likes||[])counts.set(l.post_id,(counts.get(l.post_id)||0)+1);}rows.sort((a,b)=>(counts.get(b.id)||0)-(counts.get(a.id)||0)||new Date(b.created_at)-new Date(a.created_at));}const search=$('globalSearch').value.trim().toLowerCase();if(search)rows=rows.filter(p=>`${p.title||''} ${p.caption||''} ${p.location_name||''}`.toLowerCase().includes(search));allPosts=rows;postProfiles=await loadProfileMap(rows.map(p=>p.user_id));await loadPostMetrics(rows);await renderPosts(rows);await renderTrending();}catch(e){feed.innerHTML=`<div class="empty">Could not load community stories: ${escapeHtml(e.message||'Unknown error')}<br><br>Make sure you have run the supplied SQL setup before using the new challenge features.</div>`;}}
-async function loadPostMetrics(posts){postMetrics=new Map();if(!posts.length)return;const ids=posts.map(p=>p.id);const {data:likes,error}=await supabase.from('community_post_likes').select('post_id,user_id,reaction').in('post_id',ids);if(error)throw error;for(const p of posts){const these=(likes||[]).filter(l=>l.post_id===p.id);postMetrics.set(p.id,{likes:these.filter(l=>l.reaction==='like').length,reacted:these.find(l=>l.user_id===currentUser?.id)?.reaction||null,comments:0});}const {data:comments,error:commentsError}=await supabase.from('community_post_comments').select('post_id').in('post_id',ids);if(!commentsError)for(const c of comments||[]){const m=postMetrics.get(c.post_id);if(m)m.comments++;}}
-async function renderPosts(posts){
- const feed=$('feed');feed.replaceChildren();
- if(!posts.length){feed.innerHTML='<div class="no-posts">No stories match this view yet. Share a travel memory or follow other travellers to get started.</div>';return;}
+async function loadFeed({append=false}={}){
+ const feed=$('feed'),moreButton=$('loadMoreFeedButton');
+ if(append&&(feedLoading||!feedHasMore))return;
+ const requestId=++feedRequestSequence;
+ feedLoading=true;
+ if(!append){feedOffset=0;feedHasMore=true;rawFeedPosts=[];moreButton?.classList.add('hidden');moreButton&&(moreButton.hidden=true);feed.innerHTML='<div class="empty">Loading stories…</div>';}
+ else if(moreButton){moreButton.disabled=true;moreButton.textContent='Loading…';}
+ try{
+  let query=supabase.from('community_posts').select('id,user_id,title,caption,image_url,created_at,post_type,location_name,location_url,challenge_id,challenge_place_id').order('created_at',{ascending:false}).range(feedOffset,feedOffset+FEED_PAGE_SIZE-1);
+  if(feedMode==='mine'&&currentUser)query=query.eq('user_id',currentUser.id);
+  if(feedMode==='following'){
+   if(!currentUser){feedHasMore=false;rawFeedPosts=[];feed.innerHTML='<div class="empty">Log in to see posts from travellers you follow.</div>';return;}
+   const ids=[...follows];if(!ids.length){feedHasMore=false;rawFeedPosts=[];feed.innerHTML='<div class="empty">You are not following anyone yet. Use Discover Travellers to find members.</div>';return;}
+   query=query.in('user_id',ids);
+  }
+  if(feedMode==='saved'){
+   if(!currentUser){feedHasMore=false;rawFeedPosts=[];feed.innerHTML='<div class="empty">Log in to see your saved posts.</div>';return;}
+   const {data:saves,error:saveError}=await supabase.from('community_saved_posts').select('post_id').eq('user_id',currentUser.id);
+   if(saveError)throw saveError;
+   const ids=(saves||[]).map(x=>x.post_id);if(!ids.length){feedHasMore=false;rawFeedPosts=[];feed.innerHTML='<div class="empty">You have not saved any posts yet. Use the bookmark icon to keep a story here.</div>';return;}
+   query=query.in('id',ids);
+  }
+  const {data:pageRows,error}=await query;if(error)throw error;
+  if(requestId!==feedRequestSequence)return;
+  const page=pageRows||[];
+  feedHasMore=page.length===FEED_PAGE_SIZE;
+  feedOffset+=page.length;
+  rawFeedPosts=append?[...rawFeedPosts,...page]:page;
+  let rows=[...rawFeedPosts];
+  if(feedMode==='trending'||feedMode==='most-liked'){
+   const counts=new Map();
+   if(rows.length){const {data:likes,error:likeError}=await supabase.from('community_post_likes').select('post_id').in('post_id',rows.map(p=>p.id)).eq('reaction','like');if(!likeError)for(const l of likes||[])counts.set(l.post_id,(counts.get(l.post_id)||0)+1);}
+   if(requestId!==feedRequestSequence)return;
+   rows.sort((a,b)=>(counts.get(b.id)||0)-(counts.get(a.id)||0)||new Date(b.created_at)-new Date(a.created_at));
+  }
+  const search=$('globalSearch').value.trim().toLowerCase();
+  if(search)rows=rows.filter(p=>`${p.title||''} ${p.caption||''} ${p.location_name||''}`.toLowerCase().includes(search));
+  allPosts=rows;
+  const profileIds=(append?page:rows).map(p=>p.user_id);
+  const freshProfiles=await loadProfileMap(profileIds);
+  if(requestId!==feedRequestSequence)return;
+  if(!append)postProfiles=freshProfiles;else for(const [id,profile] of freshProfiles)postProfiles.set(id,profile);
+  const metricPosts=append?page.filter(p=>!postMetrics.has(p.id)):rows;
+  if(!append)postMetrics=new Map();
+  await loadPostMetrics(metricPosts);
+  if(requestId!==feedRequestSequence)return;
+  await renderPosts(rows,{append,requestId});
+  if(requestId!==feedRequestSequence)return;
+  if(moreButton){moreButton.hidden=!feedHasMore;moreButton.classList.toggle('hidden',!feedHasMore);moreButton.disabled=false;moreButton.textContent=feedHasMore?'Load more stories':'No more stories';}
+  if(!append&&!search)await renderTrending();
+ }catch(e){
+  if(requestId===feedRequestSequence){
+   feedHasMore=false;
+   if(append)notify('Could not load more stories: '+(e.message||'Unknown error'));
+   else feed.innerHTML=`<div class="empty">Could not load community stories: ${escapeHtml(e.message||'Unknown error')}<br><br>Make sure the community tables and access policies are set up correctly.</div>`;
+   if(moreButton){moreButton.hidden=true;moreButton.classList.add('hidden');}
+  }
+ }finally{
+  if(requestId===feedRequestSequence){feedLoading=false;if(moreButton){moreButton.disabled=false;if(feedHasMore){moreButton.hidden=false;moreButton.classList.remove('hidden');moreButton.textContent='Load more stories';}}}
+ }
+}
+async function loadPostMetrics(posts){
+ if(!posts.length)return;
+ const ids=posts.map(p=>p.id);
+ const {data:likes,error}=await supabase.from('community_post_likes').select('post_id,user_id,reaction').in('post_id',ids);
+ if(error)throw error;
+ const byPost=new Map();
+ for(const post of posts)byPost.set(post.id,{likes:0,reacted:null});
+ for(const like of likes||[]){
+  const metric=byPost.get(like.post_id);if(!metric)continue;
+  if(like.reaction==='like')metric.likes++;
+  if(like.user_id===currentUser?.id)metric.reacted=like.reaction||null;
+ }
+ for(const [id,metric] of byPost)postMetrics.set(id,metric);
+}
+async function renderPosts(posts,{append=false,requestId=null}={}){
+ const feed=$('feed');
+ let renderList=posts;
+ if(append){
+  const existingIds=new Set([...feed.querySelectorAll('article.post[id^="post-"]')].map(card=>card.id.slice(5)));
+  renderList=posts.filter(post=>!existingIds.has(String(post.id)));
+  feed.querySelector('.no-posts')?.remove();
+ }else feed.replaceChildren();
+ if(!renderList.length){
+  if(!append||!feed.querySelector('article.post'))feed.innerHTML='<div class="no-posts">No stories match this view yet. Share a travel memory or follow other travellers to get started.</div>';
+  return;
+ }
  const photoRowsByPost=new Map();
- const postIds=posts.map(post=>post.id);
+ const postIds=renderList.map(post=>post.id);
  const allPhotoResult=await supabase.from('community_post_photos').select('post_id,photo_url,created_at').in('post_id',postIds).order('created_at',{ascending:true});
+ if(requestId!==null&&requestId!==feedRequestSequence)return;
  if(!allPhotoResult.error){for(const row of allPhotoResult.data||[]){if(!photoRowsByPost.has(row.post_id))photoRowsByPost.set(row.post_id,[]);photoRowsByPost.get(row.post_id).push(row);}}
- for(const post of posts){
+ for(const post of renderList){
   const profile=postProfiles.get(post.user_id);
   const author=profile?.display_name||(post.user_id===currentUser?.id?displayName(currentUser):'TravelTaste member');
   const photoRows=photoRowsByPost.get(post.id)||[];
   const photos=[];
   const mainImage=safeImageUrl(post.image_url);if(mainImage)photos.push(mainImage);
   for(const row of photoRows){const url=safeImageUrl(row.photo_url);if(url&&!photos.includes(url))photos.push(url);}
-  const metrics=postMetrics.get(post.id)||{likes:0,reacted:null,comments:0};
+  const metrics=postMetrics.get(post.id)||{likes:0,reacted:null};
   const isAchievement=String(post.post_type||'').startsWith('achievement')||post.post_type==='challenge_place';
   const own=!!currentUser&&post.user_id===currentUser.id;
   const article=document.createElement('article');article.className='post';article.id=`post-${post.id}`;
@@ -8703,30 +8818,27 @@ async function renderPosts(posts){
    ${isAchievement?`<div class="post-badge">🏆 ${post.post_type==='achievement_unlocked'?'GOLDEN ACHIEVEMENT UNLOCKED':'CHALLENGE PROGRESS'}</div>`:''}
    ${post.title?`<h2 class="post-title">${escapeHtml(post.title)}</h2>`:''}
    ${post.caption?`<div class="post-caption">${escapeHtml(post.caption)}</div>`:''}
-   ${photos.length?`<div class="post-carousel" data-post-carousel="${escapeHtml(post.id)}"><div class="post-carousel-stage"><img class="post-carousel-image" data-carousel-image src="${escapeHtml(photos[0])}" alt="Photo 1 of ${photos.length} shared by ${escapeHtml(author)}" loading="lazy" decoding="async"><button type="button" class="post-carousel-arrow prev" data-carousel-prev aria-label="Previous photo" title="Previous photo" ${photos.length<2?'hidden':''}>‹</button><button type="button" class="post-carousel-arrow next" data-carousel-next aria-label="Next photo" title="Next photo" ${photos.length<2?'hidden':''}>›</button><span class="post-carousel-count" data-carousel-count ${photos.length<2?'hidden':''}>1 / ${photos.length}</span></div></div>`:''}
+   ${photos.length?`<div class="post-carousel" data-post-carousel="${escapeHtml(post.id)}"><div class="post-carousel-stage" tabindex="0" aria-label="Photo carousel"><img class="post-carousel-image" data-carousel-image src="${escapeHtml(photos[0])}" alt="Photo 1 of ${photos.length} shared by ${escapeHtml(author)}" loading="lazy" decoding="async"><button type="button" class="post-carousel-arrow prev" data-carousel-prev aria-label="Previous photo" title="Previous photo" ${photos.length<2?'hidden':''}>‹</button><button type="button" class="post-carousel-arrow next" data-carousel-next aria-label="Next photo" title="Next photo" ${photos.length<2?'hidden':''}>›</button><span class="post-carousel-count" data-carousel-count ${photos.length<2?'hidden':''}>1 / ${photos.length}</span></div></div>`:''}
    ${post.location_name&&safeHttpUrl(post.location_url)?`<div class="post-location"><a href="${escapeHtml(safeHttpUrl(post.location_url))}" target="_blank" rel="noopener noreferrer">⌖ View ${escapeHtml(post.location_name)} on map ↗</a></div>`:''}
    <div class="post-actions" aria-label="Story actions">
     <button type="button" class="post-action ${metrics.reacted==='like'?'active':''}" data-react title="Celebrate this story" aria-label="Celebrate this story, ${metrics.likes} celebrations" aria-pressed="${metrics.reacted==='like'}"><span class="action-icon" aria-hidden="true">🏆</span><span class="action-count">${metrics.likes}</span></button>
-    <button type="button" class="post-action" data-comments title="Comments" aria-label="Open comments, ${metrics.comments} comments" aria-expanded="false"><span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-5.5A7.5 7.5 0 1 1 20 11.5Z"/></svg></span><span class="action-count">${metrics.comments}</span></button>
+    <button type="button" class="post-action" data-comments title="Comments" aria-label="Open comments" aria-haspopup="dialog"><span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-5.5A7.5 7.5 0 1 1 20 11.5Z"/></svg></span></button>
     <button type="button" class="post-action" data-share title="Share story" aria-label="Share story"><span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M18 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/></svg></span></button>
     <span class="post-action-spacer"></span>
     <button type="button" class="post-action ${savedPosts.has(post.id)?'active':''}" data-save title="${savedPosts.has(post.id)?'Remove from saved':'Save story'}" aria-label="${savedPosts.has(post.id)?'Remove from saved':'Save story'}" aria-pressed="${savedPosts.has(post.id)}"><span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" class="bookmark-svg"><path d="M6 4.75A1.75 1.75 0 0 1 7.75 3h8.5A1.75 1.75 0 0 1 18 4.75V21l-6-4-6 4V4.75Z"/></svg></span></button>
-   </div>
-   <div class="post-footer"><section class="comments hidden" id="ttc_comments-${escapeHtml(post.id)}"><div class="comment-list" id="ttc_comment-list-${escapeHtml(post.id)}"></div><form class="comment-form" data-comment-form><input maxlength="500" name="comment" placeholder="Write a comment…" required ${!currentUser?'disabled':''}><button type="submit" class="btn primary" title="Post comment" aria-label="Post comment" ${!currentUser?'disabled':''}>➤</button></form></section></div>`;
+   </div>`;
   feed.append(article);
   article.querySelector('[data-open-profile]')?.addEventListener('click',()=>openPublicProfile(post.user_id));
   article.querySelector('[data-react]')?.addEventListener('click',()=>reactToPost(post));
   const commentButton=article.querySelector('[data-comments]');
-  commentButton?.addEventListener('click',async()=>{await toggleComments(post.id);commentButton.setAttribute('aria-expanded',String(!article.querySelector('.comments')?.classList.contains('hidden')));});
+  commentButton?.addEventListener('click',()=>openCommentsModal(post));
   article.querySelector('[data-share]')?.addEventListener('click',()=>sharePost(post));
   article.querySelector('[data-save]')?.addEventListener('click',()=>toggleSave(post.id));
   article.querySelector('[data-delete-post]')?.addEventListener('click',()=>deletePost(post));
   article.querySelector('[data-edit-post]')?.addEventListener('click',()=>openEditPost(post));
   article.querySelector('[data-post-menu]')?.addEventListener('click',event=>{event.stopPropagation();const btn=event.currentTarget;const menu=btn.parentElement.querySelector('.post-menu-dropdown');const opening=menu.hidden;document.querySelectorAll('#ttCommunityApp .post-menu-dropdown').forEach(m=>m.hidden=true);document.querySelectorAll('#ttCommunityApp [data-post-menu]').forEach(b=>b.setAttribute('aria-expanded','false'));menu.hidden=!opening;btn.setAttribute('aria-expanded',String(opening));});
-  article.querySelector('[data-comment-form]')?.addEventListener('submit',e=>submitComment(e,post.id));
   if(photos.length>1){
-   const stage=article.querySelector('.post-carousel-stage'),image=article.querySelector('[data-carousel-image]'),count=article.querySelector('[data-carousel-count]');
-   let index=0,startX=null;
+   const stage=article.querySelector('.post-carousel-stage'),image=article.querySelector('[data-carousel-image]'),count=article.querySelector('[data-carousel-count]');let index=0,startX=null;
    const show=(next)=>{index=(next+photos.length)%photos.length;image.style.opacity='0.45';image.src=photos[index];image.alt=`Photo ${index+1} of ${photos.length} shared by ${author}`;count.textContent=`${index+1} / ${photos.length}`;image.onload=()=>{image.style.opacity='1';};};
    article.querySelector('[data-carousel-prev]')?.addEventListener('click',e=>{e.stopPropagation();show(index-1);});
    article.querySelector('[data-carousel-next]')?.addEventListener('click',e=>{e.stopPropagation();show(index+1);});
@@ -8736,10 +8848,59 @@ async function renderPosts(posts){
   }
  }
 }
+async function openCommentsModal(post){
+ const postId=String(post.id);
+ openModal('Comments',`<div class="comments-modal" data-comments-modal="${escapeHtml(postId)}">
+   <div class="comments-modal-summary" data-comments-summary>Loading comments…</div>
+   <div class="comments-modal-list" data-comments-list aria-live="polite"><div class="counts">Loading comments…</div></div>
+   <button class="btn outline comments-load-more" data-comments-more type="button" hidden>Load older comments</button>
+   <form class="comment-form comments-modal-form" data-comments-form>
+    <input name="comment" maxlength="500" placeholder="Add a comment…" aria-label="Add a comment" required ${currentUser?'':'disabled'}>
+    <button type="submit" class="btn primary" aria-label="Post comment" title="Post comment" ${currentUser?'':'disabled'}>➤</button>
+   </form>
+   ${currentUser?'':'<p class="counts">Log in to add a comment.</p>'}
+  </div>`);
+ const body=$('modalBody'),host=body.querySelector('[data-comments-list]'),summary=body.querySelector('[data-comments-summary]'),more=body.querySelector('[data-comments-more]'),form=body.querySelector('[data-comments-form]'),input=form.elements.comment,submit=form.querySelector('button');
+ let offset=0,total=0,loading=false;
+ async function loadPage(reset=false){
+  if(loading)return;
+  if(reset){offset=0;host.replaceChildren();more.hidden=true;summary.textContent='Loading comments…';}
+  loading=true;more.disabled=true;more.textContent='Loading…';
+  try{
+   const {data,error,count}=await supabase.from('community_post_comments').select('id,user_id,comment,created_at',{count:'exact'}).eq('post_id',postId).order('created_at',{ascending:false}).range(offset,offset+COMMENT_PAGE_SIZE-1);
+   if(error)throw error;
+   const rows=data||[];total=Number.isFinite(count)?count:Math.max(total,offset+rows.length);
+   summary.textContent=`${total} ${total===1?'comment':'comments'}`;
+   if(!rows.length&&offset===0){const empty=document.createElement('div');empty.className='comments-empty';empty.textContent='Be the first to comment on this story.';host.replaceChildren(empty);}
+   else if(rows.length){
+    const profiles=await loadProfileMap(rows.map(row=>row.user_id));
+    const fragment=document.createDocumentFragment();
+    for(const row of [...rows].reverse()){
+     const card=document.createElement('div');card.className='comment';
+     const author=document.createElement('strong');author.textContent=profiles.get(row.user_id)?.display_name||(row.user_id===currentUser?.id?displayName(currentUser):'Traveller');
+     const text=document.createElement('span');text.className='comment-text';text.textContent=row.comment;
+     const date=document.createElement('small');date.className='comment-date';date.textContent=formatDate(row.created_at);
+     card.append(author,text,date);fragment.append(card);
+    }
+    if(reset)host.replaceChildren(fragment);else host.prepend(fragment);
+   }
+   offset+=rows.length;more.hidden=offset>=total||rows.length<COMMENT_PAGE_SIZE;more.textContent='Load older comments';
+  }catch(error){summary.textContent='Comments could not be loaded.';host.textContent=error.message||'Please try again.';more.hidden=true;}
+  finally{loading=false;more.disabled=false;}
+ }
+ more.addEventListener('click',()=>loadPage(false));
+ form.addEventListener('submit',async event=>{
+  event.preventDefault();if(!currentUser){notify('Log in to comment.');return;}
+  const comment=input.value.trim();if(!comment)return;
+  submit.disabled=true;
+  try{const {error}=await supabase.from('community_post_comments').insert({post_id:postId,user_id:currentUser.id,comment});if(error)throw error;input.value='';await loadPage(true);notify('Comment posted.');}
+  catch(error){say('Could not post comment: '+(error.message||'Unknown error'));}
+  finally{submit.disabled=false;}
+ });
+ void loadPage(true);
+ const firstInput=body.querySelector('[data-comments-form] input');if(currentUser)firstInput?.focus({preventScroll:true});
+}
 async function reactToPost(post){if(!currentUser){notify('Log in to celebrate a story.');return;}if(busyPostIds.has(post.id))return;busyPostIds.add(post.id);try{const {data:existing,error:readError}=await supabase.from('community_post_likes').select('reaction').eq('post_id',post.id).eq('user_id',currentUser.id).maybeSingle();if(readError)throw readError;let result;if(existing?.reaction==='like')result=await supabase.from('community_post_likes').delete().eq('post_id',post.id).eq('user_id',currentUser.id);else if(existing)result=await supabase.from('community_post_likes').update({reaction:'like'}).eq('post_id',post.id).eq('user_id',currentUser.id);else result=await supabase.from('community_post_likes').insert({post_id:post.id,user_id:currentUser.id,reaction:'like'});if(result.error)throw result.error;await loadFeed();await renderProfileStats();}catch(e){say('Could not update reaction: '+e.message);}finally{busyPostIds.delete(post.id);}}
-async function toggleComments(postId){const section=$(`comments-${postId}`);if(!section)return;section.classList.toggle('hidden');if(!section.classList.contains('hidden'))await loadComments(postId);}
-async function loadComments(postId){const host=$(`comment-list-${postId}`);if(!host)return;host.innerHTML='<span class="counts">Loading comments…</span>';try{const {data,error}=await supabase.from('community_post_comments').select('id,user_id,comment,created_at').eq('post_id',postId).order('created_at',{ascending:true}).limit(50);if(error)throw error;const rows=data||[];const profiles=await loadProfileMap(rows.map(r=>r.user_id));host.replaceChildren();if(!rows.length){host.innerHTML='<span class="counts">Be the first to comment.</span>';return;}for(const r of rows){const div=document.createElement('div');div.className='comment';div.innerHTML=`<strong>${escapeHtml(profiles.get(r.user_id)?.display_name||(r.user_id===currentUser?.id?displayName(currentUser):'Traveller'))}</strong>${escapeHtml(r.comment)}`;host.append(div);}}catch(e){host.textContent='Could not load comments: '+e.message;}}
-async function submitComment(event,postId){event.preventDefault();if(!currentUser){notify('Log in to comment.');return;}const form=event.currentTarget;const input=form.elements.comment;const comment=input.value.trim();if(!comment)return;const btn=form.querySelector('button');btn.disabled=true;try{const {error}=await supabase.from('community_post_comments').insert({post_id:postId,user_id:currentUser.id,comment});if(error)throw error;input.value='';await loadFeed();const section=$(`comments-${postId}`);section?.classList.remove('hidden');await loadComments(postId);notify('Comment posted.');}catch(e){say('Could not post comment: '+e.message);}finally{btn.disabled=false;}}
 async function sharePost(post){const url=`${location.origin}${location.pathname}#post-${post.id}`;try{if(navigator.share)await navigator.share({title:post.title||'TravelTaste story',text:post.caption||'See this travel story on TravelTaste',url});else if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(url);notify('Post link copied.');}else{window.prompt('Copy this post link:',url);}}catch(e){if(e.name!=='AbortError')notify('Could not share this link.');}}
 async function toggleSave(postId){if(!currentUser){notify('Log in to save posts.');return;}try{if(savedPosts.has(postId)){const {error}=await supabase.from('community_saved_posts').delete().eq('post_id',postId).eq('user_id',currentUser.id);if(error)throw error;savedPosts.delete(postId);notify('Post removed from Saved.');}else{const {error}=await supabase.from('community_saved_posts').insert({post_id:postId,user_id:currentUser.id});if(error&&error.code!=='23505')throw error;savedPosts.add(postId);notify('Post saved.');}await loadFeed();}catch(e){say('Could not save post: '+e.message);}}
 async function openEditPost(post){
@@ -8782,7 +8943,7 @@ async function deletePost(post){if(!currentUser||post.user_id!==currentUser.id)r
 
 async function loadTravellers(){const host=$('travellersList');try{const {data:profiles,error}=await supabase.from('community_profiles').select('user_id,display_name,avatar_url').neq('user_id',currentUser?.id||'00000000-0000-0000-0000-000000000000').limit(30);if(error)throw error;const search=$('travellerSearch').value.trim().toLowerCase();const rows=(profiles||[]).filter(p=>(p.display_name||'').toLowerCase().includes(search)).slice(0,5);if(!rows.length){host.innerHTML='<div class="empty">No other travellers found yet.</div>';return;}host.innerHTML=rows.map(p=>`<div class="traveller">${p.avatar_url&&safeImageUrl(p.avatar_url)?`<img class="avatar" src="${escapeHtml(safeImageUrl(p.avatar_url))}" alt="" style="object-fit:cover">`:avatarMarkup(p.display_name)}<div class="meta"><button class="profile-name-btn" data-open-profile="${p.user_id}">${escapeHtml(p.display_name||'Traveller')}</button><small>TravelTaste member</small></div><button class="btn ${follows.has(p.user_id)?'secondary':'outline'} follow-btn" data-follow-user="${p.user_id}">${follows.has(p.user_id)?'Following':'Follow'}</button></div>`).join('');host.querySelectorAll('[data-open-profile]').forEach(b=>b.addEventListener('click',()=>openPublicProfile(b.dataset.openProfile)));host.querySelectorAll('[data-follow-user]').forEach(b=>b.addEventListener('click',()=>toggleFollow(b.dataset.followUser)));}catch(e){host.innerHTML=`<div class="empty">Could not load travellers: ${escapeHtml(e.message)}</div>`;}}
 async function toggleFollow(userId){if(!currentUser){notify('Log in to follow travellers.');return;}try{if(follows.has(userId)){const {error}=await supabase.from('community_follows').delete().eq('follower_id',currentUser.id).eq('followed_id',userId);if(error)throw error;follows.delete(userId);}else{const {error}=await supabase.from('community_follows').insert({follower_id:currentUser.id,followed_id:userId});if(error&&error.code!=='23505')throw error;follows.add(userId);}await loadTravellers();notify(follows.has(userId)?'You are now following this traveller.':'You unfollowed this traveller.');if(feedMode==='following')await loadFeed();}catch(e){say('Could not update follow: '+e.message);}}
-async function loadTrending(){try{const {data:posts,error}=await supabase.from('community_posts').select('id,user_id,title,caption,image_url,created_at,post_type,location_name').order('created_at',{ascending:false}).limit(30);if(error)throw error;let rows=posts||[];const ids=rows.map(p=>p.id);let countMap=new Map();if(ids.length){const r=await supabase.from('community_post_likes').select('post_id').in('post_id',ids).eq('reaction','like');if(!r.error)for(const l of r.data||[])countMap.set(l.post_id,(countMap.get(l.post_id)||0)+1);}rows.sort((a,b)=>(countMap.get(b.id)||0)-(countMap.get(a.id)||0)||new Date(b.created_at)-new Date(a.created_at));$('trendingStories').innerHTML=rows.slice(0,4).map(p=>`<div class="trending-row" data-open-post="${p.id}"><div class="trend-thumb">${p.post_type==='achievement_unlocked'?'🏆':'📸'}</div><div><strong>${escapeHtml(p.title||p.location_name||'Travel story')}</strong><small>🏆 ${countMap.get(p.id)||0} celebrations · ${escapeHtml(formatDate(p.created_at))}</small></div></div>`).join('')||'<div class="empty">No community stories yet.</div>'; $('trendingStories').querySelectorAll('[data-open-post]').forEach(el=>el.addEventListener('click',()=>openTrendingPost(el.dataset.openPost)));}catch(e){$('trendingStories').innerHTML=`<div class="empty">Could not load trending stories.</div>`;}}
+async function loadTrending(){try{const {data:posts,error}=await supabase.from('community_posts').select('id,user_id,title,caption,image_url,created_at,post_type,location_name').order('created_at',{ascending:false}).limit(12);if(error)throw error;let rows=posts||[];const ids=rows.map(p=>p.id);let countMap=new Map();if(ids.length){const r=await supabase.from('community_post_likes').select('post_id').in('post_id',ids).eq('reaction','like');if(!r.error)for(const l of r.data||[])countMap.set(l.post_id,(countMap.get(l.post_id)||0)+1);}rows.sort((a,b)=>(countMap.get(b.id)||0)-(countMap.get(a.id)||0)||new Date(b.created_at)-new Date(a.created_at));$('trendingStories').innerHTML=rows.slice(0,4).map(p=>`<div class="trending-row" data-open-post="${p.id}"><div class="trend-thumb">${p.post_type==='achievement_unlocked'?'🏆':'📸'}</div><div><strong>${escapeHtml(p.title||p.location_name||'Travel story')}</strong><small>🏆 ${countMap.get(p.id)||0} celebrations · ${escapeHtml(formatDate(p.created_at))}</small></div></div>`).join('')||'<div class="empty">No community stories yet.</div>'; $('trendingStories').querySelectorAll('[data-open-post]').forEach(el=>el.addEventListener('click',()=>openTrendingPost(el.dataset.openPost)));}catch(e){$('trendingStories').innerHTML=`<div class="empty">Could not load trending stories.</div>`;}}
 async function renderTrending(){await loadTrending();}
 function openTrendingPost(postId){feedMode='for-you';setActiveFeedTab('for-you');loadFeed().then(()=>{const el=$(`post-${postId}`);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.animate([{outline:'3px solid #ff8a50'},{outline:'0 solid transparent'}],{duration:1600});}});}
 function setActiveFeedTab(value){document.querySelectorAll('[data-feed]').forEach(b=>b.classList.toggle('active',b.dataset.feed===value));}
@@ -8795,7 +8956,7 @@ function setView(value){
  $('settingsView').classList.toggle('hidden',!settings);
  $('profileView').classList.toggle('hidden',!profile);
  const hideFeed=achievements||settings||profile;
- $('composer').classList.toggle('hidden',hideFeed);$('feed').classList.toggle('hidden',hideFeed);$('feedTabs').classList.toggle('hidden',hideFeed);
+ $('composer').classList.toggle('hidden',hideFeed);$('feed').classList.toggle('hidden',hideFeed);$('feedTabs').classList.toggle('hidden',hideFeed);$('loadMoreFeedButton').classList.toggle('hidden',hideFeed);
  $('feedHeading').textContent=value==='mine'?'My Posts':value==='saved'?'Saved Posts':'Community stories';
  $('appShell').classList.toggle('mobile-focused-view',hideFeed);
  if(value==='achievements'){setMobileCommunityTab('achievements');renderMyAchievements();}
@@ -8805,8 +8966,8 @@ function setView(value){
 }
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
 $('viewMyAchievementsButton').addEventListener('click',()=>setView('achievements'));
-document.querySelectorAll('[data-feed]').forEach(b=>b.addEventListener('click',()=>{feedMode=b.dataset.feed;setActiveFeedTab(feedMode);$('feedHeading').textContent=({ 'for-you':'Community stories','following':'Stories from travellers you follow','latest':'Latest stories','trending':'Trending stories','most-liked':'Most liked stories'})[feedMode];loadFeed();}));
-$('refreshFeedButton').addEventListener('click',loadFeed);document.addEventListener('click',event=>{if(!event.target.closest('#ttCommunityApp .post-menu-wrap')){document.querySelectorAll('#ttCommunityApp .post-menu-dropdown').forEach(menu=>menu.hidden=true);document.querySelectorAll('#ttCommunityApp [data-post-menu]').forEach(button=>button.setAttribute('aria-expanded','false'));}});$('refreshTravellersButton').addEventListener('click',loadTravellers);$('travellerSearch').addEventListener('input',()=>loadTravellers());$('globalSearch').addEventListener('input',()=>loadFeed());$('trendingSeeAllButton').addEventListener('click',()=>{document.querySelector('[data-feed="trending"]').click();$('feedHeading').scrollIntoView({behavior:'smooth',block:'start'});});
+document.querySelectorAll('[data-feed]').forEach(b=>b.addEventListener('click',()=>{feedMode=b.dataset.feed;setActiveFeedTab(feedMode);$('feedHeading').textContent=({ 'for-you':'Community stories','following':'Stories from travellers you follow','latest':'Latest stories','trending':'Trending stories','most-liked':'Most celebrated stories'})[feedMode];loadFeed();}));
+$('refreshFeedButton').addEventListener('click',()=>loadFeed());$('loadMoreFeedButton')?.addEventListener('click',()=>loadFeed({append:true}));document.addEventListener('click',event=>{if(!event.target.closest('#ttCommunityApp .post-menu-wrap')){document.querySelectorAll('#ttCommunityApp .post-menu-dropdown').forEach(menu=>menu.hidden=true);document.querySelectorAll('#ttCommunityApp [data-post-menu]').forEach(button=>button.setAttribute('aria-expanded','false'));}});$('refreshTravellersButton').addEventListener('click',loadTravellers);$('travellerSearch').addEventListener('input',()=>{clearTimeout(travellerSearchDebounce);travellerSearchDebounce=setTimeout(()=>loadTravellers(),250);});$('globalSearch').addEventListener('input',()=>{clearTimeout(globalSearchDebounce);globalSearchDebounce=setTimeout(()=>loadFeed(),280);});$('trendingSeeAllButton').addEventListener('click',()=>{document.querySelector('[data-feed="trending"]').click();$('feedHeading').scrollIntoView({behavior:'smooth',block:'start'});});
 function previewProfilePhotoInputs(){const host=$('settingsPhotoPreview');if(!host)return;host.replaceChildren();const files=[['Profile picture',$('settingsAvatarInput')?.files?.[0]],['Cover photo',$('settingsCoverInput')?.files?.[0]]].filter(x=>x[1]);host.hidden=!files.length;for(const [label,file] of files){const wrap=document.createElement('div');wrap.className='profile-photo-preview-item';const img=document.createElement('img');img.src=URL.createObjectURL(file);img.alt=label+' preview';img.onload=()=>URL.revokeObjectURL(img.src);const text=document.createElement('span');text.textContent=label;wrap.append(img,text);host.append(wrap);}}
 $('settingsAvatarInput').addEventListener('change',()=>{try{validateFiles($('settingsAvatarInput').files);previewProfilePhotoInputs();}catch(e){$('settingsAvatarInput').value='';previewProfilePhotoInputs();say(e.message);}});
 $('settingsCoverInput').addEventListener('change',()=>{try{validateFiles($('settingsCoverInput').files);previewProfilePhotoInputs();}catch(e){$('settingsCoverInput').value='';previewProfilePhotoInputs();say(e.message);}});
